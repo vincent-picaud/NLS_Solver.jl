@@ -1,6 +1,6 @@
-using Kunisch
+using NLS_Solver
 using Test
 
-@testset "Kunisch.jl" begin
+@testset "NLS_Solver.jl" begin
     # Write your tests here.
 end

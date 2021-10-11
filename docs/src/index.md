@@ -1,12 +1,12 @@
 ```@meta
-CurrentModule = Kunisch
+CurrentModule = NLS_Solver
 ```
 
-# Kunisch
+# NLS_Solver
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [Kunisch]
+Modules = [NLS_Solver]
 ```

@@ -61,8 +61,8 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: doctest
-            using Kunisch
-            doctest(Kunisch)'
+            using NLS_Solver
+            doctest(NLS_Solver)'
       - run: julia --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
