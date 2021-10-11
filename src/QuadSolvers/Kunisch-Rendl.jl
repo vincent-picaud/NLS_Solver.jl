@@ -34,4 +34,5 @@ struct KunischRendlConf <: AbstractQuadSolverConf
         @assert c≥1
         @assert k≥1
         new(Float64(c),Int(k))
+    end
 end
