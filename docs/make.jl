@@ -13,6 +13,9 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Quadratic Solver" => [
+            "QuadSolvers/Kunisch-Rendl.md",
+            ],
     ],
 )
 
