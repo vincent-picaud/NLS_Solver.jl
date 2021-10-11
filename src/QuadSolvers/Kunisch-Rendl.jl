@@ -27,12 +27,43 @@ Note: convergence tests are performed only after `k` iterations, hence
 
 """ 
 struct KunischRendlConf <: AbstractQuadSolverConf
+    iter_max::Int
+    
+    # Regularization
     c::Float64
     k::Int
 
-    function KunischRendlConf(;c=1,k=1)
+    function KunischRendlConf(;
+                              iter_max=50,
+                              c=1,
+                              k=1)
         @assert c≥1
-        @assert k≥1
-        new(Float64(c),Int(k))
+        @assert iter_max>k≥1
+        new(Int(iter_max),Float64(c),Int(k))
     end
 end
+
+# Output 
+#
+struct KunischRendlResult <: AbstractQuadSolverResult
+    converged::Bool
+    iter::Int
+    X_solution::AbstractVector
+    τ_solution::AbstractVector
+end 
+
+# ****************************************************************
+# Algorithm
+# ****************************************************************
+#
+
+# Modify
+#
+# Q.x=q
+# 
+# x[i]=a if Z[i]=active_lb
+# x[i]=b if Z[i]=active_ub
+#
+# into an uncontrained system
+#
+# \tilden  Q'.x=q'

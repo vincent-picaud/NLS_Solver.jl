@@ -14,6 +14,7 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "Quadratic Solver" => [
+            "QuadSolvers/abstractions.md",
             "QuadSolvers/Kunisch-Rendl.md",
             ],
     ],
