@@ -14,6 +14,7 @@ using Random: seed!
 
 """
 
+"""
 # Modify system (Q,q) 
 #
 function restrict_to_inactive!(Q::Symmetric{T},

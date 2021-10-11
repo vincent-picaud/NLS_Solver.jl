@@ -2,5 +2,9 @@ using NLS_Solver
 using Test
 
 @testset "NLS_Solver.jl" begin
-    # Write your tests here.
+
+    @testset "Quadsolvers" begin
+        include("QuadSolvers/Kunisch-Rendl.jl")
+    end
+
 end
