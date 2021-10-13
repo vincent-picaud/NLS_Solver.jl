@@ -1,6 +1,9 @@
 @testset "BoundConstraints" begin
-    bc = BoundConstraints(5)
-    x = rand(5)
+    n=5
+    bc = BoundConstraints(n)
+    x = rand(n)
 
+    @test lower_bound(bc)==zeros(Int,n)
+    @test lower_bound(bc)==ones(Int,n)
     @test x ∈ bc
 end 

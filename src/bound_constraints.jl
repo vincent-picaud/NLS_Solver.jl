@@ -2,6 +2,8 @@ export BoundConstraints
 export lower_bound,upper_bound
 export project!
 
+using ReadOnlyArrays
+
 """
 Store bound constraints ``[l,u]``
 
