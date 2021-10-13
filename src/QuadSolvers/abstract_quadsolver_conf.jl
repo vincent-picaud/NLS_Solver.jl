@@ -1,3 +1,7 @@
+# ################################################################
+# Define an abstract type to store solver configuration
+# ################################################################
+#
 export AbstractQuadSolverConf
 
 """

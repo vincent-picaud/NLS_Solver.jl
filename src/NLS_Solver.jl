@@ -1,6 +1,7 @@
 module NLS_Solver
 
-# Write your package code here.
+include("bound_constraints.jl")
+
 include("QuadSolvers/QuadSolvers.jl")
 
 end
