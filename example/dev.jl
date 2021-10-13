@@ -384,29 +384,55 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
     (has_CV,x)
 end
 
-function initialize_Z(x::AbstractArray,
-                      bc::BoundConstraints)
-    
-    Z = similar(Array{BoundConstraintState_Enum},axes(bc))
-    lb = lower_bound(bc)
-    ub = upper_bound(bc)
 
-    for (i,(lb_i,x_i,ub_i)) in enumerate(zip(lb,x,ub))
+"""
 
-        if x_i<lb_i
-            Z[i]=BoundConstraintState_LB
-            continue
-        end
+Check First-Order Conditions (see
+https://wiki.mcs.anl.gov/leyffer/images/0/01/07-bndCons.pdf)
 
-        if x_i>ub_i
-            Z[i]=BoundConstraintState_UB
-            continue
-        end
+If ``x^\star=\\arg\\min f(x), x\\in[l,u]`` then:
 
-        Z[i]=BoundConstraintState_INACTIVE
-    end
+```math
+\partial_i f(x^\star) = \left\{
+\begin{array}{ll}
+\ge 0, & \mbox{if} x^star_i = l_i \\
+\eq 0, & \mbox{if} l_i \le x^star_i \le u_i \\
+\le 0, & \mbox{if} x^star_i = u_i 
+\end{array}
+\right.
+```
 
-    Z
-end    
+This is equivalent to:
+```math
+x^\star = P_{[l,u]}(x^\star-\nabla f(x^\star))
+```
+
+Using the previous results, this function returns:
+```math
+max | x^\star - P_{[l,u]}(x^\star-(Q.x^\star+q))|
+```
+for a local optimal quantity this must be null 
+"""
+function check_first_order(Q::Symmetric{<:Real},
+                           q::AbstractVector{<:Real},
+                           xstar::AbstractVector{<:Real},
+                           bc::BoundConstraints{<:Real,1})
+    v = x-(Q*xstar+q)
+    v = project!(v,bc)
+
+    maximum(abs.(x .- v))
+end 
+
+
 Q[diagind(Q)].+=10
-Kunisch_Rendl(Q,q,x,bc,10,create_damping_schedule_nothing())
+res=Kunisch_Rendl(Q,q,x,bc,10,create_damping_schedule_nothing())
+
+
+Q=Symmetric(Float64[[30 20 10]
+                    [20 15 12]
+                    [15 12 10]])
+
+q=-Float64[1:3;]
+bc=BoundConstraints(zeros(3),Float64[1:3;])
+x=zeros(3)
+res=Kunisch_Rendl(Q,q,x,bc,10,create_damping_schedule_nothing())
