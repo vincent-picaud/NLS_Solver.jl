@@ -156,16 +156,14 @@ Q2=Rational{Int64}[1//1 0//1 0//1 1//4 1//5 1//6 0//1 0//1 0//1 0//1; 0//1 1//1 
 
 """ 
 
-After having modified ``Q, q`` using [``](@ref) one solves
-``x=-Q^{-1}q``. We then compute ``\tau=-(Qx+q)`` to get a posteriori
-mulitpliers.
+This function updates `Z` according to `x`, `τ` and bounds `lb`, `ub`
+values.
 
-This function update `Z` according to this inputs. It returns how many
-`Z` components had to be modified. No modification means that the
-multipliers are compatible with the `Z` array, the algorithm has
-converged.
+It also count how many changes have be done during this update.
 
-Beside Z, none of the other inputs are modified
+No change means that the algorithm has converged.
+
+Note: this function only modifies `Z`
 """
 function update_Z!(x::AbstractVector,
                    τ::AbstractVector,
