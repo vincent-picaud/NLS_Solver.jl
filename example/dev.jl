@@ -338,12 +338,13 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
     @assert first(damping(maxIter)) == false # damping stop before max iter
     
     Z = initialize_Z(x,bc)
-
+    Q_tilde = similar(Q)
+    q_tilde = similar(q)
 
     has_CV::Bool = false
     for iter in 1:maxIter
-        Q_tilde = copy(Q)
-        q_tilde = copy(q)
+        Q_tilde .= Q
+        q_tilde .= q
 
         (burning_phase,damping_factor) = damping(iter)
 
