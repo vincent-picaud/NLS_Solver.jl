@@ -384,30 +384,29 @@ end
 
 
 """
-
 Check First-Order Conditions (see
 https://wiki.mcs.anl.gov/leyffer/images/0/01/07-bndCons.pdf)
 
-If ``x^\star=\\arg\\min f(x), x\\in[l,u]`` then:
+If ``x^\\star=\\arg\\min f(x), x\\in[l,u]`` then:
 
 ```math
-\partial_i f(x^\star) = \left\{
-\begin{array}{ll}
-\ge 0, & \mbox{if} x^star_i = l_i \\
-\eq 0, & \mbox{if} l_i \le x^star_i \le u_i \\
-\le 0, & \mbox{if} x^star_i = u_i 
-\end{array}
-\right.
+\\partial_i f(x^\\star) = \\left\\{
+\\begin{array}{ll}
+\\ge 0, & \\mbox{if} x^star_i = l_i \\\\
+\\eq 0, & \\mbox{if} l_i \\le x^star_i \\le u_i \\\\
+\\le 0, & \\mbox{if} x^star_i = u_i 
+\\end{array}
+\\right.
 ```
 
 This is equivalent to:
 ```math
-x^\star = P_{[l,u]}(x^\star-\nabla f(x^\star))
+x^\\star = P_{[l,u]}(x^\\star-\\nabla f(x^\\star))
 ```
 
 Using the previous results, this function returns:
 ```math
-max | x^\star - P_{[l,u]}(x^\star-(Q.x^\star+q))|
+max | x^\\star - P_{[l,u]}(x^\\star-(Q.x^\\star+q))|
 ```
 for a local optimal quantity this must be null 
 """
