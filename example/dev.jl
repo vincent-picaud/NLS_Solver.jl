@@ -206,7 +206,7 @@ function update_Z!(x::AbstractVector,
 
         else
             
-          @assert x[i]==ub[i] "Internal error $(x[i]) != $(ub[i])"
+            @assert x[i]==ub[i] "Internal error $(x[i]) != $(ub[i])"
             
             if τ[i]<0
                 count_bad_hypothesis+=1
@@ -227,33 +227,37 @@ function update_Z!(x::AbstractVector,
 end 
 
 """
-Create Z enum array according to x and bound contraints
-
-precondition x∈bc
+Create (x,Z) from initial guess `x_init` and bound constraints `bc`
 """
-function initialize_Z(x::AbstractArray,
-                      bc::BoundConstraints)
-    
+function initialize_x_Z(x_init::AbstractArray,
+                        bc::BoundConstraints)
+
+    @assert size(x_init) == size(bc)
+
+    x = similar(x_init)
     Z = similar(Array{BoundConstraintState_Enum},axes(bc))
     lb = lower_bound(bc)
     ub = upper_bound(bc)
 
-    for (i,(lb_i,x_i,ub_i)) in enumerate(zip(lb,x,ub))
+    for (i,(lb_i,x_init_i,ub_i)) in enumerate(zip(lb,x_init,ub))
 
-        if x_i<lb_i
+        if x_init_i<lb_i
+            x[i]=lb_i
             Z[i]=BoundConstraintState_LB
             continue
         end
 
-        if x_i>ub_i
+        if x_init_i>ub_i
+            x[i]=ub_i
             Z[i]=BoundConstraintState_UB
             continue
         end
 
+        x[i]=x_init_i
         Z[i]=BoundConstraintState_INACTIVE
     end
 
-    Z
+    x, Z
 end    
 
 """
@@ -324,7 +328,7 @@ Put all together
 """
 function Kunisch_Rendl(Q::Symmetric{<:Real},
                        q::AbstractVector{<:Real},
-                       x::AbstractVector{<:Real},
+                       x_init::AbstractVector{<:Real},
                        bc::BoundConstraints{<:Real,1},
                        maxIter::Int,
                        damping::Function)
@@ -335,7 +339,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
     @assert n == length(bc)
     @assert first(damping(maxIter)) == false # damping stop before max iter
     
-    Z = initialize_Z(x,bc)
+    (x, Z) = initialize_x_Z(x_init,bc)
     Q_tilde = similar(Q)
     q_tilde = similar(q)
 
@@ -348,7 +352,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
 
         # if still in burning phase scale diagonal 
         if burning_phase
-            diagonal_indices = diagind(Q)
+            diagonal_indices = diagind(Q_tilde)
             Q_tilde[diagonal_indices] .*= damping_factor
         end
 
@@ -356,8 +360,8 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
         restrict_to_inactive!(Q_tilde,q_tilde,Z,bc)
 
         # x = -Q^{-1}.q
-        # todo; add execption
-        x = -Q\q
+        # todo; add exception
+        x = -Q_tilde\q_tilde
 
         # update x and compute a posteriori multipliers
         update_x!(x,Z,bc)
@@ -414,22 +418,32 @@ function check_first_order(Q::Symmetric{<:Real},
                            q::AbstractVector{<:Real},
                            xstar::AbstractVector{<:Real},
                            bc::BoundConstraints{<:Real,1})
-    v = x-(Q*xstar+q)
+    v = xstar-(Q*xstar+q)
     v = project!(v,bc)
 
-    maximum(abs.(x .- v))
+    maximum(abs.(xstar .- v))
 end 
 
 
-Q[diagind(Q)].+=10
-res=Kunisch_Rendl(Q,q,x,bc,10,create_damping_schedule_nothing())
+n=10
+A=[Rational{Int}(1,i+j-1) for i in 1:n, j in 1:n]
+
+Q=Symmetric(A,:U)
+q=Rational{Int}[i for i in 1:n]
+bc=BoundConstraints(Int,n)
+x_init=zeros(Int,n)
+
+(cv,x_sol) = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
+check_first_order(Q,q,x_sol,bc)
 
 
-Q=Symmetric(Float64[[30 20 10]
+# A small problem
+Q=Symmetric(Float64[[30 20 15]
                     [20 15 12]
                     [15 12 10]])
 
 q=-Float64[1:3;]
 bc=BoundConstraints(zeros(3),Float64[1:3;])
-x=zeros(3)
-res=Kunisch_Rendl(Q,q,x,bc,10,create_damping_schedule_nothing())
+x_init = zeros(3)
+(cv,x_sol) = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
+check_first_order(Q,q,x_sol,bc)
