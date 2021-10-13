@@ -1,14 +1,14 @@
 @testset "Kunisch-Rendl" begin
     using Random: seed!
     using LinearAlgebra: Symmetric
-    using NLS_Solver: BoundContraintState_Enum, restrict_to_inactive!
+    using NLS_Solver: BoundConstraintState_Enum, restrict_to_inactive!
     
     seed!(1234)
 
     n=10
     A=[Rational{Int}(1,i+j-1) for i in 1:n, j in 1:n]
 
-    Z=rand(instances(BoundContraintState_Enum),n)
+    Z=rand(instances(BoundConstraintState_Enum),n)
     lb=zeros(Rational{Int},n)
     ub=ones(Rational{Int},n)
 
@@ -36,3 +36,35 @@
     @test q==q_result
 
 end
+
+
+@testset "problem 1" begin
+    using NLS_Solver: Kunisch_Rendl,check_first_order,create_damping_schedule_nothing
+    
+    n=5
+    A=[Rational{Int}(1,i+j-1) for i in 1:n, j in 1:n]
+
+    Q=Symmetric(A,:U)
+    q=Rational{Int}[-1 for i in 1:n]
+    bc=BoundConstraints(Int,n)
+    x_init=zeros(Int,n)
+
+    (cv,x_sol,τ_sol) = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
+
+    @test 1+check_first_order(Q,q,x_sol,bc) ≈ 1+0
+end
+
+@testset "problem 2" begin
+    using NLS_Solver: Kunisch_Rendl,check_first_order,create_damping_schedule_nothing
+
+    Q=Symmetric(Float64[[30 20 15]
+                        [20 15 12]
+                        [15 12 10]],:L)
+
+    q=-Float64[1:3;]
+    bc=BoundConstraints(zeros(3),Float64[1:3;])
+    x_init = zeros(3)
+    (cv,x_sol,τ_sol) = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
+
+    @test 1+check_first_order(Q,q,x_sol,bc) ≈ 1+0
+end 
