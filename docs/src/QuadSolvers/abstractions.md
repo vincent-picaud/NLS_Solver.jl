@@ -40,3 +40,16 @@ Pages = ["QuadSolvers/abstract_quadsolver_conf.jl",
 	"QuadSolvers/solve.jl"]
 Private = false
 ```
+
+
+``
+
+## Not exported (or specializations)
+
+```@autodocs
+Modules = [NLS_Solver]
+Pages = ["QuadSolvers/abstract_quadsolver_conf.jl",
+	"QuadSolvers/abstract_quadsolver_result.jl",
+	"QuadSolvers/solve.jl"]
+Public = false
+```

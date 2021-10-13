@@ -7,9 +7,16 @@ CurrentModule = NLS_Solver
 A structure and some methods to handle bound constraints of the form
 ``[l,u]``.
 
-
 ```@autodocs
 Modules = [NLS_Solver]
 Pages = ["bound_constraints.jl"]
 Private = false
+```
+
+## Not exported (or specializations)
+
+```@autodocs
+Modules = [NLS_Solver]
+Pages = ["bound_constraints.jl"]
+Public = false
 ```

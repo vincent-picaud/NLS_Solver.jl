@@ -34,9 +34,32 @@ BoundConstraints(T::Type,n::Int) = BoundConstraints(zeros(T,n),ones(T,n))
 
 
 import Base: size, length, axes, in
+"""
+    axes(bc::BoundConstraints)
+
+Return bound axes
+"""
 Base.axes(bc::BoundConstraints) = axes(bc._lb)
+
+"""
+    length(bc::BoundConstraints)
+
+Return bound length
+"""
 Base.length(bc::BoundConstraints) = length(bc._lb)
+
+"""
+    size(bc::BoundConstraints)
+
+Return bound size
+"""
 Base.size(bc::BoundConstraints) = size(bc._lb)
+
+"""
+    in(bc::BoundConstraints)
+
+Check if ``x\\in [l,u]``
+"""
 function in(x::AbstractArray{<:Real,N},bc::BoundConstraints{<:Real,N}) where {N}
     size(x)==size(bc) && all(zip(bc._lb,x,bc._ub)) do (lbi,xi,ubi) begin lbi ≤ xi ≤ ubi end end
 end 
