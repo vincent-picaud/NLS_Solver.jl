@@ -340,6 +340,8 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
     @assert first(damping(maxIter)) == false # damping stop before max iter
     
     (x, Z) = initialize_x_Z(x_init,bc)
+
+    τ = similar(q)
     Q_tilde = similar(Q)
     q_tilde = similar(q)
 
@@ -365,7 +367,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
 
         # update x and compute a posteriori multipliers
         update_x!(x,Z,bc)
-        τ = -Q*x-q # for perfs use mul! instead
+        τ .= -Q*x-q # for perfs use mul! instead
 
         # update Z and count bad hypothesis
         count_bad_choice = update_Z!(x,τ,Z,bc)
@@ -383,7 +385,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
             break
         end
     end
-    (has_CV,x)
+    (has_CV,x,τ)
 end
 
 
@@ -425,15 +427,15 @@ function check_first_order(Q::Symmetric{<:Real},
 end 
 
 
-n=10
+n=5
 A=[Rational{Int}(1,i+j-1) for i in 1:n, j in 1:n]
 
 Q=Symmetric(A,:U)
-q=Rational{Int}[i for i in 1:n]
+q=Rational{Int}[-1 for i in 1:n]
 bc=BoundConstraints(Int,n)
 x_init=zeros(Int,n)
 
-(cv,x_sol) = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
+(cv,x_sol,τ_sol) = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
 check_first_order(Q,q,x_sol,bc)
 
 
@@ -445,5 +447,5 @@ Q=Symmetric(Float64[[30 20 15]
 q=-Float64[1:3;]
 bc=BoundConstraints(zeros(3),Float64[1:3;])
 x_init = zeros(3)
-(cv,x_sol) = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
+(cv,x_sol,τ_sol) = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
 check_first_order(Q,q,x_sol,bc)
