@@ -145,3 +145,11 @@ Modules = [NLS_Solver]
 Pages = ["QuadSolvers/Kunisch-Rendl.jl"]
 Private = false
 ```
+
+### Not exported (or specializations)
+
+```@autodocs
+Modules = [NLS_Solver]
+Pages = ["QuadSolvers/Kunisch-Rendl.jl"]
+Public = false
+```

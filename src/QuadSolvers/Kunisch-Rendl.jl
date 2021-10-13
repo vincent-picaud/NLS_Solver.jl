@@ -1,27 +1,58 @@
 using LinearAlgebra: Symmetric
 
 
-
-@enum(BoundConstraintState_Enum,
-      BoundConstraintState_LB = -1,
-      BoundConstraintState_INACTIVE = 0,
-      BoundConstraintState_UB = +1)
-
 """
-With symmetric Q, modify the system
+```julia
+@enum(BoundConstraint_Enum,
+      ACTIVE_LB = -1,
+      INACTIVE_BC = 0,
+      ACTIVE_UB = +1)
+```
 
-Qx+q=0
+An enum to store bound constraint state.
+"""
+@enum(BoundConstraint_Enum,
+      ACTIVE_LB = -1,
+      INACTIVE_BC = 0,
+      ACTIVE_UB = +1)
 
-Such that
+@doc raw"""
+```julia
+restrict_to_inactive!(Q::Symmetric,
+                      q::AbstractVector,
+                      Z::AbstractVector{BoundConstraint_Enum},
+                      lb::AbstractVector{<:Real},
+                      ub::AbstractVector{<:Real})
+```
 
-Z[i]=active_lb ⇒  x[i]=a
-Z[i]=active_ub ⇒  x[i]=b
+```julia
+function restrict_to_inactive!(Q::Symmetric,
+                               q::AbstractVector,
+                               Z::AbstractVector{BoundConstraint_Enum},
+                               bc::BoundConstraints{<:Real,1})
+```
 
-The procedure perform in place modification of `Q` and `q`
+In-place modification of ``(\tilde{Q},\tilde{q})\leftarrow (Q,q)`` such that 
+
+```math
+\tilde{x} = \arg\min \frac{1}{2} x^t\tilde{Q}x + \tilde{q}^tx
+```
+under the constraints:
+```math 
+x[i] = \left\{\begin{array}{ll} 
+l[i], & \text{if } Z[i] = -1 \\
+u[i], & \text{if } Z[i] = +1 
+\end{array}\right.
+```
+is transformed into this
+```math
+\tilde{Q}\tilde{x}+\tilde{q}=0
+```
+linear system
 """
 function restrict_to_inactive!(Q::Symmetric,
                                q::AbstractVector,
-                               Z::AbstractVector{BoundConstraintState_Enum},
+                               Z::AbstractVector{BoundConstraint_Enum},
                                lb::AbstractVector{<:Real},
                                ub::AbstractVector{<:Real})
     Q_ET = eltype(Q)
@@ -37,9 +68,9 @@ function restrict_to_inactive!(Q::Symmetric,
         
         for k = 1:n
             
-            if Z[k]!=BoundConstraintState_INACTIVE
+            if Z[k]!=INACTIVE_BC
 
-                constrained_x_k = ifelse(Z[k]==BoundConstraintState_LB,
+                constrained_x_k = ifelse(Z[k]==ACTIVE_LB,
                                          lb[k],
                                          ub[k])
                 
@@ -61,9 +92,9 @@ function restrict_to_inactive!(Q::Symmetric,
         
         for k = 1:n
             
-            if Z[k]!=BoundConstraintState_INACTIVE
+            if Z[k]!=INACTIVE_BC
 
-                constrained_x_k = ifelse(Z[k]==BoundConstraintState_LB,
+                constrained_x_k = ifelse(Z[k]==ACTIVE_LB,
                                          lb[k],
                                          ub[k])
 
@@ -82,17 +113,28 @@ function restrict_to_inactive!(Q::Symmetric,
         end # k = 1:n
     end
 end
-
 function restrict_to_inactive!(Q::Symmetric,
                                q::AbstractVector,
-                               Z::AbstractVector{BoundConstraintState_Enum},
+                               Z::AbstractVector{BoundConstraint_Enum},
                                bc::BoundConstraints{<:Real,1})
     restrict_to_inactive!(Q,q,Z,lower_bound(bc),upper_bound(bc))
 end
 
 
-""" 
-
+@doc raw""" 
+```julia
+update_Z!(x::AbstractVector,
+          τ::AbstractVector,
+          Z::AbstractVector{BoundConstraint_Enum},
+          lb::AbstractVector,
+          ub::AbstractVector)
+```
+```julia
+update_Z!(x::AbstractVector,
+          τ::AbstractVector,
+          Z::AbstractVector{BoundConstraint_Enum},
+          bc::BoundConstraints{<:Real,1})
+```
 This function updates `Z` according to `x`, `τ` and bounds `lb`, `ub`
 values.
 
@@ -100,11 +142,12 @@ It also count how many changes have be done during this update.
 
 No change means that the algorithm has converged.
 
-Note: this function only modifies `Z`
+**Note:** this function only modifies `Z` and return the number of bad
+hypothesis.
 """
 function update_Z!(x::AbstractVector,
                    τ::AbstractVector,
-                   Z::AbstractVector{BoundConstraintState_Enum},
+                   Z::AbstractVector{BoundConstraint_Enum},
                    lb::AbstractVector,
                    ub::AbstractVector)
     n = length(x)
@@ -118,27 +161,27 @@ function update_Z!(x::AbstractVector,
     
     for i in 1:n
 
-        if Z[i]==BoundConstraintState_INACTIVE
+        if Z[i]==INACTIVE_BC
 
             if x[i]<=lb[i]
 
                 count_bad_hypothesis+=1
-                Z[i]=BoundConstraintState_LB
+                Z[i]=ACTIVE_LB
                 
             elseif x[i]>=ub[i]
                 
                 count_bad_hypothesis+=1
-                Z[i]=BoundConstraintState_UB
+                Z[i]=ACTIVE_UB
                 
             end
             
-        elseif Z[i]==BoundConstraintState_LB
+        elseif Z[i]==ACTIVE_LB
             
             @assert x[i]==lb[i] "Internal error $(x[i]) != $(lb[i])"
             
             if τ[i]>0
                 count_bad_hypothesis+=1
-                Z[i]=BoundConstraintState_INACTIVE
+                Z[i]=INACTIVE_BC
             end
 
         else
@@ -147,7 +190,7 @@ function update_Z!(x::AbstractVector,
             
             if τ[i]<0
                 count_bad_hypothesis+=1
-                Z[i]=BoundConstraintState_INACTIVE
+                Z[i]=INACTIVE_BC
             end
             
         end 
@@ -158,12 +201,14 @@ function update_Z!(x::AbstractVector,
 end
 function update_Z!(x::AbstractVector,
                    τ::AbstractVector,
-                   Z::AbstractVector{BoundConstraintState_Enum},
+                   Z::AbstractVector{BoundConstraint_Enum},
                    bc::BoundConstraints{<:Real,1})
     update_Z!(x,τ,Z,lower_bound(bc),upper_bound(bc))
 end 
 
 """
+TODO 
+
 Create (x,Z) from initial guess `x_init` and bound constraints `bc`
 """
 function initialize_x_Z(x_init::AbstractArray,
@@ -172,7 +217,7 @@ function initialize_x_Z(x_init::AbstractArray,
     @assert size(x_init) == size(bc)
 
     x = similar(x_init)
-    Z = similar(Array{BoundConstraintState_Enum},axes(bc))
+    Z = similar(Array{BoundConstraint_Enum},axes(bc))
     lb = lower_bound(bc)
     ub = upper_bound(bc)
 
@@ -180,40 +225,52 @@ function initialize_x_Z(x_init::AbstractArray,
 
         if x_init_i<lb_i
             x[i]=lb_i
-            Z[i]=BoundConstraintState_LB
+            Z[i]=ACTIVE_LB
             continue
         end
 
         if x_init_i>ub_i
             x[i]=ub_i
-            Z[i]=BoundConstraintState_UB
+            Z[i]=ACTIVE_UB
             continue
         end
 
         x[i]=x_init_i
-        Z[i]=BoundConstraintState_INACTIVE
+        Z[i]=INACTIVE_BC
     end
 
     x, Z
 end    
 
-"""
+@doc raw"""
+```julia
+update_x!(x::AbstractArray,
+          Z::AbstractArray{BoundConstraint_Enum},
+          bc::BoundConstraints)
+```
 
-Update x value according to Z
+Update x value such that:
+```math 
+x[i] = \left\{\begin{array}{ll} 
+l[i], & \text{if } Z[i] = -1 \\
+u[i], & \text{if } Z[i] = +1 
+\end{array}\right.
+```
+When ``Z[i]=0`` the ``x[i]`` value is unaffected.
 """
 function update_x!(x::AbstractArray,
-                   Z::AbstractArray{BoundConstraintState_Enum},
+                   Z::AbstractArray{BoundConstraint_Enum},
                    bc::BoundConstraints)
     
     @assert size(x) == size(bc) == size(Z)
 
     for (i,(Z_i,lb_i,ub_i)) in enumerate(zip(Z,lower_bound(bc),upper_bound(bc)))
-        if Z_i==BoundConstraintState_LB
+        if Z_i==ACTIVE_LB
             x[i]=lb_i
             continue
         end
         
-        if Z_i==BoundConstraintState_UB
+        if Z_i==ACTIVE_UB
             x[i]=ub_i
             continue
         end
@@ -223,6 +280,9 @@ function update_x!(x::AbstractArray,
 end 
 
 """
+TODO 
+
+
 Return penalization schedule f. 
 
 When burning_phase = false, damping factor is assumed to be one
@@ -314,7 +374,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
             # clean τ
             τ_ELT = eltype(τ)
             for (i,Z_i) in enumerate(Z)
-                if Z_i == BoundConstraintState_INACTIVE
+                if Z_i == INACTIVE_BC
                     τ[i]=zero(τ_ELT)
                 end
             end
@@ -326,30 +386,36 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
 end
 
 
-"""
-Check First-Order Conditions (see
-https://wiki.mcs.anl.gov/leyffer/images/0/01/07-bndCons.pdf)
+@doc raw"""
+```julia
+check_first_order(Q::Symmetric{<:Real},
+                  q::AbstractVector{<:Real},
+                  xstar::AbstractVector{<:Real},
+                  bc::BoundConstraints{<:Real,1})
+```
 
-If ``x^\\star=\\arg\\min f(x), x\\in[l,u]`` then:
+Check First-Order Conditions 
+(see [Bound Constrained Optimization slides](https://wiki.mcs.anl.gov/leyffer/images/0/01/07-bndCons.pdf))
+
+If ``x^\star=\arg\min f(x), x\in[l,u]`` then:
 
 ```math
-\\partial_i f(x^\\star) = \\left\\{
-\\begin{array}{ll}
-\\ge 0, & \\mbox{if} x^star_i = l_i \\\\
-\\eq 0, & \\mbox{if} l_i \\le x^star_i \\le u_i \\\\
-\\le 0, & \\mbox{if} x^star_i = u_i 
-\\end{array}
-\\right.
+\partial_i f(x^\star) = \left\{\begin{array}{ll}
+\ge 0, & \text{if } x^\star[i] = l[i] \\
+= 0, & \text{if } l[i] \le x^\star[i] \le u[i] \\
+\le 0, & \text{if } x^\star[i] = u[i] \\
+\end{array}
+\right.
 ```
 
 This is equivalent to:
 ```math
-x^\\star = P_{[l,u]}(x^\\star-\\nabla f(x^\\star))
+x^\star = P_{[l,u]}(x^\star-\nabla f(x^\star))
 ```
 
 Using the previous results, this function returns:
 ```math
-max | x^\\star - P_{[l,u]}(x^\\star-(Q.x^\\star+q))|
+\max \mid x^\star - P_{[l,u]}(x^\star-(Q.x^\star+q)) \mid
 ```
 for a local optimal quantity this must be null 
 """
