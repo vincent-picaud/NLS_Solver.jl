@@ -238,7 +238,7 @@ function initialize_Z(x::AbstractArray,
     lb = lower_bound(bc)
     ub = upper_bound(bc)
 
-    for (i,lb_i,x_i,ub_i) in enumerate(zip(lb,x,ub))
+    for (i,(lb_i,x_i,ub_i)) in enumerate(zip(lb,x,ub))
 
         if x_i<lb_i
             Z[i]=BoundConstraintState_LB
