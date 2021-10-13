@@ -10,6 +10,12 @@ Store bound constraints ``[l,u]``
 Presence of `NaN` component and the ``l\\le u`` condition is checked
 at construction time. Note however that some components can be
 infinite.
+
+```jldoctest
+julia> bc = BoundConstraints(5)
+BoundConstraints{Float64, 1, Vector{Float64}, Vector{Float64}}([0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0, 1.0])
+
+```
 """
 struct BoundConstraints{ELT<:Real,N,LBT<:AbstractArray{ELT,N},UBT<:AbstractArray{ELT,N}}
     _lb::LBT

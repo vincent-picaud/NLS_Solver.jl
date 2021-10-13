@@ -3,7 +3,7 @@
     bc = BoundConstraints(n)
     x = rand(n)
 
-    @test lower_bound(bc)==zeros(Int,n)
-    @test lower_bound(bc)==ones(Int,n)
+    @test lower_bound(bc)==zeros(n)
+    @test lower_bound(bc)==ones(n)
     @test x ∈ bc
 end 
