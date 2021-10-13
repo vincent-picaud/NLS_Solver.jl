@@ -16,7 +16,8 @@ makedocs(;
         "Quadratic Solver" => [
             "QuadSolvers/abstractions.md",
             "QuadSolvers/Kunisch-Rendl.md",
-            ],
+        ],
+        "api.md",
     ],
 )
 

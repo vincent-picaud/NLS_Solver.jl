@@ -5,6 +5,7 @@
 ```@autodocs
 Modules = [NLS_Solver]
 Pages = ["QuadSolvers/abstract_quadsolver_conf.jl"]
+Private = false
 ```
 
 ## Solver Result
@@ -13,6 +14,7 @@ Pages = ["QuadSolvers/abstract_quadsolver_conf.jl"]
 Modules = [NLS_Solver]
 Order   = [:type]
 Pages = ["QuadSolvers/abstract_quadsolver_result.jl"]
+Private = false
 ```
 
 ### Interface 
@@ -21,4 +23,5 @@ Pages = ["QuadSolvers/abstract_quadsolver_result.jl"]
 Modules = [NLS_Solver]
 Order   = [:function]
 Pages = ["QuadSolvers/abstract_quadsolver_result.jl"]
+Private = false
 ```

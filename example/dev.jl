@@ -442,7 +442,7 @@ check_first_order(Q,q,x_sol,bc)
 # A small problem
 Q=Symmetric(Float64[[30 20 15]
                     [20 15 12]
-                    [15 12 10]])
+                    [15 12 10]],:L)
 
 q=-Float64[1:3;]
 bc=BoundConstraints(zeros(3),Float64[1:3;])

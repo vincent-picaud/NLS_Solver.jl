@@ -143,4 +143,5 @@ x_i=b_i & \text{if} & Z_i=+1
 ```@autodocs
 Modules = [NLS_Solver]
 Pages = ["QuadSolvers/Kunisch-Rendl.jl"]
+Private = false
 ```
