@@ -15,5 +15,7 @@ across the other documentation pages.
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["QuadSolvers/boundconstraint_enum.jl"]
+Pages = ["QuadSolvers/boundconstraint_enum.jl",
+         "QuadSolvers/misc.jl",
+		 ]
 ```

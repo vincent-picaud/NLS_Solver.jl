@@ -71,7 +71,7 @@ Z_i = \left\{
 
 ### Inputs
  
-``Z^{(0)}\in\{-1,01\}^n`` initial guess 
+``Z^{(0)}\in\{-1,0,1\}^n`` initial guess 
 ``x^{(0)}`` initial guess
 
 ### Result 
