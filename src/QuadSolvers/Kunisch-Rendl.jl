@@ -17,23 +17,23 @@ function restrict_to_inactive!(Q::Symmetric,
                                bc::BoundConstraints{<:Real,1})
 ```
 
-In-place modification of ``(\tilde{Q},\tilde{q})\leftarrow (Q,q)`` such that 
+In-place modification of ``(Q,q)`` that produces
+``(\tilde{Q},\tilde{q})`` such that the initial optimization problem:
 
 ```math
-\tilde{x} = \arg\min \frac{1}{2} x^t\tilde{Q}x + \tilde{q}^tx
+\tilde{x} = \arg\min \frac{1}{2} x^t Q x + q^tx
 ```
-under the constraints:
+under these constraints:
 ```math 
 x[i] = \left\{\begin{array}{ll} 
 l[i], & \text{if } Z[i] = -1 \\
 u[i], & \text{if } Z[i] = +1 
 \end{array}\right.
 ```
-is transformed into this
+is transformed into this linear system:
 ```math
 \tilde{Q}\tilde{x}+\tilde{q}=0
 ```
-linear system
 """
 function restrict_to_inactive!(Q::Symmetric,
                                q::AbstractVector,
