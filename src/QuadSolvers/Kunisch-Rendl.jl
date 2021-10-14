@@ -206,10 +206,17 @@ function update_Z!(x::AbstractVector,
     update_Z!(x,τ,Z,lower_bound(bc),upper_bound(bc))
 end 
 
-"""
-TODO 
+@doc raw"""
+```julia
+initialize_x_Z(x_init::AbstractArray,
+               bc::BoundConstraints)
+```
 
 Create (x,Z) from initial guess `x_init` and bound constraints `bc`
+
+`Z` is created by recording how `x_init` fulfils the bound constraints `bc`.
+
+`x` is the projection of `x_init` on the bounded domain [l,b].
 """
 function initialize_x_Z(x_init::AbstractArray,
                         bc::BoundConstraints)
