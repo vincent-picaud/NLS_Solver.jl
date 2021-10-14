@@ -16,6 +16,7 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "bound_constraints.md",
+        "regularization_schedule.md",
         "Quadratic Solver" => [
             "QuadSolvers/abstractions.md",
             "QuadSolvers/Kunisch-Rendl.md",
