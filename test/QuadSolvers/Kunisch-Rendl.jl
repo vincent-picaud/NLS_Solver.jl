@@ -1,6 +1,7 @@
+using LinearAlgebra: Symmetric, dot
+
 @testset "Kunisch-Rendl" begin
     using Random: seed!
-    using LinearAlgebra: Symmetric
     using NLS_Solver: BoundConstraint_Enum, restrict_to_inactive!
     
     seed!(1234)
@@ -49,14 +50,19 @@ end
     bc=BoundConstraints(Int,n)
     x_init=zeros(Int,n)
 
-    (cv,x_sol,τ_sol) = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
+    result = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
 
+    x_sol = solution(result)
+    @test converged(result)
+    @test iteration_count(result)==7
+    @test objective_value(result) ≈ 1/2*dot(x_sol,Q*x_sol)+dot(q,x_sol)
     @test 1+check_first_order(Q,q,x_sol,bc) ≈ 1+0
+
 end
 
 @testset "problem 2" begin
-    using NLS_Solver: Kunisch_Rendl,check_first_order,create_damping_schedule_nothing
-
+     using NLS_Solver: Kunisch_Rendl,check_first_order,create_damping_schedule_nothing
+    
     Q=Symmetric(Float64[[30 20 15]
                         [20 15 12]
                         [15 12 10]],:L)
@@ -64,7 +70,18 @@ end
     q=-Float64[1:3;]
     bc=BoundConstraints(zeros(3),Float64[1:3;])
     x_init = zeros(3)
-    (cv,x_sol,τ_sol) = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
 
+    result = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
+
+    x_sol = solution(result)
+    τ = multiplier_τ(result)
+
+    @test converged(result)
+    @test iteration_count(result) == 4
+    @test τ[1] ≈ -3.5
+    @test τ[2] ≈ -1.6
+    @test τ[3] == 0
+    @test objective_value(result) ≈ 1/2*dot(x_sol,Q*x_sol)+dot(q,x_sol)
     @test 1+check_first_order(Q,q,x_sol,bc) ≈ 1+0
+
 end 

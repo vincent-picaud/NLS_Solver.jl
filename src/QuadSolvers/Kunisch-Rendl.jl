@@ -1,4 +1,4 @@
-using LinearAlgebra: Symmetric
+using LinearAlgebra: Symmetric, dot
 
 
 @doc raw"""
@@ -312,6 +312,45 @@ function create_damping_schedule_nothing()
     end 
 end
 
+@doc raw"""
+```julia
+clean_τ!(τ::AbstractArray{<:Real},              
+         Z::AbstractArray{BoundConstraint_Enum})
+```
+
+By definition τ=-Qx-q. If the algorithm converged, then one must have
+τ[i]=0 when the constraint is inactive.
+
+This function updates τ by overwriting τ[i]=0 when Z[i]=inactive. 
+"""
+function clean_τ!(τ::AbstractArray{<:Real},
+                  Z::AbstractArray{BoundConstraint_Enum})
+
+    @assert size(τ)==size(Z)
+    
+    τ_ELT = eltype(τ)
+
+    for (i,Z_i) in enumerate(Z)
+        if Z_i == INACTIVE_BC
+            τ[i]=zero(τ_ELT)
+        end
+    end
+    τ
+end
+
+# Result structure
+Base.@kwdef struct Kunisch_Rendl_Result <: AbstractQuadSolverResult
+    _cv::Bool
+    _iter_count::Int
+    _fobj::Real
+    _x::AbstractVector{<:Real}
+    _τ::AbstractVector{<:Real}
+end 
+converged(r::Kunisch_Rendl_Result) = r._cv
+iteration_count(r::Kunisch_Rendl_Result) = r._iter_count
+objective_value(r::Kunisch_Rendl_Result) = r._fobj
+multiplier_τ(r::Kunisch_Rendl_Result) = ReadOnlyArray(r._τ)
+solution(r::Kunisch_Rendl_Result) = ReadOnlyArray(r._x)
 
 
 """
@@ -337,7 +376,9 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
     q_tilde = similar(q)
 
     has_CV::Bool = false
+    local iter_count
     for iter in 1:maxIter
+        iter_count = iter
         Q_tilde .= Q
         q_tilde .= q
 
@@ -353,7 +394,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
         restrict_to_inactive!(Q_tilde,q_tilde,Z,bc)
 
         # x = -Q^{-1}.q
-        # todo; add exception
+        # TODO: add exception is Q_tilde is too badly conditioned
         x = -Q_tilde\q_tilde
 
         # update x and compute a posteriori multipliers
@@ -365,17 +406,24 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
 
         # CV check
         if (!burning_phase)&&(count_bad_choice==0)
-            # clean τ
-            τ_ELT = eltype(τ)
-            for (i,Z_i) in enumerate(Z)
-                if Z_i == INACTIVE_BC
-                    τ[i]=zero(τ_ELT)
-                end
-            end
             has_CV=true
             break
         end
     end
-    (has_CV,x,τ)
+    # prepare quantities export
+
+    # as τ=-Q*x-q, fobj is 1/2( -τ.x + q.x)
+    #
+    fobj = 1/2*(-dot(τ,x) + dot(q,x))
+    # "true" 0 for inactive constraints
+    multiplier_τ = clean_τ!(τ,Z)
+
+    Kunisch_Rendl_Result(
+    _cv=has_CV,
+    _iter_count=iter_count,
+    _fobj=fobj,
+    _x=x, # no risk as x is local
+    _τ=τ # no risk as τ is local
+    )
 end
 
