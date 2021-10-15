@@ -1,5 +1,6 @@
-using LinearAlgebra: Symmetric, dot, diagind
+export Kunisch_Rendl_Conf
 
+using LinearAlgebra: Symmetric, dot, diagind
 
 @doc raw"""
 ```julia
@@ -430,4 +431,4 @@ solve(conf::Kunisch_Rendl_Conf,
       Q::Symmetric{<:Real},
       q::AbstractVector{<:Real},
       x_init::AbstractVector{<:Real},
-      bc::BoundConstraints{<:Real,1}) = Kunisch_Rendl(Q,q,x_init,bc)
+      bc::BoundConstraints{<:Real,1}) = Kunisch_Rendl(Q,q,x_init,bc,conf)

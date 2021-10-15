@@ -40,7 +40,7 @@ end
 
 
 @testset "problem 1 uplow = $UL" for UL ∈ (:U,:L)
-    using NLS_Solver: Kunisch_Rendl,check_first_order,Kunisch_Rendl_Conf
+    using NLS_Solver: check_first_order
     
     n=5
     A=[Rational{Int}(1,i+j-1) for i in 1:n, j in 1:n]
@@ -50,7 +50,8 @@ end
     bc=BoundConstraints(Int,n)
     x_init=zeros(Int,n)
 
-    result = Kunisch_Rendl(Q,q,x_init,bc,Kunisch_Rendl_Conf(verbose=false))
+    conf = Kunisch_Rendl_Conf(verbose=false)
+    result = solve(conf,Q,q,x_init,bc)
 
     x_sol = solution(result)
     @test converged(result)
@@ -60,9 +61,9 @@ end
 
 
     # test with a reg schedule
-    result_2 = Kunisch_Rendl(Q,q,x_init,bc,
-                             Kunisch_Rendl_Conf(verbose=false,
-                                                reg_schedule=ExpRegularizationSchedule(factor=4,burning_last_iter=2)))
+    conf_2 =  Kunisch_Rendl_Conf(verbose=false,
+                                 reg_schedule=ExpRegularizationSchedule(factor=4,burning_last_iter=2))
+    result_2 = solve(conf_2,Q,q,x_init,bc)
 
     x_sol_2 = solution(result_2)
     @test converged(result_2)
@@ -76,7 +77,7 @@ end
 end
 
 @testset "problem 2" begin
-     using NLS_Solver: Kunisch_Rendl,check_first_order,Kunisch_Rendl_Conf
+     using NLS_Solver: check_first_order
     
     Q=Symmetric(Float64[[30 20 15]
                         [20 15 12]
@@ -86,7 +87,8 @@ end
     bc=BoundConstraints(zeros(3),Float64[1:3;])
     x_init = zeros(3)
 
-    result = Kunisch_Rendl(Q,q,x_init,bc,Kunisch_Rendl_Conf(verbose=false))
+    conf = Kunisch_Rendl_Conf(verbose=false)
+    result = solve(conf,Q,q,x_init,bc)
 
     x_sol = solution(result)
     τ = multiplier_τ(result)
