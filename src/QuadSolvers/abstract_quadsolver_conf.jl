@@ -5,13 +5,11 @@
 export AbstractQuadSolverConf
 
 """
+    abstract type AbstractQuadSolverConf end
 
-Abstract away the choice and configuration of the quadratic solver
+Quadratic solver abstraction
 
-TODO example
-
-# Interface
-
+**Note:** for the moment no method.
 """
 abstract type AbstractQuadSolverConf end
 

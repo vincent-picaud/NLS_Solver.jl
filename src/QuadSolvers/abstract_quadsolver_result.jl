@@ -1,13 +1,10 @@
 export AbstractQuadSolverResult
-export converged, objective_value, multiplier_τ, iteration_count, solution
-    
+export converged, iteration_count,objective_value,multiplier_τ,solution
+
 """
+    abstract type AbstractQuadSolverResult end
 
-Abstract away the result of the quadratic solver
-
-TODO example
-
-# Interface
+Quadratic solver result abstraction
 
 """
 abstract type AbstractQuadSolverResult end
@@ -16,41 +13,35 @@ abstract type AbstractQuadSolverResult end
 """
     converged(::AbstractQuadSolverResult)
 
-Returns `true` if the solver converged
+Return `true` if the solver converged
 """
 converged(::AbstractQuadSolverResult) = error("To implement")
 
 """
     iteration_count(::AbstractQuadSolverResult)
 
-Returns the number of iterations
+Return the number of consumed iteration
 """
 iteration_count(::AbstractQuadSolverResult) = error("To implement")
+
 
 """
     objective_value(::AbstractQuadSolverResult)
 
-Returns the final objectif function value
+Returns objective value at the point [`solution`](@ref).
 """
-objective_value(::AbstractQuadSolverResult) = error("To implement")
+objective_value(r::AbstractQuadSolverResult) = r._fobj
 
 """
     multiplier_τ(::AbstractQuadSolverResult)
 
-Returns the Lagrange multipliers encoded in the `τ` array:
-- `τ[i]=0` the constraint is inactive
-- `τ[i]<0` the lower bound constraint is active, its mulitplier is `λ[i] = -τ[i]`
-- `τ[i]>0` the upper bound constraint is active, its mulitplier is `μ[i] = +τ[i]`
-
-Also note that, if the algorithm converged, then `∇objf = -τ` 
+Returns the multipliers stored in a compact form (see τ definition, TODO)
 """
-multiplier_τ(::AbstractQuadSolverResult) = error("To implement")
-
+multiplier_τ(r::AbstractQuadSolverResult) = ReadOnlyArray(r._τ)
 
 """
     solution(::AbstractQuadSolverResult)
 
 Returns the founded solution 
 """
-solution(::AbstractQuadSolverResult) = error("To implement")
-
+solution(r::AbstractQuadSolverResult) = ReadOnlyArray(r._x)

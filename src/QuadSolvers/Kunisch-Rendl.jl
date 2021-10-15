@@ -424,3 +424,10 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
     )
 end
 
+# Specialize the solve method <- this method is exported
+#
+solve(conf::Kunisch_Rendl_Conf,
+      Q::Symmetric{<:Real},
+      q::AbstractVector{<:Real},
+      x_init::AbstractVector{<:Real},
+      bc::BoundConstraints{<:Real,1}) = Kunisch_Rendl(Q,q,x_init,bc)
