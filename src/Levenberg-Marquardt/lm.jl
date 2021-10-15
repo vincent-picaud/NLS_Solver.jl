@@ -1,4 +1,9 @@
 # Unconstrained problem
+#
+
+# TODO: to move elsewhere
+export AbstractNLS
+export parameter_size, eval_fobj, eval_fobj_J
 
 @doc raw"""
 ```julia
@@ -7,6 +12,15 @@ abstract type AbstractNLS end
 Define an abstract non-linear least squares problem
 """
 abstract type AbstractNLS end 
+
+
+"""
+    parameter_size(nls::AbstractNLS) 
+
+Return the dimension ``n_θ` of the parameter vector ``θ``.
+"""
+parameter_size(nls::AbstractNLS) = error("To implement")
+
 
 @doc raw"""
 ```julia
@@ -36,16 +50,17 @@ Compute
 \frac{1}{2}\mathbf{r}^t(θ)\mathbf{r}(θ)
 ```
 
-and the differential ``dr(θ)[.]``, represented by the Jacobian matrix
+and the differential ``dr``, represented by the Jacobian matrix
 ``J`` of components:
 
 ```math
-J_{i,j}=\partial_j r^i,\ i\in[1,n_S],\ j\in[1,n_θ]
+J_{i,j}=\partial_j r^i(θ),\ i\in[1,n_S],\ j\in[1,n_θ]
 ```
 
 where ``n_S``, the number of sample and ``n_θ`` the number of parameters.
 """
 eval_fobj_J(nls::AbstractNLS,θ::AbstractVector) = error("To implement")
 
+# ****************************************************************
 
 # Levenberg_Marquardt(

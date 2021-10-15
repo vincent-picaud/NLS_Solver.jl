@@ -10,4 +10,8 @@ using Test
         include("QuadSolvers/Kunisch-Rendl.jl")
     end
 
+    @testset "Levenberg-Marquardt" begin
+        include("Levenberg-Marquardt/lm.jl")
+    end
+
 end
