@@ -39,18 +39,18 @@ using LinearAlgebra: Symmetric, dot
 end
 
 
-@testset "problem 1" begin
-    using NLS_Solver: Kunisch_Rendl,check_first_order,create_damping_schedule_nothing
+@testset "problem 1 uplow = $UL" for UL ∈ (:U,:L)
+    using NLS_Solver: Kunisch_Rendl,check_first_order,Kunisch_Rendl_Conf
     
     n=5
     A=[Rational{Int}(1,i+j-1) for i in 1:n, j in 1:n]
 
-    Q=Symmetric(A,:U)
+    Q=Symmetric(A,UL)
     q=Rational{Int}[-1 for i in 1:n]
     bc=BoundConstraints(Int,n)
     x_init=zeros(Int,n)
 
-    result = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
+    result = Kunisch_Rendl(Q,q,x_init,bc,Kunisch_Rendl_Conf(verbose=false))
 
     x_sol = solution(result)
     @test converged(result)
@@ -58,10 +58,25 @@ end
     @test objective_value(result) ≈ 1/2*dot(x_sol,Q*x_sol)+dot(q,x_sol)
     @test 1+check_first_order(Q,q,x_sol,bc) ≈ 1+0
 
+
+    # test with a reg schedule
+    result_2 = Kunisch_Rendl(Q,q,x_init,bc,
+                             Kunisch_Rendl_Conf(verbose=false,
+                                                reg_schedule=ExpRegularizationSchedule(factor=4,burning_last_iter=2)))
+
+    x_sol_2 = solution(result_2)
+    @test converged(result_2)
+    @test iteration_count(result_2)==4 # note fewer iterations
+    @test objective_value(result_2) ≈ 1/2*dot(x_sol_2,Q*x_sol_2)+dot(q,x_sol_2)
+    @test 1+check_first_order(Q,q,x_sol_2,bc) ≈ 1+0
+
+    # check that result = result_2
+    @test x_sol ≈ x_sol_2
+    @test objective_value(result) ≈ objective_value(result_2)
 end
 
 @testset "problem 2" begin
-     using NLS_Solver: Kunisch_Rendl,check_first_order,create_damping_schedule_nothing
+     using NLS_Solver: Kunisch_Rendl,check_first_order,Kunisch_Rendl_Conf
     
     Q=Symmetric(Float64[[30 20 15]
                         [20 15 12]
@@ -71,7 +86,7 @@ end
     bc=BoundConstraints(zeros(3),Float64[1:3;])
     x_init = zeros(3)
 
-    result = Kunisch_Rendl(Q,q,x_init,bc,10,create_damping_schedule_nothing())
+    result = Kunisch_Rendl(Q,q,x_init,bc,Kunisch_Rendl_Conf(verbose=false))
 
     x_sol = solution(result)
     τ = multiplier_τ(result)

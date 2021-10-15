@@ -1,4 +1,4 @@
-using LinearAlgebra: Symmetric, dot
+using LinearAlgebra: Symmetric, dot, diagind
 
 
 @doc raw"""
@@ -271,47 +271,6 @@ function update_x!(x::AbstractArray,
     x
 end 
 
-"""
-TODO 
-
-
-Return penalization schedule f. 
-
-When burning_phase = false, damping factor is assumed to be one
-
-f is a decreasing function of the iterations such that:
-- f(1)=c0
-- f(k)=1  if k >= k0
-"""
-function create_damping_schedule_exp(c0::Float64,k0::Int)
-    @assert k0≥1
-    @assert c0≥1
-
-    α::Float64 = ifelse(k0>0,-log(c0)/(k0-1),zero(Float64))
-    
-    function damping(iter::Int)
-        @assert iter≥1
-
-        burning_phase::Bool = false
-        damping_factor::Float64 = 1
-        
-        if iter < k0
-            burning_phase = true
-            damping_factor = c0*exp(α*(iter-1))
-        end
-
-        (burning_phase,damping_factor)
-    end
-end
-function create_damping_schedule_nothing()
-    
-    function damping(iter::Int)
-        @assert iter≥1
-
-        (false,one(Float64))
-    end 
-end
-
 @doc raw"""
 ```julia
 clean_τ!(τ::AbstractArray{<:Real},              
@@ -338,6 +297,32 @@ function clean_τ!(τ::AbstractArray{<:Real},
     τ
 end
 
+# ****************************************************************
+
+# Config stucture
+struct Kunisch_Rendl_Conf <: AbstractQuadSolverConf
+    _max_iter::Int
+    _reg_schedule::AbstractRegularizationSchedule 
+    _verbose::Bool
+    
+    function Kunisch_Rendl_Conf(;
+                                max_iter::Int=50,
+                                reg_schedule::AbstractRegularizationSchedule=NoRegularizationSchedule(),
+                                verbose::Bool=true)
+        @assert max_iter>0
+        # Any chance to check convergence?
+        @assert burning_phase(reg_schedule,max_iter)==false
+        
+        new(max_iter,reg_schedule,verbose)
+    end
+end
+burning_phase(conf::Kunisch_Rendl_Conf,iter::Int) = burning_phase(conf._reg_schedule,iter)
+regularization_factor(conf::Kunisch_Rendl_Conf,iter::Int) =regularization_factor(conf._reg_schedule,iter)
+max_iter(conf::Kunisch_Rendl_Conf) = conf._max_iter
+verbose(conf::Kunisch_Rendl_Conf) = conf._verbose
+
+# ****************************************************************
+
 # Result structure
 Base.@kwdef struct Kunisch_Rendl_Result <: AbstractQuadSolverResult
     _cv::Bool
@@ -352,6 +337,7 @@ objective_value(r::Kunisch_Rendl_Result) = r._fobj
 multiplier_τ(r::Kunisch_Rendl_Result) = ReadOnlyArray(r._τ)
 solution(r::Kunisch_Rendl_Result) = ReadOnlyArray(r._x)
 
+# ****************************************************************
 
 """
 Put all together 
@@ -360,14 +346,13 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
                        q::AbstractVector{<:Real},
                        x_init::AbstractVector{<:Real},
                        bc::BoundConstraints{<:Real,1},
-                       maxIter::Int,
-                       damping::Function)
+                       conf::Kunisch_Rendl_Conf)
 
     n = length(q)
 
     @assert (n,n) == size(Q)
     @assert n == length(bc)
-    @assert first(damping(maxIter)) == false # damping stop before max iter
+
     
     (x, Z) = initialize_x_Z(x_init,bc)
 
@@ -377,17 +362,16 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
 
     has_CV::Bool = false
     local iter_count
-    for iter in 1:maxIter
+    for iter in 1:max_iter(conf)
         iter_count = iter
         Q_tilde .= Q
         q_tilde .= q
 
-        (burning_phase,damping_factor) = damping(iter)
-
-        # if still in burning phase scale diagonal 
-        if burning_phase
+        if burning_phase(conf,iter)
+            reg_factor = regularization_factor(conf,iter)
+            
             diagonal_indices = diagind(Q_tilde)
-            Q_tilde[diagonal_indices] .*= damping_factor
+            Q_tilde[diagonal_indices] .*= reg_factor
         end
 
         # modify Q,q according to constraints
@@ -395,7 +379,12 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
 
         # x = -Q^{-1}.q
         # TODO: add exception is Q_tilde is too badly conditioned
-        x = -Q_tilde\q_tilde
+        try
+            x = -Q_tilde\q_tilde
+        catch
+            @warn "$(@__FILE__):$(@__LINE__) Singular system... Abort..."
+            break 
+        end 
 
         # update x and compute a posteriori multipliers
         update_x!(x,Z,bc)
@@ -404,8 +393,12 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
         # update Z and count bad hypothesis
         count_bad_choice = update_Z!(x,τ,Z,bc)
 
+        if verbose(conf)
+            @info("KR: iter=$iter, changes=$count_bad_choice")
+        end
+        
         # CV check
-        if (!burning_phase)&&(count_bad_choice==0)
+        if (!burning_phase(conf,iter))&&(count_bad_choice==0)
             has_CV=true
             break
         end
@@ -418,6 +411,10 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
     # "true" 0 for inactive constraints
     multiplier_τ = clean_τ!(τ,Z)
 
+    if verbose(conf)
+        @info("KR: iter=$iter_count, CV=$has_CV, fobj=$fobj")
+    end
+ 
     Kunisch_Rendl_Result(
     _cv=has_CV,
     _iter_count=iter_count,
