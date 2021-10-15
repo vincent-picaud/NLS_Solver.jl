@@ -1,6 +1,9 @@
 using NLS_Solver
 using Test
 
+# Include test problems
+include("TestProblems/TestProblems.jl")
+
 @testset "NLS_Solver.jl" begin
 
     include("bound_constraints.jl")
