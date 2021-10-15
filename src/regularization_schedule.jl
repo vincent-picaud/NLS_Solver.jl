@@ -1,10 +1,17 @@
+export AbstractRegularizationSchedule
+export regularization_factor, burning_phase
+
+export NoRegularizationSchedule, ExpRegularizationSchedule
+
 """ 
+    abstract type AbstractRegularizationSchedule end
+
 Generate a finite sequence of reals that are getting closer and closer
 to Float64(1).
 
 These reals are interpreted as regularization factors, at the end
 (when [`burning_phase`](@ref)=false there is no more regularization
-([`regularization_factor`(@ref) = 1).
+([`regularization_factor`](@ref) = 1).
 """
 abstract type AbstractRegularizationSchedule end
 
@@ -28,7 +35,11 @@ burning_phase(rs::AbstractRegularizationSchedule, iter::Int) = regularization_fa
 # ================================================================
 
 """
-
+```julia
+struct NoRegularizationSchedule <: AbstractRegularizationSchedule
+  ...
+end
+```
 No regularization. The returned factor is always the unity and the
 `burning_phase` predicate is always false.
 """
@@ -40,12 +51,17 @@ regularization_factor(rs::NoRegularizationSchedule, iter::Int) = Float64(1)
 # ================================================================
 
 @doc raw"""
+```julia
+struct ExpRegularizationSchedule <: AbstractRegularizationSchedule
+  ...
+end
+```
 
 Exponentially decreasing factor at iteration `k` is 
 ```math
-α(k) = \left\{\array{ll}
-c \exp{-\log{c}\frac{k-1}{n-1}}, & \text{if }k<n \\
-1, & \text{if }k≥n \\
+\alpha(k) = \left\{\begin{\array}{ll}
+c \exp{-\log{c}\frac{k-1}{n-1}}, & \text{if } k<n \\
+1, & \text{if } k \ge n \\
 \end{array}\right.
 ```
 By construction we have `α(1)=c` and `α(k≥n)=1`.
