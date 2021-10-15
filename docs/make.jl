@@ -15,17 +15,20 @@ makedocs(;
                                 ),
     pages=[
         "Home" => "index.md",
-        "bound_constraints.md",
-        "regularization_schedule.md",
-        "Quadratic Solver" => [
-            "QuadSolvers/abstractions.md",
-            "QuadSolvers/Kunisch-Rendl.md",
+        "Documentation" => [
+            "bound_constraints.md",
+            "regularization_schedule.md",
+            "Quadratic Solver" => [
+                "QuadSolvers/abstractions.md",
+                "QuadSolvers/Kunisch-Rendl.md",
+            ],
+            "abstract_nls.md",
+            "Levenberg-Marquardt" => [
+                "Levenberg-Marquardt/lm.md",
+                "Levenberg-Marquardt/lm_bc.md",
+            ],
+            "api.md",
         ],
-        "Levenberg-Marquardt" => [
-            "Levenberg-Marquardt/lm.md",
-            "Levenberg-Marquardt/lm_bc.md",
-        ],
-        "api.md",
     ],
 )
 

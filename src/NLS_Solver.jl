@@ -4,6 +4,8 @@ include("regularization_schedule.jl")
 include("bound_constraints.jl")
 
 include("QuadSolvers/QuadSolvers.jl")
+
+include("abstract_nls.jl")
 include("Levenberg-Marquardt/Levenberg-Marquardt.jl")
 
 end
