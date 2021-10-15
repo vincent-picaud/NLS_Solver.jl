@@ -21,6 +21,10 @@ makedocs(;
             "QuadSolvers/abstractions.md",
             "QuadSolvers/Kunisch-Rendl.md",
         ],
+        "Levenberg-Marquardt" => [
+            "Levenberg-Marquardt/lm.md",
+            "Levenberg-Marquardt/lm_bc.md",
+        ],
         "api.md",
     ],
 )
