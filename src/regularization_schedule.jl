@@ -57,30 +57,37 @@ struct ExpRegularizationSchedule <: AbstractRegularizationSchedule
 end
 ```
 
-Exponentially decreasing factor at iteration `k` is 
+Exponentially decreasing factor. 
+
+At iteration `k` is the factor α is:
 ```math
-\alpha(k) = \left\{\begin{\array}{ll}
-c \exp{-\log{c}\frac{k-1}{n-1}}, & \text{if } k<n \\
+\alpha(k) = \left\{\begin{array}{ll}
+c \exp{\left(-\log{c}\left(\frac{k-1}{n}\right)\right)}, & \text{if } k \le n \\
 1, & \text{if } k \ge n \\
 \end{array}\right.
 ```
-By construction we have `α(1)=c` and `α(k≥n)=1`.
+where n is the last burning phase iteration (id the last iteration for which α>1).
+
+By construction we have α(1)=c and α(k>n)=1.
 """
 struct ExpRegularizationSchedule <: AbstractRegularizationSchedule
-    c::Float64
-    n::Int
+    factor::Float64
+    burning_last_iter::Int
     _β::Float64
 
-    function ExpRegularizationSchedule(c::Real,n::Integer)
-        @assert c≥1
-        @assert n>1
+    function ExpRegularizationSchedule(;factor::Real,burning_last_iter::Integer)
+        @assert factor ≥ 1
+        @assert burning_last_iter>1
 
-        # β is such that: α(k) = c \exp{β*(k-1)}
-        _β = -log(c)/(n-1)
+        # β is such that: α(k) = c \exp{β*k}
+        _β = -log(factor)/burning_last_iter
 
-        new(c,n,_β)
+        new(factor,burning_last_iter,_β)
     end
 end
 
-burning_phase(rs::ExpRegularizationSchedule, iter::Int) = iter ≤ rs.n
-regularization_factor(rs::ExpRegularizationSchedule, iter::Int) = rs.c*exp(rs._β*(iter-1))
+function regularization_factor(rs::ExpRegularizationSchedule, iter::Int)
+    ifelse(iter <=  rs.burning_last_iter, rs.factor*exp(rs._β*(iter-1)), Float64(1))
+end
+
+
