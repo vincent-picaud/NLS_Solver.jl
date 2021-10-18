@@ -13,5 +13,20 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                              ν::Float64=2,
                              verbose::Bool=true
                              )
+    # Compute, r,J, ∇fobj
+    #
     θ=copy(θ_init)
+    (r,J)=eval_r_J(nls,θ)
+    ∇fobj=similar(r)
+    eval_nls_∇fobj!(∇fobj,r,J)
+
+    # Check CV: |∇fobj| ≤ ϵ ?
+    #
+    inf_norm_∇fobj = norm(∇fobj,Inf)
+    if  inf_norm_∇fobj ≤ ε_grad_inf_norm
+        @info "Already critical point CV = ok"
+        return true
+    end
+
+    
 end
