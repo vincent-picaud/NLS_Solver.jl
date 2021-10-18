@@ -2,14 +2,22 @@
 
 
     @testset "Rosenbrock def" begin
-        fobj = Rosenbrock()
+        nls = Rosenbrock()
         
-        @assert parameter_size(fobj) == 2
+        @assert parameter_size(nls) == 2
 
 	θ=Float64[1,0]
 
-        @test eval_fobj(fobj,θ) ≈ 50
-        @test eval_fobj_J(fobj,θ) ≈ Float64[[-1 0] [-20 10]]
+        (r, J) = eval_r_J(nls,θ)
+        
+        @test r ≈ Float64[0; -10]
+        @test J ≈ Float64[[-1 0]; [-20 10]]
+        @test eval_nls_fobj(r) ≈ 50
+
+        grad=similar(r)
+
+        eval_nls_∇fobj!(grad,r,J)
+        @test grad ≈ [0; -100.0]
     end
     
 end

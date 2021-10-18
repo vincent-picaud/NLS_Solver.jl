@@ -1,3 +1,4 @@
+
 # Define Rosenbrock function: https://en.wikipedia.org/wiki/Rosenbrock_function
 #
 # This function can be interpreted as a NLS pb:
@@ -14,26 +15,32 @@ struct Rosenbrock <: AbstractNLS
 end
 
 parameter_size(::Rosenbrock) = 2
-function eval_fobj(nls::Rosenbrock,θ::AbstractVector{<:Real})
+residue_size(::Rosenbrock) = 2
+
+function eval_r!(r::AbstractVector,
+                 nls::Rosenbrock,θ::AbstractVector{<:Real})
     @assert length(θ)==parameter_size(nls)
+    @assert length(r)==residue_size(nls)
 
-    r1 = 1-θ[1]
-    r2 = 10*(θ[2]-θ[1]^2)
+    r[1] = 1-θ[1]
+    r[2] = 10*(θ[2]-θ[1]^2)
 
-    (r1*r1+r2*r2)/2
+    r
 end
 
-function eval_fobj_J(nls::Rosenbrock,θ::AbstractVector{<:Real})
+function eval_r_J!(r::AbstractVector,J::AbstractMatrix,
+                   nls::Rosenbrock,θ::AbstractVector{<:Real})
     @assert length(θ)==parameter_size(nls)
+    @assert length(r)==residue_size(nls)
+    @assert size(J)==(parameter_size(nls),residue_size(nls))
 
-    r1 = 1-θ[1]
-    r2 = 10*(θ[2]-θ[1]^2)
+    r[1] = 1-θ[1]
+    r[2] = 10*(θ[2]-θ[1]^2)
 
-    ∂1r1 = -1
-    ∂2r1 =  0
-    ∂1r2 =  -20*θ[1]
-    ∂2r2 =  +10
-    
-    f = (r1*r1+r2*r2)/2
-    J = typeof(f)[[ ∂1r1 ∂2r1 ] [ ∂1r2 ∂2r2 ]]
+    J[1,1] = -1        # ∂1r1
+    J[1,2] =  0        # ∂2r1
+    J[2,1] =  -20*θ[1] # ∂1r2
+    J[2,2] =  +10      # ∂2r2
+
+    (r, J)
 end
