@@ -13,11 +13,21 @@ Private = false
 
 ## Solver 
 
-TODO
+
+```@autodocs
+Modules = [NLS_Solver]
+Pages = ["abstract_nls_solve.jl"]
+Private = false
+```
 
 ### Solver configuration
 
-TODO
+```@autodocs
+Modules = [NLS_Solver]
+Pages = ["abstract_nls_conf.jl"]
+Private = false
+```
+
 
 ### Solver result 
 
