@@ -1,11 +1,16 @@
 using NLS_Solver
 using Test
 
-# Include test problems
 include("TestProblems/TestProblems.jl")
 
 @testset "NLS_Solver.jl" begin
 
+    @testset "TestProblems" begin
+        include("test_problems.jl")
+    end
+
+    # ================================================================
+    
     include("bound_constraints.jl")
     include("regularization_schedule.jl")
 
