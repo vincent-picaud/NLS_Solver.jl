@@ -139,7 +139,7 @@ eval_nls_fobj(r::AbstractVector) = dot(r,r)/2
 
 @doc raw"""
 ```julia
-eval_nls_∇fobj!(∇fobj::AbstractVector,
+qeval_nls_∇fobj!(∇fobj::AbstractVector,
                r::AbstractVector, J::AbstractMatrix) -> ∇fobj
 ```
 

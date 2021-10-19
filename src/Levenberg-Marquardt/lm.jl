@@ -14,18 +14,22 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                              θ_init::AbstractVector;
                              # parameters
                              max_iter::Int=50,
-                             ε_grad_inf_norm::Float64=1e-6,
-                             ε_step_2_norm::Float64=1e-6,
+                             ε_grad_inf_norm::Float64=1e-8,
+                             ε_step_2_norm::Float64=1e-8,
                              # initial regularization
                              τ::Float64=1.0e-3,                         
-                             ν::Float64=2.0,
+                             ν_init::Float64=2.0,
                              verbose::Bool=true)
+    v = ν_init
+    
     # Compute, r,J, ∇fobj=J'r
     #
     n_S, n_θ = residue_size(nls),parameter_size(nls) 
     θ=copy(θ_init)
-    
+
     (r,J)=eval_r_J(nls,θ)
+    # fobj is not really used (only when we return result) hence we do
+    # not create this extra variable, but only its gradient:
     ∇fobj=similar(r)
     eval_nls_∇fobj!(∇fobj,r,J)
 
@@ -33,8 +37,15 @@ function Levenberg_Marquardt(nls::AbstractNLS,
     #
     inf_norm_∇fobj = norm(∇fobj,Inf)
     if  inf_norm_∇fobj ≤ ε_grad_inf_norm
-        @info "Already critical point CV = ok"
-        return true
+        if verbose
+            @info "Already critical point CV = ok"
+        end
+        
+        return LevenbergMarquardt_Result(_converged=true,
+                                         _iter_count=0,
+                                         _fobj=eval_nls_fobj(r),
+                                         _solution=θ
+                                         ) 
     end
 
     # Compute H=J'J
@@ -64,7 +75,12 @@ function Levenberg_Marquardt(nls::AbstractNLS,
             step = -H_μD\∇fobj
         catch
             @warn "Unexpected singular system"
-            return false
+            
+            return LevenbergMarquardt_Result(_converged=false,
+                                             _iter_count=iter,
+                                             _fobj=eval_nls_fobj(r),
+                                             _solution=θ
+                                             )
         end
 
         # Check if step not too small -> CV
@@ -72,7 +88,16 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         norm_2_step = norm(step,2)
 
         if norm_2_step ≤ ε_step_2_norm*max(ε_step_2_norm,norm_2_step)
-            @info "cv step ok"
+            if verbose
+                @info "step too small... (TODO: check if μ is not too high
+                    before saying that cv=true)"
+            end
+            
+            return LevenbergMarquardt_Result(_converged=true,
+                                             _iter_count=iter,
+                                             _fobj=eval_nls_fobj(r),
+                                             _solution=θ,
+                                             ) 
             return true
         end
 
@@ -111,12 +136,19 @@ function Levenberg_Marquardt(nls::AbstractNLS,
             
             inf_norm_∇fobj = norm(∇fobj,Inf)
             if  inf_norm_∇fobj ≤ ε_grad_inf_norm
-                @info "Already critical point CV = ok"
-                return true
+                if verbose
+                    @info "Got a critical point CV = ok"
+                end
+                
+                return LevenbergMarquardt_Result(_converged=true,
+                                                 _iter_count=iter,
+                                                 _fobj=eval_nls_fobj(r),
+                                                 _solution=θ_new
+                                                 ) 
             end
 
             μ = μ * max(1/3,1-(2*ρ-1)^3)
-            ν = 2
+            ν = ν_init
         else
             # Do not accept point,
             # more regularization
@@ -125,5 +157,11 @@ function Levenberg_Marquardt(nls::AbstractNLS,
             ν = 2 * ν 
         end 
     end
-    true
+
+    # end of loop... not convergence
+    return LevenbergMarquardt_Result(_converged=false,
+                                     _iter_count=max_iter,
+                                     _fobj=eval_nls_fobj(r),
+                                     _solution=θ
+                                     ) 
 end

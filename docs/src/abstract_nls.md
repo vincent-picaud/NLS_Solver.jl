@@ -1,6 +1,8 @@
 # NLS problem abstraction
 
-## Documentation 
+TODO: use quadsolver abstraction as doc model.
+
+## Problem abstraction
 
 
 ```@autodocs
@@ -9,7 +11,25 @@ Pages = ["abstract_nls.jl"]
 Private = false
 ```
 
-### Private
+## Solver 
+
+TODO
+
+### Solver configuration
+
+TODO
+
+### Solver result 
+
+
+```@autodocs
+Modules = [NLS_Solver]
+Pages = ["abstract_nls_result.jl"]
+Private = false
+```
+
+
+## Private stuff
 
 ```@autodocs
 Modules = [NLS_Solver]

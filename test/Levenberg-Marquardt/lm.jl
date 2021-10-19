@@ -28,9 +28,11 @@
         nls = Rosenbrock()
         θ=Float64[1;0]
 
-        status=Levenberg_Marquardt(nls, θ)
+        result=Levenberg_Marquardt(nls, θ)
 
-        @test status
+        @test converged(result)
+        @test solution(result) ≈ Float64[1;1]
+        @test iteration_count(result) == 8
     end
         
 end
