@@ -53,7 +53,7 @@ Private = false
 ```@autodocs
 Modules = [NLS_Solver]
 Order   = [:function]
-Pages = ["QuadSolvers/solve.jl"]
+Pages = ["QuadSolvers/abstract_quadsolver_solve.jl"]
 Private = false
 ```
 
@@ -63,6 +63,6 @@ Private = false
 Modules = [NLS_Solver]
 Pages = ["QuadSolvers/abstract_quadsolver_conf.jl",
 	"QuadSolvers/abstract_quadsolver_result.jl",
-	"QuadSolvers/solve.jl"]
+	"QuadSolvers/abstract_quadsolver_solve.jl"]
 Public = false
 ```
