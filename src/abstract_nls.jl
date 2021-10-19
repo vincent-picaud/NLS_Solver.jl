@@ -84,6 +84,8 @@ eval_r_J!(r::AbstractVector, J::AbstractMatrix,nls::AbstractNLS,θ::AbstractVect
 # ================================================================
 # (Interface) convenience functions...
 # ================================================================
+# They look like interface functions, but but have a default
+# implementation.
 #
 
 """
@@ -119,7 +121,7 @@ end
 
 
 # ================================================================
-# Extra convenience functions...
+# Extra functions with implementations
 # ================================================================
 #
 @doc raw"""
