@@ -4,12 +4,6 @@ export Levenberg_Marquardt_Conf
 
 using LinearAlgebra: norm, I
 
-# TODO
-# abstract type AbstractNLSSolverConf end
-# struct Levenberg_Marquardt <:  AbstractNLSSolverConf
-# ...
-# end
-
 function Levenberg_Marquardt(nls::AbstractNLS,
                              θ_init::AbstractVector;
                              # parameters
@@ -22,6 +16,8 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                              verbose::Bool=true)
     # Sanity check
     #
+    @assert parameter_size(nls) == length(θ_init)
+
     @assert max_iter > 0
     @assert ε_grad_inf_norm ≥ 0
     @assert ε_step_2_norm ≥ 0
