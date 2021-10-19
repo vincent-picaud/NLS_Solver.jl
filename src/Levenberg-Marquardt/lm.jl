@@ -1,6 +1,6 @@
 # Unconstrained problem
 #
-export Levenberg_Marquardt
+export Levenberg_Marquardt_Conf
 
 using LinearAlgebra: norm, I
 
@@ -20,6 +20,16 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                              τ::Float64=1.0e-3,                         
                              ν_init::Float64=2.0,
                              verbose::Bool=true)
+    # Sanity check
+    #
+    @assert max_iter > 0
+    @assert ε_grad_inf_norm ≥ 0
+    @assert ε_step_2_norm ≥ 0
+    @assert τ > 0
+    @assert ν_init > 0
+
+    # Init 
+    #
     v = ν_init
     
     # Compute, r,J, ∇fobj=J'r
@@ -164,4 +174,78 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                                      _fobj=eval_nls_fobj(r),
                                      _solution=θ
                                      ) 
+end
+
+
+# ================================================================
+# Specialize with conf + solve
+# ================================================================
+
+
+@doc raw"""
+```julia
+Levenberg_Marquardt_Conf()
+```
+
+Configuration parameters of the Levenberg-Marquardt solver
+"""            
+mutable struct Levenberg_Marquardt_Conf <: AbstractNLSConf
+    # Related to CV test
+    #
+    _max_iter::Int
+    _ε_grad_inf_norm::Float64
+    _ε_step_2_norm::Float64
+    
+    # initial regularization μ = τ max_ij(|H_ij|)
+    _τ::Float64
+    # initial increase factor of μ
+    _ν_init::Float64
+
+    _verbose::Bool
+
+    # default values
+    function Levenberg_Marquardt_Conf(;
+                     max_iter::Int=50,
+                     ε_grad_inf_norm::Float64=1e-8,
+                     ε_step_2_norm::Float64=1e-8,
+                     
+                     τ::Float64=1.0e-3,
+                     ν_init::Float64=2.0,
+                     
+                     verbose::Bool=true)
+         
+        # note: parameters values are controlled directly by the
+        # Levenberg_Marquardt() function
+        
+        new(max_iter,
+            ε_grad_inf_norm,
+            ε_step_2_norm,
+            
+            τ,
+            ν_init,
+            
+            verbose)
+    end
+end
+# TODO: add stuff like mmax_iter(), set_max_iter()...
+#
+
+
+#
+# Solve interface 
+#
+function solve(conf::Levenberg_Marquardt_Conf,
+               nls::AbstractNLS,
+               θ_init::AbstractVector)
+
+    Levenberg_Marquardt(nls,θ_init,
+                        
+                        max_iter=conf._max_iter,
+                        ε_grad_inf_norm=conf._ε_grad_inf_norm,
+                        ε_step_2_norm= conf._ε_step_2_norm,
+                        
+                        τ=conf._τ,
+                        ν_init=conf._ν_init,
+                        
+                        verbose=conf._verbose)
 end
