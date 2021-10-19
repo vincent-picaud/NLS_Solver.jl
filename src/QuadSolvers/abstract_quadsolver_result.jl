@@ -30,18 +30,18 @@ iteration_count(::AbstractQuadSolverResult) = error("To implement")
 
 Returns objective value at the point [`solution`](@ref).
 """
-objective_value(r::AbstractQuadSolverResult) = r._fobj # TODO: remove this default! Tue Oct 19 10:30:46 AM CEST 2021
+objective_value(r::AbstractQuadSolverResult) = error("To implement")
 
 """
     multiplier_τ(::AbstractQuadSolverResult)
 
 Returns the multipliers stored in a compact form (see τ definition, TODO)
 """
-multiplier_τ(r::AbstractQuadSolverResult) = ReadOnlyArray(r._τ) # TODO: remove this default! Tue Oct 19 10:30:46 AM CEST 2021
+multiplier_τ(r::AbstractQuadSolverResult) = error("To implement")
 
 """
     solution(::AbstractQuadSolverResult)
 
 Returns the founded solution 
 """
-solution(r::AbstractQuadSolverResult) = ReadOnlyArray(r._x) # TODO: remove this default! Tue Oct 19 10:30:46 AM CEST 2021
+solution(r::AbstractQuadSolverResult) = error("To implement")
