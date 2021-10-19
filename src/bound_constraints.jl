@@ -23,6 +23,7 @@ struct BoundConstraints{ELT<:Real,N,LBT<:AbstractArray{ELT,N},UBT<:AbstractArray
 
     function BoundConstraints(lb::AbstractArray{ELT,N},ub::AbstractArray{ELT,N}) where{ELT,N}
         @assert size(lb)==size(ub)
+        @assert axes(lb)==axes(ub)
         # note: also fails in case of NaN
         @assert all((lb_i ≤ ub_i for (lb_i,ub_i) ∈ zip(lb,ub)))
         new{ELT,N,typeof(lb),typeof(ub)}(lb,ub)
@@ -33,13 +34,23 @@ BoundConstraints(n::Int) = BoundConstraints(zeros(n),ones(n))
 BoundConstraints(T::Type,n::Int) = BoundConstraints(zeros(T,n),ones(T,n))
 
 
-import Base: size, length, axes, in
+import Base: eltype, size, length, axes, in
+
+
+"""
+    eltype(bc::BoundConstraints)
+
+Return bound element type
+"""
+Base.eltype(bc::BoundConstraints{ELT}) where ELT = ELT
+
+
 """
     axes(bc::BoundConstraints)
 
 Return bound axes
 """
-Base.axes(bc::BoundConstraints) = axes(bc._lb)
+Base.axes(bc::BoundConstraints) = axes(bc._lb) 
 
 """
     length(bc::BoundConstraints)
@@ -91,3 +102,31 @@ function project!(x::AbstractArray{<:Real,N},bc::BoundConstraints{<:Real,N}) whe
     end
     x
 end 
+
+# ================================================================
+
+# TODO: define broadcasting interface allowing op like (bc .+ scalar),
+# for the moement we have (bc + vector).
+# https://docs.julialang.org/en/v1/manual/interfaces/#man-interfaces-broadcasting
+
+import Base: +, -
+@doc raw""" 
+
+    Translate bound constraints
+
+```math
+[a-τ,b-τ] = [a,b]-τ
+```
+"""
+Base.:-(bc::BoundConstraints,τ::AbstractArray) = BoundConstraints(lower_bound(bc).-τ,upper_bound(bc).-τ)
+    
+@doc raw""" 
+
+    Translate bound constraints
+
+```math
+[a+τ,b+τ] = [a,b]+τ
+```
+"""
+Base.:+(bc::BoundConstraints,τ::AbstractArray) = BoundConstraints(lower_bound(bc).+τ,upper_bound(bc).+τ)
+    
