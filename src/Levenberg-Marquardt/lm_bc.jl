@@ -42,25 +42,29 @@ function quadratic_subproblem(H::Symmetric{<:Real},
                               θ_init::AbstractVector{<:Real},
                               bc::BoundConstraints{<:Real,1},
                               conf::AbstractQuadSolverConf,
-                              damping::AbstractDampingFactor,
+                              damping::AbstractDynamicDampingFactor,
                               max_attempt::Int)
     @assert max_attempt ≥ 1
 
+    # translate bound onces for all: [l-θ,u-θ]
+    bc_translated = bc - θ_init
+    
     # buffer to avoid several allocs
-    H_μD = similar(H)
+    H_μI = copy(H)
+    view_diag_H_μI = @view H_μI[diagind(H_μI)]
+    view_diag_H = @view H[diagind(H)]
     
     # as they are used outside the for loop
     local quad_cv_ok = false
     local result
     for attempt in 1:max_attempt
-        TODO: Attention reinit H!!! Diag
-        compute_Q_μD!(H_μD,
-        result = quadratic_subproblem(H,
-                                      get_damping_factor(damping),
-                                      ∇f,
-                                      θ_init,
-                                      bc,
-                                      conf)
+        μ = get_damping_factor(damping)
+        if attempt != 1
+            view_diag_H_μI .= view_diag_H
+        end
+        view_diag_H_μI .+= μ
+        
+        result = solve(H_μI,∇f,θ_init,bc_translated,conf)
 
         quad_cv_ok = converged(result)
         if quad_cv_ok 
@@ -69,7 +73,7 @@ function quadratic_subproblem(H::Symmetric{<:Real},
 
         # only bindings...
         θ_init = solution(result)
-        damping = increase_damping_factor(damping)
+        damping = update_damping_factor(damping, -1.0) 
     end
 
     if !quad_cv_ok
@@ -215,16 +219,13 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
 #    local quad_result
 
     for iter ∈ 1:max_iter
-        # note: this function requires a DampingFactor struct,
-        #       but damping is a DynamicDampingFactor.
-        quad_damping = DampingFactor(get_damping_factor(damping))
-        (quad_result, _) = quadratic_subproblem(H,
-                                                ∇fobj,
-                                                θ,
-                                                bc,
-                                                quad_conf,
-                                                quad_damping,
-                                                20) # max attempt
+        (quad_result, damping) = quadratic_subproblem(H,
+                                                      ∇fobj,
+                                                      θ,
+                                                      bc,
+                                                      quad_conf,
+                                                      damping,
+                                                      20) # max attempt
 
         if !converged(quad_result)
             @warn "LM_BC: cannot solve inner quadratic problem... Abort..."
