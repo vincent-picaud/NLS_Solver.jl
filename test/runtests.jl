@@ -26,4 +26,8 @@ include("TestProblems/TestProblems.jl")
         include("Levenberg-Marquardt/lm.jl")
     end
 
+    @testset "Bound constrained Levenberg-Marquardt" begin
+        include("Levenberg-Marquardt/lm_bc.jl")
+    end
+
 end
