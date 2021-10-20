@@ -46,9 +46,15 @@ function quadratic_subproblem(H::Symmetric{<:Real},
                               max_attempt::Int)
     @assert max_attempt ≥ 1
 
+    # buffer to avoid several allocs
+    H_μD = similar(H)
+    
+    # as they are used outside the for loop
     local quad_cv_ok = false
     local result
     for attempt in 1:max_attempt
+        TODO: Attention reinit H!!! Diag
+        compute_Q_μD!(H_μD,
         result = quadratic_subproblem(H,
                                       get_damping_factor(damping),
                                       ∇f,
