@@ -1,6 +1,6 @@
 # Some misc functions related to quadratic optimization problems
 #
-import LinearAlgebra: Symmetric
+import LinearAlgebra: Symmetric, UniformScaling
 
 @doc raw"""
 ```julia
@@ -67,4 +67,50 @@ function check_first_order(Q::Symmetric{<:Real},
     # allocs...
     ∇f=Q*xstar+q
     check_first_order(∇f,xstar,bc)
+end
+
+@doc raw"""
+```julia
+compute_Q_μD!(Q::Symmetric{<:Real},
+              μ::Real,
+              D::AbstractVector{<:Real})::Symmetric{<:Real}
+compute_Q_μD(Q::Symmetric{<:Real},
+             μ::Real,
+             D::AbstractVector{<:Real})::Symmetric{<:Real}
+
+compute_Q_μI!(Q::Symmetric{<:Real},
+              μ::Real,
+              D::UniformScaling)::Symmetric{<:Real}
+compute_Q_μI(Q::Symmetric{<:Real},
+             μ::Real,
+             D::UniformScaling)::Symmetric{<:Real}
+```
+
+Compute ``Q+μD``
+"""
+function compute_Q_μD!(Q::Symmetric{<:Real},
+                       μ::Real,
+                       D::AbstractVector{<:Real})
+    Q[diagind(Q)] .+= μ .* D
+    Q
 end 
+function compute_Q_μD(Q::Symmetric{<:Real},
+                      μ::Real,
+                      D::AbstractVector{<:Real})
+    Q=copy(Q)
+    compute_Q_μD!(Q,μ,D)
+end     
+                       
+function compute_Q_μD!(Q::Symmetric{<:Real},
+                       μ::Real,
+                       D::UniformScaling)
+    Q[diagind(Q)] .+= (μ * D.λ)
+    Q
+end 
+function compute_Q_μD(Q::Symmetric{<:Real},
+                      μ::Real,
+                      D::UniformScaling)
+    Q=copy(Q)
+    compute_Q_μD!(Q,μ,D)
+end     
+       

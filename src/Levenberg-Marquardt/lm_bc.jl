@@ -277,7 +277,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
             # Screen output
             #
             if verbose
-                println("LM_BC: iter=$iter, |step|=$norm_2_step, |KKT|=$inf_norm_KKT, μ=$(get_damping_factor(damping))")
+                @info "LM_BC: iter=$iter, |step|=$norm_2_step, |KKT|=$inf_norm_KKT, μ=$(get_damping_factor(damping))"
             end
             
             if inf_norm_KKT ≤ ε_grad_inf_norm
