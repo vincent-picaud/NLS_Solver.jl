@@ -5,6 +5,10 @@ include("TestProblems/TestProblems.jl")
 
 @testset "NLS_Solver.jl" begin
 
+    @test length(detect_ambiguities(NLS_Solver))==0
+
+    # ================================================================
+    
     @testset "TestProblems" begin
         include("test_problems.jl")
     end
