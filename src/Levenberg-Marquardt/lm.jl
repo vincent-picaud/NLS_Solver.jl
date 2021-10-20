@@ -1,5 +1,5 @@
 # Unconstrained problem
-#
+# μ
 export Levenberg_Marquardt_Conf
 
 using LinearAlgebra: norm, I
@@ -12,7 +12,6 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                              ε_step_2_norm::Float64=1e-8,
                              # initial regularization
                              τ::Float64=1.0e-3,                         
-                             ν_init::Float64=2.0,
                              verbose::Bool=true)
     # Sanity check
     #
@@ -22,12 +21,8 @@ function Levenberg_Marquardt(nls::AbstractNLS,
     @assert ε_grad_inf_norm ≥ 0
     @assert ε_step_2_norm ≥ 0
     @assert τ > 0
-    @assert ν_init > 0
 
-    # Init 
-    #
-    v = ν_init
-    
+
     # Compute, r,J, ∇fobj=J'r
     #
     n_S, n_θ = residue_size(nls),parameter_size(nls) 
@@ -61,7 +56,9 @@ function Levenberg_Marquardt(nls::AbstractNLS,
 
     # Initial μ
     #
-    μ = τ * norm(H,Inf)
+    # (maybe add (Abstract)Damping type into conf)
+    #
+    damping = DynamicDampingFactor(τ * norm(H,Inf))
 
     # Some buffers
     #
@@ -73,7 +70,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
     for iter ∈ 1:max_iter
         # regularize Hessian
         #
-        H_μD .= H + μ*I
+        H_μD .= H + get_damping_factor(damping)*I
 
         # Newton step = -inv(H).∇f
         #
@@ -111,7 +108,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         # δL = L(0)-L(step)
         #    = 1/2 dot( step , μ step - grad)
         #
-        δL = dot(step,μ*step-∇fobj)/2         # TODO: optimize to avoid mem alloc
+        δL = dot(step,get_damping_factor(damping)*step-∇fobj)/2         # TODO: optimize to avoid mem alloc
         @assert δL > 0
         
         # Compute new θ & residue
@@ -129,11 +126,16 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         ρ = δfobj/δL
 
         if verbose
-            println("iter $iter, |step|=$norm_2_step |∇f|=$inf_norm_∇fobj μ=$μ θ=$θ_new")
+            println("iter $iter, |step|=$norm_2_step, ",
+                    "|∇f|=$inf_norm_∇fobj, ",
+                    "μ=$(get_damping_factor(damping)), ",
+                    "θ=$θ_new")
         end
 
         if ρ>0
             # Accept new point
+            #
+            # -> update position and check for CV
             #
             @. θ = θ_new
             eval_r_J!(r,J,nls,θ_new) # r_new was already know, but not J
@@ -152,16 +154,11 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                                                  _solution=θ_new
                                                  ) 
             end
+        end
 
-            μ = μ * max(1/3,1-(2*ρ-1)^3)
-            ν = ν_init
-        else
-            # Do not accept point,
-            # more regularization
-            #
-            μ = μ * ν
-            ν = 2 * ν 
-        end 
+        # In all cases (accepted or not) update damping factor μ
+        #
+        damping = update_damping_factor(damping,ρ)
     end
 
     # end of loop... not convergence
@@ -194,8 +191,6 @@ mutable struct Levenberg_Marquardt_Conf <: AbstractNLSConf
     
     # initial regularization μ = τ max_ij(|H_ij|)
     _τ::Float64
-    # initial increase factor of μ
-    _ν_init::Float64
 
     _verbose::Bool
 
@@ -206,7 +201,6 @@ mutable struct Levenberg_Marquardt_Conf <: AbstractNLSConf
                      ε_step_2_norm::Float64=1e-8,
                      
                      τ::Float64=1.0e-3,
-                     ν_init::Float64=2.0,
                      
                      verbose::Bool=true)
          
@@ -218,7 +212,6 @@ mutable struct Levenberg_Marquardt_Conf <: AbstractNLSConf
             ε_step_2_norm,
             
             τ,
-            ν_init,
             
             verbose)
     end
@@ -241,7 +234,6 @@ function solve(nls::AbstractNLS,
                         ε_step_2_norm= conf._ε_step_2_norm,
                         
                         τ=conf._τ,
-                        ν_init=conf._ν_init,
                         
                         verbose=conf._verbose)
 end
