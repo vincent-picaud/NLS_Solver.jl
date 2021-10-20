@@ -427,8 +427,8 @@ end
 
 # Specialize the solve method <- this method is exported
 #
-solve(conf::Kunisch_Rendl_Conf,
-      Q::Symmetric{<:Real},
+solve(Q::Symmetric{<:Real},
       q::AbstractVector{<:Real},
       x_init::AbstractVector{<:Real},
-      bc::BoundConstraints{<:Real,1}) = Kunisch_Rendl(Q,q,x_init,bc,conf)
+      bc::BoundConstraints{<:Real,1},
+      conf::Kunisch_Rendl_Conf) = Kunisch_Rendl(Q,q,x_init,bc,conf)

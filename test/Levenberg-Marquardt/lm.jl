@@ -19,7 +19,7 @@
         conf = Levenberg_Marquardt_Conf()
         θ=Float64[1;0]
 
-        result=solve(conf, nls, θ)
+        result=solve( nls, θ, conf)
 
         @test converged(result)
         @test solution(result) ≈ Float64[1;1]

@@ -51,7 +51,7 @@ end
     x_init=zeros(Int,n)
 
     conf = Kunisch_Rendl_Conf(verbose=false)
-    result = solve(conf,Q,q,x_init,bc)
+    result = solve(Q,q,x_init,bc,conf)
 
     x_sol = solution(result)
     @test converged(result)
@@ -63,7 +63,7 @@ end
     # test with a reg schedule
     conf_2 =  Kunisch_Rendl_Conf(verbose=false,
                                  reg_schedule=ExpRegularizationSchedule(factor=4,burning_last_iter=2))
-    result_2 = solve(conf_2,Q,q,x_init,bc)
+    result_2 = solve(Q,q,x_init,bc,conf_2)
 
     x_sol_2 = solution(result_2)
     @test converged(result_2)
@@ -88,7 +88,7 @@ end
     x_init = zeros(3)
 
     conf = Kunisch_Rendl_Conf(verbose=false)
-    result = solve(conf,Q,q,x_init,bc)
+    result = solve(Q,q,x_init,bc,conf)
 
     x_sol = solution(result)
     τ = multiplier_τ(result)

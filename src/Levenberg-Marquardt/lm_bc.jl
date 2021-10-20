@@ -15,7 +15,7 @@ We use the quadratic model of ``f``, the bound contraints are such
 that the step ``h`` makes the update ``x+h`` falls in the ``[θ^l,θ^u]`` bound.
 
 """
-TODO
+# function quadratic_subproblem(Q::
 
 
 # Note: Convergence check replace Euler CN |∇f| ≤ ϵ, we use the

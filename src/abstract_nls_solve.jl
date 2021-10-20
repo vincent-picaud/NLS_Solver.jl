@@ -2,8 +2,9 @@ export solve
 
 """
 ```julia
-solve(conf::AbstractNLSConf,
-      θ_init::AbstractVector{<:Real}) -> AbstractNLSResult
+solve(nls::AbstractNLS,
+      θ_init::AbstractVector{<:Real},
+      conf::AbstractNLSConf) -> AbstractNLSResult
 ```
 
 Generic interface to solve a [`AbstractNLS`](@ref] problem
@@ -13,6 +14,8 @@ The algorithm to be used is defined through
 [`AbstractNLSResult`](@ref) specialization.
 
 """
-solve(conf::AbstractNLSConf, θ_init::AbstractVector{<:Real}) = error("To implement")
+solve(nls::AbstractNLS,
+      θ_init::AbstractVector,
+      conf::AbstractNLSConf) = error("To implement")
 
                
