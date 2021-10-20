@@ -101,7 +101,6 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                                              _fobj=eval_nls_fobj(r),
                                              _solution=θ,
                                              ) 
-            return true
         end
 
         # Compute δL variation from the quadratic model
@@ -114,7 +113,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         # Compute new θ & residue
         #
         @. θ_new = θ + step
-        eval_r!(r_new,nls,θ_new)        # TODO: optimize to avoid mem alloc
+        eval_r!(r_new,nls,θ_new)       
    
         # Compute δfobj = 1/2( r^2 - r_new^2 )
         # (using  r^2 - r_new^2 = (r-r_new)*(r+r_new) which is numerically better)
@@ -125,6 +124,8 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         #
         ρ = δfobj/δL
 
+        # Screen output
+        #
         if verbose
             println("iter $iter, |step|=$norm_2_step, ",
                     "|∇f|=$inf_norm_∇fobj, ",
@@ -132,11 +133,11 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                     "θ=$θ_new")
         end
 
+        # Accept new point?
+        #
+        # -> update position and check for CV
+        #
         if ρ>0
-            # Accept new point
-            #
-            # -> update position and check for CV
-            #
             @. θ = θ_new
             eval_r_J!(r,J,nls,θ_new) # r_new was already know, but not J
             eval_nls_∇fobj!(∇fobj,r,J)
