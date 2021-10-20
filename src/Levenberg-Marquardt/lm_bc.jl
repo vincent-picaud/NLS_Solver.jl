@@ -61,11 +61,9 @@ function quadratic_subproblem(H::Symmetric{<:Real},
     local result
     for attempt in 1:max_attempt
         μ = get_damping_factor(damping)
-        if attempt != 1
-            view_diag_H_μI .= view_diag_H
-        end
-        view_diag_H_μI .+= μ
-        
+
+        view_diag_H_μI .= view_diag_H .+ μ
+                
         result = solve(H_μI,∇f,θ_init,bc_translated,conf)
 
         quad_cv_ok = converged(result)
