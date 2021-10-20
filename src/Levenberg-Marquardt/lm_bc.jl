@@ -35,13 +35,15 @@ end
 # Add with max iter + damping factor
 
 
-# Try hard to solve the previous qudaratic problem by increasing damping factor
-# 
+# This one is special as Kunisch-Rendl is not necessary convergent
+# by consequence we also increase damping factor here.
+#
+# TODO: create the simpler routine for conf::AbstractQuadSolverConf and remplace this one by KR
 function quadratic_subproblem(H::Symmetric{<:Real},
                               ∇f::AbstractVector{<:Real},
                               θ_init::AbstractVector{<:Real},
                               bc::BoundConstraints{<:Real,1},
-                              conf::AbstractQuadSolverConf,
+                              conf::AbstractQuadSolverConf, # TODO KR
                               damping::AbstractDynamicDampingFactor,
                               max_attempt::Int)
     @assert max_attempt ≥ 1
