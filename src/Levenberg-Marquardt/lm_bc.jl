@@ -28,7 +28,7 @@ function quadratic_subproblem(H::Symmetric{<:Real},
 
     # H+μI
     H_plus_μI = copy(H)
-    H_plus_μI[diagind(H_plus_μI)] .= μ
+    H_plus_μI[diagind(H_plus_μI)] .+= μ
 
     solve(H_plus_μI,∇f,θ_init,bc_translated,conf)
 end  
@@ -162,6 +162,11 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
                                 # initial regularization μ0=τ.|H|
                                 τ::Float64=1.0e-3,                         
                                 verbose::Bool=true)
+    if verbose
+        @info "Entering Levenberg_Marquardt_BC (LM_BC) $(@__FILE__):$(@__LINE__)"
+        @info "θ = $θ_init, bounds: θl=$(lower_bound(bc)), θu=$(upper_bound(bc))"
+    end
+    
     # Sanity check
     #
     @assert length(bc) == length(θ_init)
@@ -201,7 +206,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
     θ_new = similar(θ)
     r_new = similar(r)
 
-    local quad_result
+#    local quad_result
 
     for iter ∈ 1:max_iter
         # note: this function requires a DampingFactor struct,
@@ -216,7 +221,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
                                                 20) # max attempt
 
         if !converged(quad_result)
-            @warn "Quad solver did not CV... Abort"
+            @warn "LM_BC: cannot solve inner quadratic problem... Abort..."
             return false # return no cv
         end
 
@@ -229,8 +234,8 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
 
         if norm_2_step ≤ ε_step_2_norm*max(ε_step_2_norm,norm_2_step)
             if verbose
-                @info "step too small... (TODO: check if μ is not too high
-                        before saying that cv=true)"
+                @info "LM_BC: converged[vanishing move], |step|_2 = $norm_2_step, μ = $(get_damping_factor(damping))"
+                @info "LM_BC: found solution θ=$θ"
             end
             
             # return LevenbergMarquardt_Result(_converged=true,
@@ -246,7 +251,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
         δL = compute_δL_naive(J,
                               r,
                               step)
-        @assert δL>0
+       @assert δL>0 "$δL"
         
         @. θ_new = θ + step
         project!(θ_new,bc) # be sure 
@@ -255,14 +260,6 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
 
         ρ=δf/δL
 
-        # Screen output
-        #
-        if verbose
-            println("iter $iter, |step|=$norm_2_step, ",
-         #           "|∇f|=$inf_norm_KKT, ",
-                    "μ=$(get_damping_factor(damping)), ",
-                    "θ=$θ_new")
-        end
 
         # Accept new point?
         #
@@ -276,14 +273,29 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
             eval_nls_∇∇fobj!(H,J)
             
             inf_norm_KKT = norm(∇fobj+τ,Inf)
+
+            # Screen output
+            #
+            if verbose
+                println("LM_BC: iter=$iter, |step|=$norm_2_step, |KKT|=$inf_norm_KKT, μ=$(get_damping_factor(damping))")
+            end
+            
             if inf_norm_KKT ≤ ε_grad_inf_norm
                 if verbose
-                    @info "Got a critical point CV = ok"
+                    @info "LM_BC: converged[critical point for KKT], |KKT| = $inf_norm_KKT"
+                    @info "LM_BC: found solution θ=$θ"
                 end
                 return true;
             end
 
+        else
+            # Screen output
+            #
+            if verbose
+                println("LM_BC: iter=$iter, Reject point: ρ=$ρ, μ=$(get_damping_factor(damping))")
+            end
         end
+        
 
         # In all cases (accepted or not) update damping factor μ
         #

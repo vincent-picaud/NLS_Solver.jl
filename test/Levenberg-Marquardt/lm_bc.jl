@@ -4,8 +4,8 @@
         using NLS_Solver: Levenberg_Marquardt
         
         nls = Rosenbrock()
-        θ=Float64[1;0]
-        bc=BoundConstraints(-ones(2),+ones(2))
+        θ=Float64[-10;-10.5]
+        bc=BoundConstraints(-40*ones(2),+20*ones(2))
         result=Levenberg_Marquardt_BC(nls, θ, bc)
 
         @test result
