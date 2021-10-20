@@ -17,5 +17,6 @@ across the other documentation pages.
 Modules = [NLS_Solver]
 Pages = ["QuadSolvers/boundconstraint_enum.jl",
          "QuadSolvers/misc.jl",
+		 "Levenberg-Marquardt/damping.jl",
 		 ]
 ```
