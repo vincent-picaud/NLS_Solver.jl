@@ -230,9 +230,9 @@ end
 #
 # Solve interface 
 #
-function solve(conf::Levenberg_Marquardt_Conf,
-               nls::AbstractNLS,
-               θ_init::AbstractVector)
+function solve(nls::AbstractNLS,
+               θ_init::AbstractVector,
+               conf::Levenberg_Marquardt_Conf)
 
     Levenberg_Marquardt(nls,θ_init,
                         
