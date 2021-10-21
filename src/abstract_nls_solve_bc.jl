@@ -4,18 +4,21 @@ export solve
 ```julia
 solve(nls::AbstractNLS,
       θ_init::AbstractVector{<:Real},
+      bc::BoundConstraints{<:Real},
       conf::AbstractNLSConf) -> AbstractNLSResult
 ```
 
-Generic interface to solve a [`AbstractNLS`](@ref) problem.
+Generic interface to solve a [`AbstractNLS`](@ref) problem **with
+bound constraints**.
 
 The algorithm to be used is defined through `conf` of type
-[`AbstractNLSConf`](@ref) specializations.
+[`AbstractNLSBCConf`](@ref) specializations.
 
 The method returns a [`AbstractNLSResult`](@ref) specialization.
 """
 solve(nls::AbstractNLS,
       θ_init::AbstractVector,
-      conf::AbstractNLSConf) = error("To implement")
+      bc::BoundConstraints{<:Real},
+      conf::AbstractNLSBCConf) = error("To implement")
 
                

@@ -20,7 +20,7 @@ Pages = ["abstract_nls_solve.jl"]
 Private = false
 ```
 
-### Solver configuration
+### Configuration
 
 ```@autodocs
 Modules = [NLS_Solver]
@@ -29,7 +29,7 @@ Private = false
 ```
 
 
-### Solver result 
+### Result 
 
 
 ```@autodocs
@@ -39,10 +39,26 @@ Private = false
 ```
 
 
-## Private stuff
+## Solver (Bound Constrained)
+
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["abstract_nls.jl"]
-Public = false
+Pages = ["abstract_nls_solve_bc.jl"]
+Private = false
 ```
+
+### Configuration
+
+```@autodocs
+Modules = [NLS_Solver]
+Pages = ["abstract_nls_conf_bc.jl"]
+Private = false
+```
+
+
+### Result 
+
+For the moment we still use [`AbstractNLSResult`](@ref)
+
+

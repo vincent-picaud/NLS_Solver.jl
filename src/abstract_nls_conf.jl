@@ -1,5 +1,4 @@
 export AbstractNLSConf
-export converged, iteration_count,objective_value,solution
 
 @doc raw"""
 ```julia
