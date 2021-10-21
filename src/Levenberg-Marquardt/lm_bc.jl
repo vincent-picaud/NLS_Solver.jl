@@ -17,33 +17,10 @@ that the step ``h`` makes the update ``x+h`` falls in the ``[θ^l,θ^u]`` bound.
 
 """
 function quadratic_subproblem(H::Symmetric{<:Real},
-                              μ::Real,
                               ∇f::AbstractVector{<:Real},
                               θ_init::AbstractVector{<:Real},
                               bc::BoundConstraints{<:Real,1},
-                              conf::AbstractQuadSolverConf)
-
-    # [l-θ,u-θ]
-    bc_translated = bc - θ_init
-
-    # H+μI
-    H_plus_μI = copy(H)
-    H_plus_μI[diagind(H_plus_μI)] .+= μ
-
-    solve(H_plus_μI,∇f,θ_init,bc_translated,conf)
-end  
-# Add with max iter + damping factor
-
-
-# This one is special as Kunisch-Rendl is not necessary convergent
-# by consequence we also increase damping factor here.
-#
-# TODO: create the simpler routine for conf::AbstractQuadSolverConf and remplace this one by KR
-function quadratic_subproblem(H::Symmetric{<:Real},
-                              ∇f::AbstractVector{<:Real},
-                              θ_init::AbstractVector{<:Real},
-                              bc::BoundConstraints{<:Real,1},
-                              conf::AbstractQuadSolverConf, # TODO KR
+                              conf::AbstractQuadSolverConf,
                               damping::AbstractDynamicDampingFactor,
                               max_attempt::Int)
     @assert max_attempt ≥ 1
@@ -53,17 +30,24 @@ function quadratic_subproblem(H::Symmetric{<:Real},
     
     # buffer to avoid several allocs
     H_μI = copy(H)
-    view_diag_H_μI = @view H_μI[diagind(H_μI)]
-    view_diag_H = @view H[diagind(H)]
+    update_H_μI = begin
+        view_diag_H_μI = @view H_μI[diagind(H_μI)]
+        view_diag_H = @view H[diagind(H)]
+        () -> begin
+            μ = get_damping_factor(damping)
+            view_diag_H_μI .= view_diag_H .+ μ
+        end
+    end
     
+    # We perform several attempts with increasing μ (this is useful
+    # when using some optimizers likes Kunisch-Rendl which are not
+    # necessary convergent for ill-conditioned system).
+
     # as they are used outside the for loop
     local quad_cv_ok = false
     local result
     for attempt in 1:max_attempt
-        μ = get_damping_factor(damping)
-
-        view_diag_H_μI .= view_diag_H .+ μ
-                
+        update_H_μI()                
         result = solve(H_μI,∇f,θ_init,bc_translated,conf)
 
         quad_cv_ok = converged(result)
