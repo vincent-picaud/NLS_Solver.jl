@@ -157,9 +157,7 @@ Levenberg_Marquardt_BC(nls::AbstractNLS,
                        τ::Float64=1.0e-3,
                        # quad specific
                        quad_conf::AbstractQuadSolverConf=Kunisch_Rendl_Conf(),
-                       quad_max_attempt::Int=10,
-                       # misc
-                       verbose::Bool=true)
+                       quad_max_attempt::Int=10)
 ```
 Implementation of a "personal" Levenberg-Marquardt method that handles
 bound constraints.
@@ -180,14 +178,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
                                 τ::Float64=1.0e-3,
                                 # quad specific
                                 quad_conf::AbstractQuadSolverConf=Kunisch_Rendl_Conf(),
-                                quad_max_attempt::Int=10,
-                                # misc
-                                verbose::Bool=true)
-    if verbose
-        @info "Entering Levenberg_Marquardt_BC (LM_BC) $(@__FILE__):$(@__LINE__)"
-        @info "θ = $θ_init, bounds: θl=$(lower_bound(bc)), θu=$(upper_bound(bc))"
-    end
-    
+                                quad_max_attempt::Int=10)
     # Sanity check
     #
     @assert length(bc) == length(θ_init)
@@ -258,15 +249,14 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
         norm_2_step = norm(step,2)
 
         if norm_2_step ≤ ε_step_2_norm*max(ε_step_2_norm,norm_2_step)
-            if verbose
-                @info "LM_BC: converged[vanishing move], |step|_2 = $norm_2_step, μ = $(get_damping_factor(damping))"
-                @info "LM_BC: found solution θ=$θ"
-            end
+            result = LevenbergMarquardt_Result(_converged=true,
+                                               _iter_count=iter,
+                                               _fobj=eval_nls_fobj(r),
+                                               _solution=θ)
+
+            @debug "Small step" result = result
             
-            return LevenbergMarquardt_Result(_converged=true,
-                                             _iter_count=iter,
-                                             _fobj=eval_nls_fobj(r),
-                                             _solution=θ)
+            return result
         end
 
         # compute ρ
@@ -297,42 +287,37 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
             
             inf_norm_KKT = norm(∇fobj+τ,Inf)
 
-            # Screen output
-            #
-            if verbose
-                @info "LM_BC: iter=$iter, |step|=$norm_2_step, |KKT|=$inf_norm_KKT, μ=$(get_damping_factor(damping))"
-            end
+            #            @debug "iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |KKT|=$(_fmt(inf_norm_KKT)), μ=$(_fmt(get_damping_factor(damping)))" 
             
             if inf_norm_KKT ≤ ε_grad_inf_norm
-                if verbose
-                    @info "LM_BC: converged[critical point for KKT], |KKT| = $inf_norm_KKT"
-                    @info "LM_BC: found solution θ=$θ"
-                end
-
-                return LevenbergMarquardt_Result(_converged=true,
-                                                 _iter_count=iter,
-                                                 _fobj=eval_nls_fobj(r),
-                                                 _solution=θ)
+                result = LevenbergMarquardt_Result(_converged=true,
+                                                          _iter_count=iter,
+                                                   _fobj=eval_nls_fobj(r),
+                                                   _solution=θ)
+                
+                @debug "KKT critical point" result = result
+                
+                return result
             end
             
         else
-            # Screen output
-            #
-            if verbose
-                println("LM_BC: iter=$iter, Reject point: ρ=$ρ, μ=$(get_damping_factor(damping))")
-            end
+            # @debug "Reject point: ρ=$(_fmt(ρ)), μ=$(_fmt(get_damping_factor(damping)))"
         end
         
-
+        
         # In all cases (accepted or not) update damping factor μ
         #
         damping = update_damping_factor(damping,ρ)
     end
 
-    return LevenbergMarquardt_Result(_converged=false,
+    result = LevenbergMarquardt_Result(_converged=false,
                                      _iter_count=iter,
                                      _fobj=eval_nls_fobj(r),
-                                     _solution=θ)
+                                       _solution=θ)
+
+    @debug "Too many iterations" result = result
+
+    result
 end
 
 
@@ -401,7 +386,5 @@ function solve(nls::AbstractNLS,
                            τ=conf._lm_conf._τ,
 
                            quad_conf=conf._quad_conf,
-                           quad_max_attempt=conf._quad_max_attempt,
-
-                           verbose=conf._lm_conf._verbose)
+                           quad_max_attempt=conf._quad_max_attempt)
 end

@@ -13,8 +13,7 @@ Levenberg_Marquardt(nls::AbstractNLS,
                     ε_grad_inf_norm::Float64=1e-8,
                     ε_step_2_norm::Float64=1e-8,
                     # initial regularization
-                    τ::Float64=1.0e-3,                         
-                    verbose::Bool=true)
+                    τ::Float64=1.0e-3)
 ```
 
 Implementation of a Levenberg-Marquardt method.
@@ -27,8 +26,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                              ε_grad_inf_norm::Float64=1e-8,
                              ε_step_2_norm::Float64=1e-8,
                              # initial regularization
-                             τ::Float64=1.0e-3,                         
-                             verbose::Bool=true)
+                             τ::Float64=1.0e-3)
     # Sanity check
     #
     @assert parameter_size(nls) == length(θ_init)
@@ -54,15 +52,15 @@ function Levenberg_Marquardt(nls::AbstractNLS,
     #
     inf_norm_∇fobj = norm(∇fobj,Inf)
     if  inf_norm_∇fobj ≤ ε_grad_inf_norm
-        if verbose
-            @info "Already critical point CV = ok"
-        end
-        
-        return LevenbergMarquardt_Result(_converged=true,
+
+        result = LevenbergMarquardt_Result(_converged=true,
                                          _iter_count=0,
                                          _fobj=eval_nls_fobj(r),
-                                         _solution=θ
-                                         ) 
+                                         _solution=θ)
+   
+        @debug "Initial point was already a soluion" result = result
+        
+        return result
     end
 
     # Compute H=J'J
@@ -93,13 +91,15 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         try
             step = -H_μD\∇fobj
         catch
-            @warn "Unexpected singular system"
-            
-            return LevenbergMarquardt_Result(_converged=false,
-                                             _iter_count=iter,
-                                             _fobj=eval_nls_fobj(r),
-                                             _solution=θ
-                                             )
+            result = LevenbergMarquardt_Result(_converged=false,
+                                               _iter_count=iter,
+                                               _fobj=eval_nls_fobj(r),
+                                               _solution=θ
+                                               )
+
+            @warn "Leaving LM (singular system)" result = result
+
+            return result
         end
 
         # Check if step not too small -> CV
@@ -107,16 +107,16 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         norm_2_step = norm(step,2)
 
         if norm_2_step ≤ ε_step_2_norm*max(ε_step_2_norm,norm_2_step)
-            if verbose
-                @info "step too small... (TODO: check if μ is not too high
-                    before saying that cv=true)"
-            end
-            
-            return LevenbergMarquardt_Result(_converged=true,
+
+            result = LevenbergMarquardt_Result(_converged=true,
                                              _iter_count=iter,
                                              _fobj=eval_nls_fobj(r),
                                              _solution=θ,
-                                             ) 
+                                               )
+            
+            @debug "Small step" result = result
+            
+            return result
         end
 
         # Compute δL variation from the quadratic model
@@ -140,14 +140,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         #
         ρ = δfobj/δL
 
-        # Screen output
-        #
-        if verbose
-            println("iter $iter, |step|=$norm_2_step, ",
-                    "|∇f|=$inf_norm_∇fobj, ",
-                    "μ=$(get_damping_factor(damping)), ",
-                    "θ=$θ_new")
-        end
+        #        @debug "LM: iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |∇f|=$(_fmt(inf_norm_∇fobj)), μ=$(_fmt(get_damping_factor(damping)))"
 
         # Accept new point?
         #
@@ -161,15 +154,16 @@ function Levenberg_Marquardt(nls::AbstractNLS,
             
             inf_norm_∇fobj = norm(∇fobj,Inf)
             if  inf_norm_∇fobj ≤ ε_grad_inf_norm
-                if verbose
-                    @info "Got a critical point CV = ok"
-                end
-                
-                return LevenbergMarquardt_Result(_converged=true,
+
+                result = LevenbergMarquardt_Result(_converged=true,
                                                  _iter_count=iter,
                                                  _fobj=eval_nls_fobj(r),
                                                  _solution=θ_new
                                                  ) 
+
+                @debug "Found a critical point" result = result
+                
+                return result
             end
         end
 
@@ -218,17 +212,13 @@ mutable struct Levenberg_Marquardt_Conf <: AbstractNLSConf
     # initial regularization μ = τ max_ij(|H_ij|)
     _τ::Float64
 
-    _verbose::Bool
-
     # default values
     function Levenberg_Marquardt_Conf(;
                      max_iter::Int=1000,
                      ε_grad_inf_norm::Float64=1e-8,
                      ε_step_2_norm::Float64=1e-8,
                      
-                     τ::Float64=1.0e-3,
-                     
-                     verbose::Bool=true)
+                     τ::Float64=1.0e-3)
          
         # note: parameters values are controlled directly by the
         # Levenberg_Marquardt() function
@@ -237,9 +227,7 @@ mutable struct Levenberg_Marquardt_Conf <: AbstractNLSConf
             ε_grad_inf_norm,
             ε_step_2_norm,
             
-            τ,
-            
-            verbose)
+            τ)
     end
 end
 # TODO: add stuff like mmax_iter(), set_max_iter()...
@@ -259,7 +247,5 @@ function solve(nls::AbstractNLS,
                         ε_grad_inf_norm=conf._ε_grad_inf_norm,
                         ε_step_2_norm= conf._ε_step_2_norm,
                         
-                        τ=conf._τ,
-                        
-                        verbose=conf._verbose)
+                        τ=conf._τ)
 end

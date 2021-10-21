@@ -304,23 +304,20 @@ end
 struct Kunisch_Rendl_Conf <: AbstractQuadSolverConf
     _max_iter::Int
     _reg_schedule::AbstractRegularizationSchedule 
-    _verbose::Bool
     
     function Kunisch_Rendl_Conf(;
                                 max_iter::Int=50,
-                                reg_schedule::AbstractRegularizationSchedule=NoRegularizationSchedule(),
-                                verbose::Bool=true)
+                                reg_schedule::AbstractRegularizationSchedule=NoRegularizationSchedule())
         @assert max_iter>0
         # Any chance to check convergence?
         @assert burning_phase(reg_schedule,max_iter)==false
         
-        new(max_iter,reg_schedule,verbose)
+        new(max_iter,reg_schedule)
     end
 end
 burning_phase(conf::Kunisch_Rendl_Conf,iter::Int) = burning_phase(conf._reg_schedule,iter)
 regularization_factor(conf::Kunisch_Rendl_Conf,iter::Int) =regularization_factor(conf._reg_schedule,iter)
 max_iter(conf::Kunisch_Rendl_Conf) = conf._max_iter
-verbose(conf::Kunisch_Rendl_Conf) = conf._verbose
 
 # ****************************************************************
 
@@ -348,7 +345,6 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
                        x_init::AbstractVector{<:Real},
                        bc::BoundConstraints{<:Real,1},
                        conf::Kunisch_Rendl_Conf)
-
     n = length(q)
 
     @assert (n,n) == size(Q)
@@ -383,7 +379,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
         try
             x = -Q_tilde\q_tilde
         catch
-            @warn "$(@__FILE__):$(@__LINE__) Singular system... Abort..."
+            @warn "Singular system... Abort..."
             break 
         end 
 
@@ -394,9 +390,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
         # update Z and count bad hypothesis
         count_bad_choice = update_Z!(x,τ,Z,bc)
 
-        if verbose(conf)
-            @info("KR: iter=$iter, changes=$count_bad_choice")
-        end
+        # @debug "KR: iter=$(_fmt(iter)), wrong_hypothesis=$(_fmt(count_bad_choice))"
         
         # CV check
         if (!burning_phase(conf,iter))&&(count_bad_choice==0)
@@ -412,17 +406,17 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
     # "true" 0 for inactive constraints
     multiplier_τ = clean_τ!(τ,Z)
 
-    if verbose(conf)
-        @info("KR: iter=$iter_count, CV=$has_CV, fobj=$fobj")
-    end
- 
-    Kunisch_Rendl_Result(
-    _cv=has_CV,
-    _iter_count=iter_count,
-    _fobj=fobj,
-    _x=x, # no risk as x is local
-    _τ=τ # no risk as τ is local
+    result = Kunisch_Rendl_Result(
+        _cv=has_CV,
+        _iter_count=iter_count,
+        _fobj=fobj,
+        _x=x, # no risk as x is local
+        _τ=τ # no risk as τ is local
     )
+
+    @debug "Leaving Kunisch-Rendl" result = result
+
+    result
 end
 
 # Specialize the solve method <- this method is exported

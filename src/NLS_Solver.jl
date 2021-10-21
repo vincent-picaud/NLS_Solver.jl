@@ -1,5 +1,5 @@
 module NLS_Solver
-
+include("log_format.jl")
 include("regularization_schedule.jl")
 include("bound_constraints.jl")
 
