@@ -3,7 +3,7 @@
     create_bc(l,u;n::Int) = BoundConstraints(l*ones(n),u*ones(n))
     
     @testset "Rosenbrock sol ∈ I" begin
-        using NLS_Solver: Levenberg_Marquardt
+        using NLS_Solver: Levenberg_Marquardt_BC
         
         nls = Rosenbrock()
         θ=Float64[-10;-10]
@@ -44,12 +44,12 @@
     # ================================================================
     
     @testset "Rosenbrock, use solve interface" begin
-        using NLS_Solver: Levenberg_Marquardt
-        
         nls = Rosenbrock()
         θ=Float64[-10;-10]
         bc=create_bc(-1,2,n=parameter_size(nls))
-        result=Levenberg_Marquardt_BC(nls, θ, bc)
+
+        conf = Levenberg_Marquardt_BC_Conf()
+        result=solve(nls, θ, bc, conf)
 
         @test converged(result)
         @test solution(result) ≈ Float64[1;1]

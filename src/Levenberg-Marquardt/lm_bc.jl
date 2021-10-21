@@ -1,7 +1,6 @@
 # Problems with bound constraints
 #
-export Levenberg_Marquardt_BC
-#export Levenberg_Marquardt_BC_Conf
+export Levenberg_Marquardt_BC_Conf
 
 using LinearAlgebra: norm, I
 
@@ -157,12 +156,15 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
                                 θ_init::AbstractVector,
                                 bc::BoundConstraints;
                                 # parameters
-                                quad_conf::AbstractQuadSolverConf=Kunisch_Rendl_Conf(),
                                 max_iter::Int=50,
                                 ε_grad_inf_norm::Float64=1e-8,
                                 ε_step_2_norm::Float64=1e-8,
                                 # initial regularization μ0=τ.|H|
-                                τ::Float64=1.0e-3,                         
+                                τ::Float64=1.0e-3,
+                                # quad specific
+                                quad_conf::AbstractQuadSolverConf=Kunisch_Rendl_Conf(),
+                                quad_max_attempt::Int=10,
+                                # misc
                                 verbose::Bool=true)
     if verbose
         @info "Entering Levenberg_Marquardt_BC (LM_BC) $(@__FILE__):$(@__LINE__)"
@@ -217,7 +219,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
                                                       bc,
                                                       quad_conf,
                                                       damping,
-                                                      20) # max attempt
+                                                      quad_max_attempt) 
 
         if !converged(quad_result)
             @warn "LM_BC: cannot solve inner quadratic problem... Abort..."
@@ -314,4 +316,74 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
                                      _iter_count=iter,
                                      _fobj=eval_nls_fobj(r),
                                      _solution=θ)
+end
+
+
+# ================================================================
+# Use the "Solver Conf + Solve method" framework:
+# 1. define "Levenberg_Marquardt_Conf"
+# 2. overwrite the "solve()" function
+# ================================================================
+
+
+# ----------------------------------------------------------------
+# 1. define "Levenberg_Marquardt_BC_Conf"
+# ----------------------------------------------------------------
+#
+
+@doc raw"""
+```julia
+Levenberg_Marquardt_BC_Conf()
+```
+
+Configuration parameters of the Levenberg-Marquardt with bound constraints solver
+"""
+# The structure is mutable as we will add methods such as:
+# set_max_iter().
+#
+mutable struct Levenberg_Marquardt_BC_Conf <: AbstractNLSBCConf
+    # Reuse LM conf
+    _lm_conf::Levenberg_Marquardt_Conf
+    
+    # Specific to LM_BC
+    #
+    _quad_max_attempt::Int
+    _quad_conf::AbstractQuadSolverConf
+    
+    # default values
+        function Levenberg_Marquardt_BC_Conf(;
+                                             lm_conf::Levenberg_Marquardt_Conf=Levenberg_Marquardt_Conf(),
+                                             quad_max_attempt::Int=10,
+                                             quad_conf::AbstractQuadSolverConf=Kunisch_Rendl_Conf())
+            
+            @assert quad_max_attempt ≥ 1
+            
+            new(lm_conf,
+                quad_max_attempt,
+                quad_conf)
+        end
+end
+
+
+# ----------------------------------------------------------------
+# 2. overwrite the "solve()" function
+# ----------------------------------------------------------------
+#
+function solve(nls::AbstractNLS,
+               θ_init::AbstractVector,
+               bc::BoundConstraints,
+               conf::Levenberg_Marquardt_BC_Conf)
+
+    Levenberg_Marquardt_BC(nls,θ_init,bc,
+
+                           max_iter=conf._lm_conf._max_iter,
+                           ε_grad_inf_norm=conf._lm_conf._ε_grad_inf_norm,
+                           ε_step_2_norm= conf._lm_conf._ε_step_2_norm,
+                           
+                           τ=conf._lm_conf._τ,
+
+                           quad_conf=conf._quad_conf,
+                           quad_max_attempt=conf._quad_max_attempt,
+
+                           verbose=conf._lm_conf._verbose)
 end

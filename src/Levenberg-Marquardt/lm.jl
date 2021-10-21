@@ -1,5 +1,5 @@
 # Unconstrained problem
-# μ
+# 
 export Levenberg_Marquardt_Conf
 
 using LinearAlgebra: norm, I
@@ -172,17 +172,25 @@ end
 
 
 # ================================================================
-# Specialize with conf + solve
+# Use the "Solver Conf + Solve method" framework:
+# 1. define "Levenberg_Marquardt_Conf"
+# 2. overwrite the "solve()" function
 # ================================================================
 
-
+# ----------------------------------------------------------------
+# 1. define "Levenberg_Marquardt_Conf"
+# ----------------------------------------------------------------
+#
 @doc raw"""
 ```julia
 Levenberg_Marquardt_Conf()
 ```
 
 Configuration parameters of the Levenberg-Marquardt solver
-"""            
+"""
+# The structure is mutable as we will add methods such as:
+# set_max_iter().
+#
 mutable struct Levenberg_Marquardt_Conf <: AbstractNLSConf
     # Related to CV test
     #
@@ -197,7 +205,7 @@ mutable struct Levenberg_Marquardt_Conf <: AbstractNLSConf
 
     # default values
     function Levenberg_Marquardt_Conf(;
-                     max_iter::Int=50,
+                     max_iter::Int=1000,
                      ε_grad_inf_norm::Float64=1e-8,
                      ε_step_2_norm::Float64=1e-8,
                      
@@ -220,9 +228,9 @@ end
 # TODO: add stuff like mmax_iter(), set_max_iter()...
 #
 
-
-#
-# Solve interface 
+# ----------------------------------------------------------------
+# 2. overwrite the "solve()" function
+# ----------------------------------------------------------------
 #
 function solve(nls::AbstractNLS,
                θ_init::AbstractVector,
