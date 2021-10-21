@@ -145,6 +145,14 @@ end
 # condition: max | x-P[a,b](x-∇f) | as in check_first_order
 #
 
+@doc raw"""
+
+Solve a bound constrained NLS problem
+
+**Note:** the returned result type is
+[`LevenbergMarquardt_Result`](@ref). By consequence there is not
+access to multipliers... Maybe this will change in the future.
+"""
 function Levenberg_Marquardt_BC(nls::AbstractNLS,
                                 θ_init::AbstractVector,
                                 bc::BoundConstraints;
@@ -213,7 +221,14 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
 
         if !converged(quad_result)
             @warn "LM_BC: cannot solve inner quadratic problem... Abort..."
-            return false # return no cv
+
+            # we reuse last valid data (θ, ∇fobj...) and do not try to
+            # use those in the quad_result structure.
+            #
+            return LevenbergMarquardt_Result(_converged=false,
+                                             _iter_count=iter,
+                                             _fobj=eval_nls_fobj(r),
+                                             _solution=θ)           
         end
 
         # Update step
@@ -229,12 +244,10 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
                 @info "LM_BC: found solution θ=$θ"
             end
             
-            # return LevenbergMarquardt_Result(_converged=true,
-            #                                  _iter_count=iter,
-            #                                  _fobj=eval_nls_fobj(r),
-            #                                  _solution=θ,
-            #                                  ) 
-            return true
+            return LevenbergMarquardt_Result(_converged=true,
+                                             _iter_count=iter,
+                                             _fobj=eval_nls_fobj(r),
+                                             _solution=θ)
         end
 
         # compute ρ
@@ -276,9 +289,13 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
                     @info "LM_BC: converged[critical point for KKT], |KKT| = $inf_norm_KKT"
                     @info "LM_BC: found solution θ=$θ"
                 end
-                return true;
-            end
 
+                return LevenbergMarquardt_Result(_converged=true,
+                                                 _iter_count=iter,
+                                                 _fobj=eval_nls_fobj(r),
+                                                 _solution=θ)
+            end
+            
         else
             # Screen output
             #
@@ -293,5 +310,8 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
         damping = update_damping_factor(damping,ρ)
     end
 
-    return false
+    return LevenbergMarquardt_Result(_converged=false,
+                                     _iter_count=iter,
+                                     _fobj=eval_nls_fobj(r),
+                                     _solution=θ)
 end
