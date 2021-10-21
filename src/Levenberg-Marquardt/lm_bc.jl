@@ -145,12 +145,29 @@ end
 #
 
 @doc raw"""
-
-Solve a bound constrained NLS problem
+```julia
+Levenberg_Marquardt_BC(nls::AbstractNLS,
+                       θ_init::AbstractVector,
+                       bc::BoundConstraints;
+                       # parameters
+                       max_iter::Int=50,
+                       ε_grad_inf_norm::Float64=1e-8,
+                       ε_step_2_norm::Float64=1e-8,
+                       # initial regularization μ0=τ.|H|
+                       τ::Float64=1.0e-3,
+                       # quad specific
+                       quad_conf::AbstractQuadSolverConf=Kunisch_Rendl_Conf(),
+                       quad_max_attempt::Int=10,
+                       # misc
+                       verbose::Bool=true)
+```
+Implementation of a "personal" Levenberg-Marquardt method that handles
+bound constraints.
 
 **Note:** the returned result type is
-[`LevenbergMarquardt_Result`](@ref). By consequence there is not
-access to multipliers... Maybe this will change in the future.
+ [`LevenbergMarquardt_Result`](@ref). By consequence there is not
+ access to multipliers... Maybe this will change in the future.
+
 """
 function Levenberg_Marquardt_BC(nls::AbstractNLS,
                                 θ_init::AbstractVector,
@@ -338,10 +355,11 @@ Levenberg_Marquardt_BC_Conf()
 
 Configuration parameters of the Levenberg-Marquardt with bound constraints solver
 """
-# The structure is mutable as we will add methods such as:
-# set_max_iter().
-#
 mutable struct Levenberg_Marquardt_BC_Conf <: AbstractNLSBCConf
+    # The structure is mutable as we will add methods such as:
+    # set_max_iter().
+    #
+    
     # Reuse LM conf
     _lm_conf::Levenberg_Marquardt_Conf
     

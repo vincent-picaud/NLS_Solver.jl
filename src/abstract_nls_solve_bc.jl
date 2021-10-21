@@ -5,7 +5,7 @@ export solve
 solve(nls::AbstractNLS,
       θ_init::AbstractVector{<:Real},
       bc::BoundConstraints{<:Real},
-      conf::AbstractNLSConf) -> AbstractNLSResult
+      conf::AbstractNLSBCConf) -> AbstractNLSResult
 ```
 
 Generic interface to solve a [`AbstractNLS`](@ref) problem **with

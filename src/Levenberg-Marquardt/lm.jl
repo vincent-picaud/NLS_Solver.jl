@@ -4,6 +4,22 @@ export Levenberg_Marquardt_Conf
 
 using LinearAlgebra: norm, I
 
+@doc raw"""
+```julia
+Levenberg_Marquardt(nls::AbstractNLS,
+                    θ_init::AbstractVector;
+                    # parameters
+                    max_iter::Int=50,
+                    ε_grad_inf_norm::Float64=1e-8,
+                    ε_step_2_norm::Float64=1e-8,
+                    # initial regularization
+                    τ::Float64=1.0e-3,                         
+                    verbose::Bool=true)
+```
+
+Implementation of a Levenberg-Marquardt method.
+
+"""
 function Levenberg_Marquardt(nls::AbstractNLS,
                              θ_init::AbstractVector;
                              # parameters
@@ -188,10 +204,11 @@ Levenberg_Marquardt_Conf()
 
 Configuration parameters of the Levenberg-Marquardt solver
 """
-# The structure is mutable as we will add methods such as:
-# set_max_iter().
-#
 mutable struct Levenberg_Marquardt_Conf <: AbstractNLSConf
+    # The structure is mutable as we will add methods such as:
+    # set_max_iter().
+    #
+
     # Related to CV test
     #
     _max_iter::Int

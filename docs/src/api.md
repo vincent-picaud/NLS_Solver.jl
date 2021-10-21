@@ -13,10 +13,26 @@ across the other documentation pages.
 
 **CAVEAT:** some stuff can be documented without begin exported.
 
+### Public
+
 ```@autodocs
 Modules = [NLS_Solver]
 Pages = ["QuadSolvers/boundconstraint_enum.jl",
          "QuadSolvers/misc.jl",
 		 "Levenberg-Marquardt/damping.jl",
+		 "Levenberg-Marquardt/lm_result.jl",
 		 ]
+Private = false	
+```
+
+### Private
+
+```@autodocs
+Modules = [NLS_Solver]
+Pages = ["QuadSolvers/boundconstraint_enum.jl",
+         "QuadSolvers/misc.jl",
+		 "Levenberg-Marquardt/damping.jl",
+		 "Levenberg-Marquardt/lm_result.jl",
+		 ]
+Public = false	
 ```

@@ -1,6 +1,11 @@
-# The structure to be returned, used in: lm.jl
-# Also see: lm_conf.jl and also by lm_bc_conf.jl
-#
+@doc raw"""
+
+A structure to store:
+- [`Levenberg_Marquardt`](@ref)
+- [`Levenberg_Marquardt_BC`](@ref)
+results.
+
+"""
 Base.@kwdef struct LevenbergMarquardt_Result{T<:Real} <: AbstractNLSResult
     _converged::Bool
     _iter_count::Int
