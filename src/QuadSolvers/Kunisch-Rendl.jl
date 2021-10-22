@@ -347,7 +347,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
                        conf::Kunisch_Rendl_Conf)
     n = length(q)
 
-    @assert (n,n) == size(Q)
+    @assert (n,n) == size(Q) "(n,n) == size(Q) $((n,n)) == $(size(Q))"
     @assert n == length(bc)
 
     

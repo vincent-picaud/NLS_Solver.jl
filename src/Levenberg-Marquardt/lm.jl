@@ -40,12 +40,13 @@ function Levenberg_Marquardt(nls::AbstractNLS,
     # Compute, r,J, ∇fobj=J'r
     #
     n_S, n_θ = residue_size(nls),parameter_size(nls) 
+    θ_T = eltype(θ_init)
     θ=copy(θ_init)
 
     (r,J)=eval_r_J(nls,θ)
     # fobj is not really used (only when we return result) hence we do
     # not create this extra variable, but only its gradient:
-    ∇fobj=similar(r)
+    ∇fobj=Vector{θ_T}(undef,n_θ)
     eval_nls_∇fobj!(∇fobj,r,J)
 
     # Check CV: |∇fobj| ≤ ϵ ?
@@ -65,7 +66,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
 
     # Compute H=J'J
     #
-    H=Symmetric(Matrix{eltype(r)}(undef,n_θ,n_θ))
+    H=Symmetric(Matrix{θ_T}(undef,n_θ,n_θ))
     eval_nls_∇∇fobj!(H,J)
 
     # Initial μ

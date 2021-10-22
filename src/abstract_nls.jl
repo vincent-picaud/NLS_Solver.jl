@@ -67,7 +67,8 @@ residue_size(nls::AbstractNLS) = error("To implement")
 
 In-place evaluation of residual vector ``r``
 
-The **both** functions return `r`
+**Both** functions return `r`
+
 """
 eval_r!(r::AbstractVector,nls::AbstractNLS,θ::AbstractVector) = error("To implement")
 
@@ -75,9 +76,11 @@ eval_r!(r::AbstractVector,nls::AbstractNLS,θ::AbstractVector) = error("To imple
     eval_r_J!(r::AbstractVector, J::AbstractMatrix, nls::AbstractNLS,θ::AbstractVector)
     eval_r_J(nls::AbstractNLS,θ::AbstractVector)
 
-In-place evaluation of residual vector ``r`` and its Jacobian matrix ``J``.
+In-place evaluation of residual vector ``r`` and its
+Jacobian``n_S\times n_\theta`` matrix ``J`` representing the ``dr``
+differential.
 
-The **both** functions return `(r,J)`
+**Both** functions return `(r,J)`
 """
 eval_r_J!(r::AbstractVector, J::AbstractMatrix,nls::AbstractNLS,θ::AbstractVector) = error("To implement")
 
@@ -114,7 +117,7 @@ function eval_r_J(nls::AbstractNLS,θ::AbstractVector)
     n_S = residue_size(nls)
     n_θ = parameter_size(nls)
     r = Vector{elt}(undef,n_S)
-    J = Matrix{elt}(undef,n_θ,n_S)
+    J = Matrix{elt}(undef,n_S,n_θ)
 
     eval_r_J!(r,J,nls,θ) # return (r,J)
 end
@@ -151,9 +154,10 @@ In-place computation of gradient
 """
 function eval_nls_∇fobj!(∇fobj::AbstractVector,
                          r::AbstractVector, J::AbstractMatrix)
-    # note: J' is a *lazy* adjoint
-    mul!(∇fobj,J',r,1,0)
 
+    # note: no runtime penalty forJ' (this is a *lazy* operation)
+    mul!(∇fobj,J',r,1,0) 
+    
     ∇fobj
 end
     
