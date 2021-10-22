@@ -2,7 +2,7 @@
 
 TODO: use quadsolver abstraction as doc model.
 
-## Unconstrained Problem
+## Unconstrained Problems
 
 
 ```@autodocs
@@ -51,7 +51,7 @@ Private = false
 ```
 
 
-## Solver (Bound Constrained)
+## Bound Constrained Problems
 
 
 ```@autodocs
@@ -71,6 +71,9 @@ Private = false
 
 ### Result 
 
-
-
+```@autodocs
+Modules = [NLS_Solver]
+Pages = ["abstract_nls_bc_result.jl"]
+Public = false
+```
 

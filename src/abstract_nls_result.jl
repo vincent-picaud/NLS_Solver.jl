@@ -43,18 +43,3 @@ Returns the founded solution
 solution(r::AbstractNLSResult) =  error("To implement")
 
 
-# ================================================================
-# Result abstraction for bound constrained problems
-# ================================================================
-#
-# For the moment only use an alias as we do not have specific methods
-#
-@doc raw"""
-```julia
-abstract type AbstractNLSResult end
-```
-
-NLS BC solver result abstraction
-"""
-const AbstractNLSBCResult = AbstractNLSResult
-
