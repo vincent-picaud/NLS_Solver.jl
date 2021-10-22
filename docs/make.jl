@@ -29,6 +29,7 @@ makedocs(;
             ],
             "api.md",
         ],
+        "todo.md",
     ],
 )
 
