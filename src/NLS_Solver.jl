@@ -11,10 +11,10 @@ include("abstract_nls_result.jl")
 include("abstract_nls_bc_result.jl")
 
 include("abstract_nls_conf.jl")
-include("abstract_nls_conf_bc.jl")
+include("abstract_nls_bc_conf.jl")
 
 include("abstract_nls_solve.jl")
-include("abstract_nls_solve_bc.jl")
+include("abstract_nls_bc_solve.jl")
 
 include("Levenberg-Marquardt/Levenberg-Marquardt.jl")
 

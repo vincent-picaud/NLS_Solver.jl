@@ -56,7 +56,7 @@ Private = false
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["abstract_nls_solve_bc.jl"]
+Pages = ["abstract_nls_bc_solve.jl"]
 Private = false
 ```
 
@@ -64,7 +64,7 @@ Private = false
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["abstract_nls_conf_bc.jl"]
+Pages = ["abstract_nls_bc_conf.jl"]
 Private = false
 ```
 
