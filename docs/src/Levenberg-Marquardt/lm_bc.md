@@ -3,12 +3,13 @@
 Solve an bound constrained non-linear least squares problem as defined by
 [`AbstractNLS`](@ref) using the Levenberg-Marquardt method. 
 
-To select this method define a [`Levenberg_Marquardt_BC_Conf `](@ref)
+To select this method define a [`Levenberg_Marquardt_BC_Conf`](@ref)
 and call the [`solve`](@ref) method.
 
 
 ## Configuration
 
+Use this structure to define solvers configuration parameters.
 
 ```@autodocs
 Modules = [NLS_Solver]
@@ -23,6 +24,7 @@ We discourage direct call of this **internal** function. Use the
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["Levenberg-Marquardt/lm_bc.jl"]
+Pages = ["Levenberg-Marquardt/lm_bc.jl",
+	     "Levenberg-Marquardt/lm_bc_result.jl"]
 Public = false
 ```

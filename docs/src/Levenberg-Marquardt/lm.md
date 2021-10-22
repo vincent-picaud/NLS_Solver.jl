@@ -3,11 +3,12 @@
 Solve an unconstrained non-linear least squares problem as defined by
 [`AbstractNLS`](@ref) using the Levenberg-Marquardt method. 
 
-To select this method define a [`Levenberg_Marquardt_Conf `](@ref) and call the [`solve`](@ref) method.
+To select this method define a [`Levenberg_Marquardt_Conf`](@ref) and call the [`solve`](@ref) method.
 
 
 ## Configuration
 
+Use this structure to define solvers configuration parameters.
 
 ```@autodocs
 Modules = [NLS_Solver]

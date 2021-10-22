@@ -2,7 +2,7 @@
 
 TODO: use quadsolver abstraction as doc model.
 
-## Problem abstraction
+## Unconstrained Problem
 
 
 ```@autodocs
@@ -31,6 +31,18 @@ Private = false
 
 ### Result 
 
+The abstract result type is private, only its interface is useful and
+public.
+
+```@autodocs
+Modules = [NLS_Solver]
+Pages = ["abstract_nls_result.jl"]
+Public = false
+```
+
+#### Interface 
+
+The public interface 
 
 ```@autodocs
 Modules = [NLS_Solver]
@@ -59,6 +71,6 @@ Private = false
 
 ### Result 
 
-For the moment we still use [`AbstractNLSResult`](@ref)
+
 
 

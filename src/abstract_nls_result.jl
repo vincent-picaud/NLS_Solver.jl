@@ -1,6 +1,9 @@
-export AbstractNLSResult
-export converged, iteration_count,objective_value,solution
+export converged, iteration_count, objective_value, solution
 
+# ================================================================
+# Result abstraction for unconstrained problem
+# ================================================================
+#
 @doc raw"""
 ```julia
 abstract type AbstractNLSResult end
@@ -38,3 +41,20 @@ objective_value(r::AbstractNLSResult) =  error("To implement")
 Returns the founded solution 
 """
 solution(r::AbstractNLSResult) =  error("To implement")
+
+
+# ================================================================
+# Result abstraction for bound constrained problems
+# ================================================================
+#
+# For the moment only use an alias as we do not have specific methods
+#
+@doc raw"""
+```julia
+abstract type AbstractNLSResult end
+```
+
+NLS BC solver result abstraction
+"""
+const AbstractNLSBCResult = AbstractNLSResult
+

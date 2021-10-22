@@ -159,12 +159,9 @@ Levenberg_Marquardt_BC(nls::AbstractNLS,
                        quad_conf::AbstractQuadSolverConf=Kunisch_Rendl_Conf(),
                        quad_max_attempt::Int=10)
 ```
+
 Implementation of a "personal" Levenberg-Marquardt method that handles
 bound constraints.
-
-**Note:** the returned result type is
- [`LevenbergMarquardt_Result`](@ref). By consequence there is not
- access to multipliers... Maybe this will change in the future.
 
 """
 function Levenberg_Marquardt_BC(nls::AbstractNLS,
@@ -235,7 +232,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
             # we reuse last valid data (θ, ∇fobj...) and do not try to
             # use those in the quad_result structure.
             #
-            return LevenbergMarquardt_Result(_converged=false,
+            return LevenbergMarquardt_BC_Result(_converged=false,
                                              _iter_count=iter,
                                              _fobj=eval_nls_fobj(r),
                                              _solution=θ)           
@@ -249,7 +246,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
         norm_2_step = norm(step,2)
 
         if norm_2_step ≤ ε_step_2_norm*max(ε_step_2_norm,norm_2_step)
-            result = LevenbergMarquardt_Result(_converged=true,
+            result = LevenbergMarquardt_BC_Result(_converged=true,
                                                _iter_count=iter,
                                                _fobj=eval_nls_fobj(r),
                                                _solution=θ)
@@ -290,7 +287,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
             #            @debug "iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |KKT|=$(_fmt(inf_norm_KKT)), μ=$(_fmt(get_damping_factor(damping)))" 
             
             if inf_norm_KKT ≤ ε_grad_inf_norm
-                result = LevenbergMarquardt_Result(_converged=true,
+                result = LevenbergMarquardt_BC_Result(_converged=true,
                                                           _iter_count=iter,
                                                    _fobj=eval_nls_fobj(r),
                                                    _solution=θ)
@@ -310,7 +307,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
         damping = update_damping_factor(damping,ρ)
     end
 
-    result = LevenbergMarquardt_Result(_converged=false,
+    result = LevenbergMarquardt_BC_Result(_converged=false,
                                      _iter_count=iter,
                                      _fobj=eval_nls_fobj(r),
                                        _solution=θ)
