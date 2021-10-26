@@ -1,17 +1,12 @@
 # NLS problem abstraction
 
-TODO: use quadsolver abstraction as doc model.
-
-## Unconstrained Problems
-
-
 ```@autodocs
 Modules = [NLS_Solver]
 Pages = ["abstract_nls.jl"]
 Private = false
 ```
 
-## Solver 
+## Unconstrained problems
 
 
 ```@autodocs

@@ -8,38 +8,46 @@ using LinearAlgebra.BLAS: BlasFloat, syrk!, gemv!
 
 @doc raw"""
 ```julia
-abstract type AbstractNLS end 
+abstract type AbstractNLS{T} end 
 ```
 
-Define an abstract non-linear least squares problem (NLS). In our
-context such problem is essentially a differentiable function ``r``:
+Defines an abstract non-linear least squares problem (NLS). In our
+context such problem is essentially a differentiable function ``\mathbf{r}``:
 
 ```math
-r: \theta\in\mathbb{R}^{n_θ}\mapsto r(\theta)\in\mathbb{R}^{n_S}
+\mathbf{r}: \theta\in\mathbb{R}^{n_θ}\mapsto \mathbf{r}(\mathbf{\theta})\in\mathbb{R}^{n_S}
 ``` 
-where ``r(θ)∈\mathbb{R}^{n_S}`` is the residue vector. Its dimension
-is ``n_S``, the number of sample. ``θ`` is the vector of parameters to
-optimize. Its dimension is ``n_θ``.
+where:
+- ``\mathbf{r}(\mathbf{θ})∈\mathbb{R}^{n_S}`` is the residue vector,
+- ``\mathbf{θ}∈\mathbb{R}^{n_θ}`` is the parameter vector to be optimized
 
-The objective function is
+The objective function to minimize is:
 
 ```math
-f(θ)=\frac{1}{2}\mathbf{r}^t(θ)\mathbf{r}(θ)
+f(θ)=\frac{1}{2}\| \mathbf{r}(θ) \|^2
 ``` 
 
-Its gradient ``\nabla f`` is ``J^t r`` where ``J`` is the ``r`` Jacobian:
+The classical approach uses a linear approximation of ``\mathbf{r}``:
 ```math
-J_{i,j}=\partial_j r^i(θ),\ i\in[1,n_S],\ j\in[1,n_θ]
+\mathbf{r}(\mathbf{θ}+δ\mathbf{θ})\approx \mathbf{r}(\mathbf{θ}) + \mathbf{J}(\mathbf{θ})\cdot δ\mathbf{θ}
+``` 
+where ``\mathbf{J}`` is the Jacobian:
+```math
+\mathbf{J}_{i,j}=\partial_j r^i(\mathbf{θ}),\ i\in[1,n_S],\ j\in[1,n_θ]
+```
+This leads to
+```math
+f(\mathbf{θ}+δ\mathbf{θ})\approx f(\mathbf{θ}) + \langle \nabla f, δ\mathbf{θ} \rangle + \frac{1}{2}  \langle \nabla^2 f \cdot δ\mathbf{θ},  δ\mathbf{θ} \rangle
 ```
 
-The matrix ``J^t J`` is used to approximate the Hessian. This
-approximation is better when ``\| r \| ≈ 0``.
+Where the gradient ``\nabla f`` is ``\mathbf{J}^t \mathbf{r}`` and the
+(approximate) Hessian ``\nabla^2 f`` is ``\mathbf{J}^t \mathbf{J}``.
 
-To implement a new model, you must implement:
-- [`parameter_size`](@ref)
-- [`residue_size`](@ref)
-- [`eval_r!`](@ref)
-- [`eval_r_J!`](@ref)
+To implement such model, you must define the following functions:
+- [`parameter_size`](@ref) : returns ``n_θ``
+- [`residue_size`](@ref) : returns ``n_S``
+- [`eval_r!`](@ref) : in-place computation of ``\mathbf{r}``
+- [`eval_r_J!`](@ref) : in-place computation of ``(\mathbf{r}, \mathbf{J})``
 """
 abstract type AbstractNLS{T} end 
 
@@ -62,25 +70,24 @@ Return the dimension ``n_S`` of the residue vector ``r``.
 residue_size(nls::AbstractNLS) = error("To implement")
 
 @doc raw""" 
-    eval_r!(r::AbstractVector,nls::AbstractNLS,θ::AbstractVector)
-    eval_r(nls::AbstractNLS,θ::AbstractVector)
+```julia
+eval_r!(r::AbstractVector{T},
+        nls::AbstractNLS{T},
+        θ::AbstractVector{T}) -> r
+```
 
-In-place evaluation of residual vector ``r``
-
-**Both** functions return `r`
-
+In-place evaluation of residual vector ``\mathbf{r}``
 """
 eval_r!(r::AbstractVector{T},nls::AbstractNLS{T},θ::AbstractVector{T}) where {T} = error("To implement")
 
 @doc raw""" 
-    eval_r_J!(r::AbstractVector, J::AbstractMatrix, nls::AbstractNLS,θ::AbstractVector)
-    eval_r_J(nls::AbstractNLS,θ::AbstractVector)
+```julia
+eval_r_J!(r::AbstractVector, 
+          J::AbstractMatrix,
+          nls::AbstractNLS,θ::AbstractVector) -> (r,J)
+```
 
-In-place evaluation of residual vector ``r`` and its
-Jacobian``n_S\times n_\theta`` matrix ``J`` representing the ``dr``
-differential.
-
-**Both** functions return `(r,J)`
+In-place evaluation of residual the vector ``\mathbf{r}`` and its Jacobian ``\mathbf{J}`` 
 """
 eval_r_J!(r::AbstractVector{T},
           J::AbstractMatrix{T},
@@ -88,72 +95,61 @@ eval_r_J!(r::AbstractVector{T},
           θ::AbstractVector{T}) where {T} = error("To implement")
 
 # ================================================================
-# (Interface) convenience functions...
+# Convenience functions...
 # ================================================================
-# They look like interface functions, but but have a default
-# implementation.
 #
 
-"""
-    eval_r(nls::AbstractNLS, θ::AbstractVector) -> r
+@doc raw"""
+```julia
+eval_r(nls::AbstractNLS, θ::AbstractVector) -> r
+```
 
-A convenience function that calls [`eval_r!`](@ref), but take in charge initial creation of ``r``.
+A convenience function that calls [`eval_r!`](@ref), but takes in charge initial creation of ``\mathbf{r}``.
 
 """
 function eval_r(nls::AbstractNLS{T}, θ::AbstractVector{T}) where {T}
-    elt = eltype(θ)
     n_S = residue_size(nls)
-    r = Vector{elt}(undef,n_S)
+    r = Vector{T}(undef,n_S)
 
     eval_r!(r,nls,θ) # return r
 end
 
 
-"""
-     eval_r_J(nls::AbstractNLS,θ::AbstractVector) -> (r,J)
+@doc raw"""
+```julia
+eval_r_J(nls::AbstractNLS,θ::AbstractVector) -> (r,J)
+```
 
-A convenience function that calls [`eval_r_J!`](@ref), but take in
+A convenience function that calls [`eval_r_J!`](@ref), but takes in
 charge initial creation of ``(r,J)``.
 """
 function eval_r_J(nls::AbstractNLS{T},θ::AbstractVector{T}) where {T}
-    elt = eltype(θ)
     n_S = residue_size(nls)
     n_θ = parameter_size(nls)
-    r = Vector{elt}(undef,n_S)
-    J = Matrix{elt}(undef,n_S,n_θ)
+    r = Vector{T}(undef,n_S)
+    J = Matrix{T}(undef,n_S,n_θ)
 
     eval_r_J!(r,J,nls,θ) # return (r,J)
 end
 
+# ----------------------------------------------------------------
 
-# ================================================================
-# Extra functions with implementations
-# ================================================================
-#
 @doc raw"""
 ```julia
-eval_nls_fobj(r::AbstractVector) -> f(θ)
+eval_nls_fobj(r::AbstractVector{T}) -> f(θ)
 ```
 
-Compute 
-
-```math
-f(θ)=\frac{1}{2}\mathbf{r}^t(θ)\mathbf{r}(θ)
-```
+Compute ``f(θ)=\frac{1}{2}\| \mathbf{r}(\mathbf{θ}) \|^2``
 """
 eval_nls_fobj(r::AbstractVector) = dot(r,r)/2
 
 @doc raw"""
 ```julia
-qeval_nls_∇fobj!(∇fobj::AbstractVector,
-               r::AbstractVector, J::AbstractMatrix) -> ∇fobj
+eval_nls_∇fobj!(∇fobj::AbstractVector,
+                r::AbstractVector, J::AbstractMatrix) -> ∇fobj
 ```
 
-In-place computation of gradient 
-
-```math
-\nabla\left(\frac{1}{2}\mathbf{r}^t(θ)\mathbf{r}(θ)\right) = J^t r
-```
+In-place computation of gradient: ``\nabla f(\mathbf{θ}) = \mathbf{J}^t\mathbf{r}``
 """
 function eval_nls_∇fobj!(∇fobj::AbstractVector{T},
                          r::AbstractVector{T}, J::AbstractMatrix{T}) where {T<:BlasFloat}
@@ -175,10 +171,7 @@ eval_nls_∇∇fobj!(∇∇fobj::AbstractVector,
                  J::AbstractMatrix) -> ∇∇fobj
 ```
 
-In-place computation of (approximate) Hessian
-```math
-\nabla^2\left(\frac{1}{2}\mathbf{r}^t(θ)\mathbf{r}(θ)\right) \approx J^t.J
-```
+In-place computation of (approximate) Hessian: ``\nabla^2 f(\mathbf{θ}) = \mathbf{J}^t\mathbf{J}``
 """
 function eval_nls_∇∇fobj!(∇∇fobj::Symmetric{T}, J::AbstractMatrix{T}) where {T<:BlasFloat}
     syrk!(∇∇fobj.uplo,'T',T(1),J,T(0),∇∇fobj.data)
