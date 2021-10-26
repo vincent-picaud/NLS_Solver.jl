@@ -11,14 +11,17 @@
 #
 # TODO: implement even n (here 2) generalization of the wiki page.
 #
-struct Rosenbrock <: AbstractNLS
+struct Rosenbrock{T} <: AbstractNLS{T}
+
+    Rosenbrock() = new{Float64}()
 end
+
 
 parameter_size(::Rosenbrock) = 2
 residue_size(::Rosenbrock) = 2
 
-function eval_r!(r::AbstractVector,
-                 nls::Rosenbrock,θ::AbstractVector{<:Real})
+function eval_r!(r::AbstractVector{T},
+                 nls::Rosenbrock{T},θ::AbstractVector{T}) where {T}
     @assert length(θ)==parameter_size(nls)
     @assert length(r)==residue_size(nls)
 
@@ -28,8 +31,8 @@ function eval_r!(r::AbstractVector,
     r
 end
 
-function eval_r_J!(r::AbstractVector,J::AbstractMatrix,
-                   nls::Rosenbrock,θ::AbstractVector{<:Real})
+function eval_r_J!(r::AbstractVector{T},J::AbstractMatrix{T},
+                   nls::Rosenbrock{T},θ::AbstractVector{T}) where {T}
     @assert length(θ)==parameter_size(nls)
     @assert length(r)==residue_size(nls)
     @assert size(J)==(parameter_size(nls),residue_size(nls))

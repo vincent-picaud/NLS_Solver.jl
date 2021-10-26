@@ -41,7 +41,7 @@ To implement a new model, you must implement:
 - [`eval_r!`](@ref)
 - [`eval_r_J!`](@ref)
 """
-abstract type AbstractNLS end 
+abstract type AbstractNLS{T} end 
 
 # ================================================================
 # Interface...
@@ -70,7 +70,7 @@ In-place evaluation of residual vector ``r``
 **Both** functions return `r`
 
 """
-eval_r!(r::AbstractVector,nls::AbstractNLS,θ::AbstractVector) = error("To implement")
+eval_r!(r::AbstractVector{T},nls::AbstractNLS{T},θ::AbstractVector{T}) where {T} = error("To implement")
 
 @doc raw""" 
     eval_r_J!(r::AbstractVector, J::AbstractMatrix, nls::AbstractNLS,θ::AbstractVector)
@@ -82,7 +82,10 @@ differential.
 
 **Both** functions return `(r,J)`
 """
-eval_r_J!(r::AbstractVector, J::AbstractMatrix,nls::AbstractNLS,θ::AbstractVector) = error("To implement")
+eval_r_J!(r::AbstractVector{T},
+          J::AbstractMatrix{T},
+          nls::AbstractNLS{T},
+          θ::AbstractVector{T}) where {T} = error("To implement")
 
 # ================================================================
 # (Interface) convenience functions...
@@ -97,7 +100,7 @@ eval_r_J!(r::AbstractVector, J::AbstractMatrix,nls::AbstractNLS,θ::AbstractVect
 A convenience function that calls [`eval_r!`](@ref), but take in charge initial creation of ``r``.
 
 """
-function eval_r(nls::AbstractNLS, θ::AbstractVector)
+function eval_r(nls::AbstractNLS{T}, θ::AbstractVector{T}) where {T}
     elt = eltype(θ)
     n_S = residue_size(nls)
     r = Vector{elt}(undef,n_S)
@@ -112,7 +115,7 @@ end
 A convenience function that calls [`eval_r_J!`](@ref), but take in
 charge initial creation of ``(r,J)``.
 """
-function eval_r_J(nls::AbstractNLS,θ::AbstractVector) 
+function eval_r_J(nls::AbstractNLS{T},θ::AbstractVector{T}) where {T}
     elt = eltype(θ)
     n_S = residue_size(nls)
     n_θ = parameter_size(nls)
