@@ -309,9 +309,9 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
     end
 
     result = LevenbergMarquardt_BC_Result(_converged=false,
-                                     _iter_count=iter,
-                                     _fobj=eval_nls_fobj(r),
-                                       _solution=θ)
+                                          _iter_count=max_iter,
+                                          _fobj=eval_nls_fobj(r),
+                                          _solution=θ)
 
     @debug "Too many iterations" result = result
 
