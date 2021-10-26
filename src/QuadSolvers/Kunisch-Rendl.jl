@@ -322,12 +322,25 @@ max_iter(conf::Kunisch_Rendl_Conf) = conf._max_iter
 # ****************************************************************
 
 # Result structure
-Base.@kwdef struct Kunisch_Rendl_Result <: AbstractQuadSolverResult
+struct Kunisch_Rendl_Result <: AbstractQuadSolverResult
     _cv::Bool
     _iter_count::Int
     _fobj::Real
     _x::AbstractVector{<:Real}
     _τ::AbstractVector{<:Real}
+
+    # For a reason I ignore, using Base.@kwdef leads to an error with
+    # Julia 1 By consequence I do not use this macro and write the
+    # constructor manually
+    function  Kunisch_Rendl_Result(;
+                                   _cv,
+                                   _iter_count,
+                                   _fobj,
+                                   _x,
+                                   _τ)
+        new(_cv,_iter_count,_fobj,_x,_τ)
+    end 
+
 end 
 converged(r::Kunisch_Rendl_Result) = r._cv
 iteration_count(r::Kunisch_Rendl_Result) = r._iter_count

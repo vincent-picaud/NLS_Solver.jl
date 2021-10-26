@@ -1,15 +1,22 @@
 using LinearAlgebra: Symmetric, dot
 
 @testset "Kunisch-Rendl" begin
-    using Random: seed!
-    using NLS_Solver: BoundConstraint_Enum, restrict_to_inactive!
-    
-    seed!(1234)
+    using NLS_Solver: BoundConstraint_Enum, INACTIVE_BC, ACTIVE_LB, ACTIVE_UB, restrict_to_inactive!
 
     n=10
     A=[Rational{Int}(1,i+j-1) for i in 1:n, j in 1:n]
 
-    Z=rand(instances(BoundConstraint_Enum),n)
+    Z=BoundConstraint_Enum[INACTIVE_BC,
+                           ACTIVE_UB,
+                           INACTIVE_BC,
+                           INACTIVE_BC,
+                           ACTIVE_UB,
+                           ACTIVE_UB,
+                           ACTIVE_LB,
+                           ACTIVE_LB,
+                           ACTIVE_LB,
+                           INACTIVE_BC]
+
     lb=zeros(Rational{Int},n)
     ub=ones(Rational{Int},n)
 
