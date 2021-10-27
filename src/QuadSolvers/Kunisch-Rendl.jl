@@ -415,7 +415,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
 
     # as τ=-Q*x-q, fobj is 1/2( -τ.x + q.x)
     #
-    fobj = 1/2*(-dot(τ,x) + dot(q,x))
+    fobj = (-dot(τ,x) + dot(q,x))/2
     # "true" 0 for inactive constraints
     multiplier_τ = clean_τ!(τ,Z)
 

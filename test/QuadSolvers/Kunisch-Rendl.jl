@@ -4,7 +4,7 @@ using LinearAlgebra: Symmetric, dot
     using NLS_Solver: BoundConstraint_Enum, INACTIVE_BC, ACTIVE_LB, ACTIVE_UB, restrict_to_inactive!
 
     n=10
-    A=[Rational{Int}(1,i+j-1) for i in 1:n, j in 1:n]
+    A=[Rational{BigInt}(1,i+j-1) for i in 1:n, j in 1:n]
 
     Z=BoundConstraint_Enum[INACTIVE_BC,
                            ACTIVE_UB,
@@ -17,8 +17,8 @@ using LinearAlgebra: Symmetric, dot
                            ACTIVE_LB,
                            INACTIVE_BC]
 
-    lb=zeros(Rational{Int},n)
-    ub=ones(Rational{Int},n)
+    lb=zeros(Rational{BigInt},n)
+    ub=ones(Rational{BigInt},n)
 
     Q_result = Rational{Int64}[1//1 0//1 1//3 1//4 0//1 0//1 0//1 0//1 0//1 1//10; 0//1 1//1 0//1 0//1 0//1 0//1 0//1 0//1 0//1 0//1; 1//3 0//1 1//5 1//6 0//1 0//1 0//1 0//1 0//1 1//12; 1//4 0//1 1//6 1//7 0//1 0//1 0//1 0//1 0//1 1//13; 0//1 0//1 0//1 0//1 1//1 0//1 0//1 0//1 0//1 0//1; 0//1 0//1 0//1 0//1 0//1 1//1 0//1 0//1 0//1 0//1; 0//1 0//1 0//1 0//1 0//1 0//1 1//1 0//1 0//1 0//1; 0//1 0//1 0//1 0//1 0//1 0//1 0//1 1//1 0//1 0//1; 0//1 0//1 0//1 0//1 0//1 0//1 0//1 0//1 1//1 0//1; 1//10 0//1 1//12 1//13 0//1 0//1 0//1 0//1 0//1 1//19]
     q_result = Rational{Int64}[28//15, -1//1, 197//56, 1597//360, -1//1, -1//1, 0//1, 0//1, 0//1, 23629//2310]
@@ -26,7 +26,7 @@ using LinearAlgebra: Symmetric, dot
     # Store upper part
     #
     Q=Symmetric(A,:U)
-    q=Rational{Int}[i for i in 1:n]
+    q=Rational{BigInt}[i for i in 1:n]
     
     restrict_to_inactive!(Q, q, Z, lb, ub)
 
@@ -36,7 +36,7 @@ using LinearAlgebra: Symmetric, dot
     # Store lower part
     #
     Q=Symmetric(A,:L)
-    q=Rational{Int}[i for i in 1:n]
+    q=Rational{BigInt}[i for i in 1:n]
 
     restrict_to_inactive!(Q, q, Z, lb, ub)
 
@@ -50,10 +50,10 @@ end
     using NLS_Solver: check_first_order
     
     n=5
-    A=[Rational{Int}(1,i+j-1) for i in 1:n, j in 1:n]
+    A=[Rational{BigInt}(1,i+j-1) for i in 1:n, j in 1:n]
 
     Q=Symmetric(A,UL)
-    q=Rational{Int}[-1 for i in 1:n]
+    q=Rational{BigInt}[-1 for i in 1:n]
     bc=BoundConstraints(Int,n)
     x_init=zeros(Int,n)
 
@@ -63,7 +63,7 @@ end
     x_sol = solution(result)
     @test converged(result)
     @test iteration_count(result)==7
-    @test objective_value(result) ≈ 1/2*dot(x_sol,Q*x_sol)+dot(q,x_sol)
+    @test objective_value(result) ≈ dot(x_sol,Q*x_sol)/2+dot(q,x_sol)
     @test 1+check_first_order(Q,q,x_sol,bc) ≈ 1+0
 
 
@@ -74,7 +74,7 @@ end
     x_sol_2 = solution(result_2)
     @test converged(result_2)
     @test iteration_count(result_2)==4 # note fewer iterations
-    @test objective_value(result_2) ≈ 1/2*dot(x_sol_2,Q*x_sol_2)+dot(q,x_sol_2)
+    @test objective_value(result_2) ≈ dot(x_sol_2,Q*x_sol_2)/2+dot(q,x_sol_2)
     @test 1+check_first_order(Q,q,x_sol_2,bc) ≈ 1+0
 
     # check that result = result_2
@@ -104,7 +104,7 @@ end
     @test τ[1] ≈ -3.5
     @test τ[2] ≈ -1.6
     @test τ[3] == 0
-    @test objective_value(result) ≈ 1/2*dot(x_sol,Q*x_sol)+dot(q,x_sol)
+    @test objective_value(result) ≈ dot(x_sol,Q*x_sol)/2+dot(q,x_sol)
     @test 1+check_first_order(Q,q,x_sol,bc) ≈ 1+0
 
 end 
