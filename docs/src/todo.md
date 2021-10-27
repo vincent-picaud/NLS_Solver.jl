@@ -1,5 +1,12 @@
 # TODO List
 
+## Rename 
+- eval_nls_folk
+- eval_nls_∇fobj!
+- eval_nls_∇fobj!
+
+eval -> compute
+
 ## Factorize ResultTypes
 
 Our AbstractNLSResult, AbstractNLSBCResult, AbstractQuadResult result

@@ -8,7 +8,7 @@ using LinearAlgebra.BLAS: BlasFloat, syrk!, gemv!
 
 @doc raw"""
 ```julia
-abstract type AbstractNLS{T} end 
+abstract type AbstractNLS end 
 ```
 
 Defines an abstract non-linear least squares problem (NLS). In our
@@ -49,7 +49,7 @@ To implement such model, you must define the following functions:
 - [`eval_r!`](@ref) : in-place computation of ``\mathbf{r}``
 - [`eval_r_J!`](@ref) : in-place computation of ``(\mathbf{r}, \mathbf{J})``
 """
-abstract type AbstractNLS{T} end 
+abstract type AbstractNLS end 
 
 # ================================================================
 # Interface...
@@ -71,14 +71,14 @@ residue_size(nls::AbstractNLS) = error("To implement")
 
 @doc raw""" 
 ```julia
-eval_r!(r::AbstractVector{T},
-        nls::AbstractNLS{T},
-        θ::AbstractVector{T}) -> r
+eval_r!(r::AbstractVector,
+        nls::AbstractNLS,
+        θ::AbstractVector) -> r
 ```
 
 In-place evaluation of residual vector ``\mathbf{r}``
 """
-eval_r!(r::AbstractVector{T},nls::AbstractNLS{T},θ::AbstractVector{T}) where {T} = error("To implement")
+eval_r!(r::AbstractVector,nls::AbstractNLS,θ::AbstractVector) = error("To implement")
 
 @doc raw""" 
 ```julia
@@ -89,10 +89,10 @@ eval_r_J!(r::AbstractVector,
 
 In-place evaluation of residual the vector ``\mathbf{r}`` and its Jacobian ``\mathbf{J}`` 
 """
-eval_r_J!(r::AbstractVector{T},
-          J::AbstractMatrix{T},
-          nls::AbstractNLS{T},
-          θ::AbstractVector{T}) where {T} = error("To implement")
+eval_r_J!(r::AbstractVector,
+          J::AbstractMatrix,
+          nls::AbstractNLS,
+          θ::AbstractVector) = error("To implement")
 
 # ================================================================
 # Convenience functions...
@@ -107,7 +107,7 @@ eval_r(nls::AbstractNLS, θ::AbstractVector) -> r
 A convenience function that calls [`eval_r!`](@ref), but takes in charge initial creation of ``\mathbf{r}``.
 
 """
-function eval_r(nls::AbstractNLS{T}, θ::AbstractVector{T}) where {T}
+function eval_r(nls::AbstractNLS, θ::AbstractVector{T}) where {T}
     n_S = residue_size(nls)
     r = Vector{T}(undef,n_S)
 
@@ -123,7 +123,7 @@ eval_r_J(nls::AbstractNLS,θ::AbstractVector) -> (r,J)
 A convenience function that calls [`eval_r_J!`](@ref), but takes in
 charge initial creation of ``(r,J)``.
 """
-function eval_r_J(nls::AbstractNLS{T},θ::AbstractVector{T}) where {T}
+function eval_r_J(nls::AbstractNLS,θ::AbstractVector{T})  where {T}
     n_S = residue_size(nls)
     n_θ = parameter_size(nls)
     r = Vector{T}(undef,n_S)

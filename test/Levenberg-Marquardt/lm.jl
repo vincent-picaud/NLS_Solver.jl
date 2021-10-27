@@ -38,5 +38,17 @@
         @test solution(result) ≈ Float64[1;1]
         @test iteration_count(result) == 30
     end
+
+    @testset "PowellSingular" begin 
+        nls = PowellSingular()
+        conf = Levenberg_Marquardt_Conf(ε_grad_inf_norm=1e-15,
+                                        ε_step_2_norm=1e-15)
+        θ=Float64[3;-1;0;1]
+        result=solve( nls, θ, conf)
+
+        @test converged(result)
+        @test isapprox(solution(result),zeros(4),atol=1e-4)
+        @test iteration_count(result) == 23
+    end 
 end
  

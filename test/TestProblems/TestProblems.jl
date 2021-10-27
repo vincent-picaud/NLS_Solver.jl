@@ -6,3 +6,4 @@
 import NLS_Solver: parameter_size, residue_size, eval_r!, eval_r_J!
 
 include("Rosenbrock.jl")
+include("PowellSingular.jl")
