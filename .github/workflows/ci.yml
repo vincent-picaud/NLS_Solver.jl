@@ -11,7 +11,7 @@ jobs:
       matrix:
         version:
           - '1.0'
-          - '1.5'
+          - '1.6'
           - 'nightly'
         os:
           - ubuntu-latest
@@ -52,7 +52,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
         with:
-          version: '1'
+          version: '1.6'
       - run: |
           julia --project=docs -e '
             using Pkg
@@ -60,8 +60,9 @@ jobs:
             Pkg.instantiate()'
       - run: |
           julia --project=docs -e '
-            using Documenter: doctest
+            using Documenter: DocMeta, doctest
             using NLS_Solver
+            DocMeta.setdocmeta!(NLS_Solver, :DocTestSetup, :(using NLS_Solver); recursive=true)
             doctest(NLS_Solver)'
       - run: julia --project=docs docs/make.jl
         env:
