@@ -11,7 +11,7 @@ jobs:
       matrix:
         version:
           - '1.0'
-          - '1.5'
+          - '1.6'
           - 'nightly'
         os:
           - ubuntu-latest
@@ -62,10 +62,9 @@ jobs:
           julia --project=docs -e '
             using Documenter: DocMeta, doctest
             using NLS_Solver
-	    DocMeta.setdocmeta!(NLS_Solver, :DocTestSetup, :(using NLS_Solver); recursive=true)
+            DocMeta.setdocmeta!(NLS_Solver, :DocTestSetup, :(using NLS_Solver); recursive=true)
             doctest(NLS_Solver)'
       - run: julia --project=docs docs/make.jl
         env:
-	  JULIA_PKG_SERVER: ""
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
