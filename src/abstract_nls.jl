@@ -47,8 +47,8 @@ Where the gradient ``\nabla f`` is ``\mathbf{J}^t \mathbf{r}`` and the
 To implement such model, you must define the following functions:
 - [`parameter_size`](@ref) : returns ``n_θ``
 - [`residue_size`](@ref) : returns ``n_S``
-- [`eval_r`](@ref) : in-place computation of ``\mathbf{r}``
-- [`eval_r_J`](@ref) : in-place computation of ``(\mathbf{r}, \mathbf{J})``
+- [`eval_r`](@ref) : computation of ``\mathbf{r}``
+- [`eval_r_J`](@ref) : computation of ``(\mathbf{r}, \mathbf{J})``
 """
 abstract type AbstractNLS end 
 

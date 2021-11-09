@@ -22,7 +22,10 @@ makedocs(;
                 "QuadSolvers/abstractions.md",
                 "QuadSolvers/Kunisch-Rendl.md",
             ],
+
             "abstract_nls.md",
+            "abstract_quadratic_model.md",
+            
             "Levenberg-Marquardt" => [
                 "Levenberg-Marquardt/lm.md",
                 "Levenberg-Marquardt/lm_bc.md",

@@ -8,6 +8,8 @@ include("QuadSolvers/QuadSolvers.jl")
 include("abstract_nls.jl")
 include("abstract_nls_forwarddiff.jl")
 
+include("abstract_quadratic_model.jl")
+
 include("abstract_nls_result.jl")
 include("abstract_nls_bc_result.jl")
 
@@ -20,3 +22,4 @@ include("abstract_nls_bc_solve.jl")
 include("Levenberg-Marquardt/Levenberg-Marquardt.jl")
 
 end
+!
