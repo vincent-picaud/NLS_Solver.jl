@@ -1,4 +1,4 @@
-export create_nls_using_forwarddiff
+export NLS_ForwardDiff
 
 using ForwardDiff: jacobian
 
@@ -18,6 +18,7 @@ struct NLS_ForwardDiff <: AbstractNLS
     _residue_size::Int
     _parameter_size::Int
 end
+
 parameter_size(nls::NLS_ForwardDiff) = nls._parameter_size
 residue_size(nls::NLS_ForwardDiff) = nls._residue_size
 
@@ -40,10 +41,4 @@ function eval_r_J(nls::NLS_ForwardDiff,
     r,J
 end
 
-function create_nls_using_forwarddiff(
-    eval_r_function::Function,
-    residue_size::Int,
-    parameter_size::Int) 
 
-    NLS_ForwardDiff(eval_r_function,residue_size,parameter_size)
-end 

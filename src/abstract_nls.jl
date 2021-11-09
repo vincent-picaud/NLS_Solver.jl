@@ -150,27 +150,10 @@ In-place computation of gradient: ``\nabla f(\mathbf{θ}) = \mathbf{J}^t\mathbf{
 """
 function eval_nls_∇fobj!(∇fobj::AbstractVector,
                          r::AbstractVector, J::AbstractMatrix)
+    # in-place alternative: gemv!('T',T(1),J,r,T(0),∇fobj)
+    #
     ∇fobj .= J'*r
 end
-
-# function eval_nls_∇fobj!(∇fobj::AbstractVector{T},
-#                          r::AbstractVector{T}, J::AbstractMatrix{T}) where {T<:BlasFloat}
-
-#     # note: no runtime penalty forJ' (this is a *lazy* operation)
-#     #
-#     # mul!(∇fobj,J',r,1,0)  <- is ok, but unfortunately not compliant with Julia 1
-#     #
-#     # -> use Blas instead 
-#     #
-#     gemv!('T',T(1),J,r,T(0),∇fobj)
-    
-#     ∇fobj
-# end
-
-# function eval_nls_∇fobj!(∇fobj::StaticVector{Nθ,T},
-#                          r::StaticVector{NS,T}, J::StaticMatrix{NS,Nθ,T}) where {Nθ,NS,T}
-#     ∇fobj .= J'*r
-# end
 
 @doc raw"""
 ```julia
@@ -181,6 +164,9 @@ eval_nls_∇∇fobj!(∇∇fobj::AbstractVector,
 In-place computation of (approximate) Hessian: ``\nabla^2 f(\mathbf{θ}) = \mathbf{J}^t\mathbf{J}``
 """
 function eval_nls_∇∇fobj!(∇∇fobj::Symmetric, J::AbstractMatrix)
+    # in-place alternative: syrk!(∇∇fobj.uplo,'T',T(1),J,T(0),∇∇fobj.data)
+    # CAVEAT: does not work with StaticArrays
+    #
     ∇∇fobj .= Symmetric(J'*J)
 end
  
