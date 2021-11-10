@@ -3,8 +3,8 @@
     
     nls = Rosenbrock()
     
-    @assert parameter_size(nls) == 2
-    @assert residue_size(nls) == 2
+    @test parameter_size(nls) == 2
+    @test residue_size(nls) == 2
 
     θ=Float64[1;0]
 
