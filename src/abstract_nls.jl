@@ -1,7 +1,7 @@
 export AbstractNLS
 export parameter_size, residue_size
 export eval_r, eval_r_J
-export eval_nls_fobj, eval_nls_∇fobj!, eval_nls_∇∇fobj!
+export eval_nls_fobj, eval_nls_∇fobj, eval_nls_∇∇fobj
 
 using LinearAlgebra: dot, mul!
 using LinearAlgebra.BLAS: BlasFloat, syrk!, gemv!
@@ -96,41 +96,6 @@ eval_r_J(nls::AbstractNLS,θ::AbstractVector) = @assert(false,"To implement")
 # ================================================================
 #
 
-# @doc raw"""
-# ```julia
-# eval_r(nls::AbstractNLS, θ::AbstractVector) -> r
-# ```
-
-# A convenience function that calls [`eval_r!`](@ref), but takes in charge initial creation of ``\mathbf{r}``.
-
-# """
-# function eval_r(nls::AbstractNLS, θ::AbstractVector{T}) where {T}
-#     n_S = residue_size(nls)
-#     r = Vector{T}(undef,n_S)
-
-#     eval_r!(r,nls,θ) # return r
-# end
-
-
-# @doc raw"""
-# ```julia
-# eval_r_J(nls::AbstractNLS,θ::AbstractVector) -> (r,J)
-# ```
-
-# A convenience function that calls [`eval_r_J!`](@ref), but takes in
-# charge initial creation of ``(r,J)``.
-# """
-# function eval_r_J(nls::AbstractNLS,θ::AbstractVector{T})  where {T}
-#     n_S = residue_size(nls)
-#     n_θ = parameter_size(nls)
-#     r = Vector{T}(undef,n_S)
-#     J = Matrix{T}(undef,n_S,n_θ)
-
-#     eval_r_J!(r,J,nls,θ) # return (r,J)
-# end
-
-# ----------------------------------------------------------------
-
 @doc raw"""
 ```julia
 eval_nls_fobj(r::AbstractVector{T}) -> f(θ)
@@ -142,39 +107,31 @@ eval_nls_fobj(r::AbstractVector) = dot(r,r)/2
 
 @doc raw"""
 ```julia
-eval_nls_∇fobj!(∇fobj::AbstractVector,
-                r::AbstractVector, J::AbstractMatrix) -> ∇fobj
+eval_nls_∇fobj(r::AbstractVector, J::AbstractMatrix) -> ∇fobj
 ```
 
-In-place computation of gradient: ``\nabla f(\mathbf{θ}) = \mathbf{J}^t\mathbf{r}``
+Gradient computatation: ``\nabla f(\mathbf{θ}) = \mathbf{J}^t\mathbf{r}``
 """
-function eval_nls_∇fobj!(∇fobj::AbstractVector,
-                         r::AbstractVector, J::AbstractMatrix)
+function eval_nls_∇fobj(r::AbstractVector, J::AbstractMatrix)
     # in-place alternative: gemv!('T',T(1),J,r,T(0),∇fobj)
     #
-    ∇fobj .= J'*r
+    J'*r
 end
 
 @doc raw"""
 ```julia
-eval_nls_∇∇fobj!(∇∇fobj::AbstractVector,
-                 J::AbstractMatrix) -> ∇∇fobj
+eval_nls_∇∇fobj(J::AbstractMatrix) -> ∇∇fobj
 ```
 
-In-place computation of (approximate) Hessian: ``\nabla^2 f(\mathbf{θ}) = \mathbf{J}^t\mathbf{J}``
+(Approximate) Hessian computation: ``\nabla^2 f(\mathbf{θ}) = \mathbf{J}^t\mathbf{J}``
 """
-function eval_nls_∇∇fobj!(∇∇fobj::Symmetric, J::AbstractMatrix)
+function eval_nls_∇∇fobj(J::AbstractMatrix)
     # in-place alternative: syrk!(∇∇fobj.uplo,'T',T(1),J,T(0),∇∇fobj.data)
     # CAVEAT: does not work with StaticArrays
     #
-    ∇∇fobj .= Symmetric(J'*J)
+    Symmetric(J'*J)
 end
- 
-# function eval_nls_∇∇fobj!(∇∇fobj::Symmetric{T}, J::AbstractMatrix{T}) where {T<:BlasFloat}
-#     syrk!(∇∇fobj.uplo,'T',T(1),J,T(0),∇∇fobj.data)
 
-#     ∇∇fobj
-# end
     
 
 

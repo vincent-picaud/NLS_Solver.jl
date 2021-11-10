@@ -46,8 +46,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
     (r,J)=eval_r_J(nls,θ)
     # fobj is not really used (only when we return result) hence we do
     # not create this extra variable, but only its gradient:
-    ∇fobj=Vector{θ_T}(undef,n_θ)
-    eval_nls_∇fobj!(∇fobj,r,J)
+    ∇fobj=eval_nls_∇fobj(r,J)
 
     # Check CV: |∇fobj| ≤ ϵ ?
     #
@@ -66,8 +65,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
 
     # Compute H=J'J
     #
-    H=Symmetric(Matrix{θ_T}(undef,n_θ,n_θ))
-    eval_nls_∇∇fobj!(H,J)
+    H=eval_nls_∇∇fobj(J)
 
     # Initial μ
     #
@@ -77,7 +75,6 @@ function Levenberg_Marquardt(nls::AbstractNLS,
 
     # Some buffers
     #
-    H_μD = similar(H) # H + μ.I
     step = similar(θ)
     θ_new = similar(θ)
     r_new = similar(r)
@@ -85,7 +82,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
     for iter ∈ 1:max_iter
         # regularize Hessian
         #
-        H_μD .= H + get_damping_factor(damping)*I
+        H_μD = H + get_damping_factor(damping)*I
 
         # Newton step = -inv(H).∇f
         #
@@ -150,8 +147,8 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         if ρ>0
             @. θ = θ_new
             (r,J) = eval_r_J(nls,θ_new) # r_new was already know, but not J
-            eval_nls_∇fobj!(∇fobj,r,J)
-            eval_nls_∇∇fobj!(H,J)
+            ∇fobj=eval_nls_∇fobj(r,J)
+            H=eval_nls_∇∇fobj(J)
             
             inf_norm_∇fobj = norm(∇fobj,Inf)
             if  inf_norm_∇fobj ≤ ε_grad_inf_norm
