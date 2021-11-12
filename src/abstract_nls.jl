@@ -46,8 +46,8 @@ Where the gradient ``\nabla f`` is ``\mathbf{J}^t \mathbf{r}`` and the
 To implement such model, you must define the following functions:
 - [`parameter_size`](@ref) : returns ``n_θ``
 - [`residue_size`](@ref) : returns ``n_S``
-- [`eval_r`](@ref) : in-place computation of ``\mathbf{r}``
-- [`eval_r_J`](@ref) : in-place computation of ``(\mathbf{r}, \mathbf{J})``
+- [`eval_r`](@ref) : compute ``\mathbf{r}``
+- [`eval_r_J`](@ref) : compute ``(\mathbf{r}, \mathbf{J})``
 """
 abstract type AbstractNLS end 
 
@@ -75,7 +75,7 @@ eval_r(nls::AbstractNLS,
         θ::AbstractVector) -> r
 ```
 
-In-place evaluation of residual vector ``\mathbf{r}``
+Compte the residual vector ``\mathbf{r}``
 """
 eval_r(nls::AbstractNLS,
        θ::AbstractVector) = @assert(false,"To implement")
@@ -85,7 +85,7 @@ eval_r(nls::AbstractNLS,
 eval_r_J(nls::AbstractNLS,θ::AbstractVector) -> (r,J)
 ```
 
-In-place evaluation of residual the vector ``\mathbf{r}`` and its Jacobian ``\mathbf{J}`` 
+Compute the residual the vector ``\mathbf{r}`` and its Jacobian ``\mathbf{J}`` 
 """
 eval_r_J(nls::AbstractNLS,
          θ::AbstractVector) = @assert(false,"To implement")
@@ -109,7 +109,7 @@ eval_nls_fobj(r::AbstractVector) = dot(r,r)/2
 eval_nls_∇fobj(r,J) -> ∇fobj
 ```
 
-In-place computation of gradient: ``\nabla f(\mathbf{θ}) = \mathbf{J}^t\mathbf{r}``
+Compute the gradient: ``\nabla f(\mathbf{θ}) = \mathbf{J}^t\mathbf{r}``
 """
 function eval_nls_∇fobj(r::AbstractVector, J::AbstractMatrix)
     J'*r
@@ -120,7 +120,7 @@ end
 eval_nls_∇∇fobj(J) -> ∇∇fobj
 ```
 
-In-place computation of (approximate) Hessian: ``\nabla^2 f(\mathbf{θ}) = \mathbf{J}^t\mathbf{J}``
+Compute the (approximate) Hessian: ``\nabla^2 f(\mathbf{θ}) = \mathbf{J}^t\mathbf{J}``
 """
 function eval_nls_∇∇fobj(J::AbstractMatrix) 
     Symmetric(J'*J)
