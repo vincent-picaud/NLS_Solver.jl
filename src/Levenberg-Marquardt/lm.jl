@@ -39,11 +39,9 @@ function Levenberg_Marquardt(nls::AbstractNLS,
 
     # Compute, r,J, ∇fobj=J'r
     #
-    n_S, n_θ = residue_size(nls),parameter_size(nls) 
-    θ_T = eltype(θ_init)
     θ=copy(θ_init)
 
-    (r,J)=eval_r_J(nls,θ)
+    (r,J) = eval_r_J(nls,θ)
     ∇fobj = eval_nls_∇fobj(r,J)
 
     # Check CV: |∇fobj| ≤ ϵ ?
@@ -70,21 +68,15 @@ function Levenberg_Marquardt(nls::AbstractNLS,
     # (maybe add (Abstract)Damping type into conf)
     #
     damping = DynamicDampingFactor(τ * norm(H,Inf))
-
-    # Some buffers
-    #
-    H_μD = similar(H) # H + μ.I
-    step = similar(θ)
-    θ_new = similar(θ)
-    r_new = similar(r)
     
     for iter ∈ 1:max_iter
         # regularize Hessian
         #
-        H_μD .= H + get_damping_factor(damping)*I
+        H_μD = H + get_damping_factor(damping)*I
 
         # Newton step = -inv(H).∇f
         #
+        local step
         try
             step = -H_μD\∇fobj
         catch
@@ -125,7 +117,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         
         # Compute new θ & residue
         #
-        @. θ_new = θ + step
+        θ_new = θ + step
         r_new = eval_r(nls,θ_new)       
    
         # Compute δfobj = 1/2( r^2 - r_new^2 )
@@ -144,8 +136,8 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         # -> update position and check for CV
         #
         if ρ>0
-            @. θ = θ_new
-            r, J = eval_r_J(nls,θ_new) # r_new was already know, but not J
+            θ = θ_new
+            r, J = eval_r_J(nls,θ) # r_new was already know, but not J
             ∇fobj = eval_nls_∇fobj(r,J)
             H = eval_nls_∇∇fobj(J)
             

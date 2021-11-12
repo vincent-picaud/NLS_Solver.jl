@@ -1,6 +1,6 @@
 # An example to count alloc static vs dynamic arrays
 #
-using Revise, Pkg, BenchmarkTools
+using Pkg, BenchmarkTools
 
 Pkg.activate("../")
 
