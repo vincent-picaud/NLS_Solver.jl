@@ -16,7 +16,7 @@
 
     grad=similar(r)
 
-    eval_nls_∇fobj!(grad,r,J)
+    grad = eval_nls_∇fobj(r,J)
     @test grad ≈ [200.0; -100.0]
 
     H=Symmetric(Matrix{Float64}(undef,parameter_size(nls),parameter_size(nls)))

@@ -1,7 +1,7 @@
 export AbstractNLS
 export parameter_size, residue_size
 export eval_r, eval_r_J
-export eval_nls_fobj, eval_nls_∇fobj!, eval_nls_∇∇fobj!
+export eval_nls_fobj, eval_nls_∇fobj, eval_nls_∇∇fobj!
 
 using LinearAlgebra: dot, mul!
 using LinearAlgebra.BLAS: BlasFloat, syrk!, gemv!
@@ -106,24 +106,13 @@ eval_nls_fobj(r::AbstractVector) = dot(r,r)/2
 
 @doc raw"""
 ```julia
-eval_nls_∇fobj!(∇fobj::AbstractVector,
-                r::AbstractVector, J::AbstractMatrix) -> ∇fobj
+eval_nls_∇fobj(r,J) -> ∇fobj
 ```
 
 In-place computation of gradient: ``\nabla f(\mathbf{θ}) = \mathbf{J}^t\mathbf{r}``
 """
-function eval_nls_∇fobj!(∇fobj::AbstractVector{T},
-                         r::AbstractVector{T}, J::AbstractMatrix{T}) where {T<:BlasFloat}
-
-    # note: no runtime penalty forJ' (this is a *lazy* operation)
-    #
-    # mul!(∇fobj,J',r,1,0)  <- is ok, but unfortunately not compliant with Julia 1
-    #
-    # -> use Blas instead 
-    #
-    gemv!('T',T(1),J,r,T(0),∇fobj)
-    
-    ∇fobj
+function eval_nls_∇fobj(r::AbstractVector, J::AbstractMatrix)
+    J'*r
 end
     
 @doc raw"""

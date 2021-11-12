@@ -44,10 +44,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
     θ=copy(θ_init)
 
     (r,J)=eval_r_J(nls,θ)
-    # fobj is not really used (only when we return result) hence we do
-    # not create this extra variable, but only its gradient:
-    ∇fobj=Vector{θ_T}(undef,n_θ)
-    eval_nls_∇fobj!(∇fobj,r,J)
+    ∇fobj = eval_nls_∇fobj(r,J)
 
     # Check CV: |∇fobj| ≤ ϵ ?
     #
@@ -150,7 +147,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         if ρ>0
             @. θ = θ_new
             r, J = eval_r_J(nls,θ_new) # r_new was already know, but not J
-            eval_nls_∇fobj!(∇fobj,r,J)
+            ∇fobj = eval_nls_∇fobj(r,J)
             eval_nls_∇∇fobj!(H,J)
             
             inf_norm_∇fobj = norm(∇fobj,Inf)
