@@ -19,25 +19,17 @@ end
 parameter_size(::Rosenbrock) = 2
 residue_size(::Rosenbrock) = 2
 
-function eval_r!(r::AbstractVector,nls::Rosenbrock,θ::AbstractVector) 
+function eval_r(nls::Rosenbrock,θ::AbstractVector{T}) where T
     @assert length(θ)==parameter_size(nls)
 
-    r[1] = 1-θ[1]
-    r[2] = 10*(θ[2]-θ[1]^2)
-
-    r
+    T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
 end
 
-function eval_r_J!(r::AbstractVector,J::AbstractMatrix,nls::Rosenbrock,θ::AbstractVector) 
+function eval_r_J(nls::Rosenbrock,θ::AbstractVector{T}) where T
     @assert length(θ)==parameter_size(nls)
 
-    r[1] = 1-θ[1]
-    r[2] = 10*(θ[2]-θ[1]^2)
-
-    J[1,1] = -1       # ∂1r1
-    J[1,2] =  0       # ∂2r1
-    J[2,1] = -20*θ[1] # ∂1r2
-    J[2,2] = +10      # ∂2r2
+    r = T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
+    J = T[ -1 0; -20*θ[1] 10]
 
     (r,J)
 end

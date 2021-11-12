@@ -130,7 +130,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         # Compute new θ & residue
         #
         @. θ_new = θ + step
-        eval_r!(r_new,nls,θ_new)       
+        r_new = eval_r(nls,θ_new)       
    
         # Compute δfobj = 1/2( r^2 - r_new^2 )
         # (using  r^2 - r_new^2 = (r-r_new)*(r+r_new) which is numerically better)
@@ -149,7 +149,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         #
         if ρ>0
             @. θ = θ_new
-            eval_r_J!(r,J,nls,θ_new) # r_new was already know, but not J
+            r, J = eval_r_J(nls,θ_new) # r_new was already know, but not J
             eval_nls_∇fobj!(∇fobj,r,J)
             eval_nls_∇∇fobj!(H,J)
             

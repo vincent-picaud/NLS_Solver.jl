@@ -266,7 +266,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
         
         @. θ_new = θ + step
         project!(θ_new,bc) # be sure 
-        eval_r!(r_new,nls,θ_new)
+        r_new = eval_r(nls,θ_new)
         δf = compute_δf(r,r_new)
 
         ρ=δf/δL
@@ -279,7 +279,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
         if ρ>0
             
             @. θ = θ_new
-            eval_r_J!(r,J,nls,θ_new) # r_new was already know, but not J
+            r,J = eval_r_J(nls,θ_new) # r_new was already know, but not J
             eval_nls_∇fobj!(∇fobj,r,J)
             eval_nls_∇∇fobj!(H,J)
             
