@@ -1,6 +1,6 @@
 # An example to count alloc static vs dynamic arrays
 #
-using Pkg, BenchmarkTools
+using Revise, Pkg, BenchmarkTools
 
 Pkg.activate("../")
 
@@ -15,8 +15,8 @@ obj_static = Rosenbrock_Static()
 
 conf = Levenberg_Marquardt_Conf()
 
-println("Dynamic : ", @ballocated solve($obj, $θ, $conf))
-println("Static  : ", @ballocated solve($obj_static, $θ, $conf))
+println("Dynamic : ", @btime solve($obj, $θ, $conf))
+println("Static  : ", @btime solve($obj_static, $θ, $conf))
 
 # Sanity check
 #

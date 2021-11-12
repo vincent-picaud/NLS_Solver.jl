@@ -60,14 +60,14 @@ abstract type AbstractNLS end
 
 Return the dimension ``n_θ`` of the parameter vector ``θ``.
 """
-parameter_size(nls::AbstractNLS) = error("To implement")
+parameter_size(nls::AbstractNLS) = @assert(false,"To implement")
 
 @doc raw"""
     sample_size(nls::AbstractNLS) 
 
 Return the dimension ``n_S`` of the residue vector ``r``.
 """
-residue_size(nls::AbstractNLS) = error("To implement")
+residue_size(nls::AbstractNLS) = @assert(false,"To implement")
 
 @doc raw""" 
 ```julia
@@ -78,7 +78,7 @@ eval_r!(r::AbstractVector,
 
 In-place evaluation of residual vector ``\mathbf{r}``
 """
-eval_r!(r::AbstractVector,nls::AbstractNLS,θ::AbstractVector) = error("To implement")
+eval_r!(r::AbstractVector,nls::AbstractNLS,θ::AbstractVector) = @assert(false,"To implement")
 
 @doc raw""" 
 ```julia
@@ -92,7 +92,7 @@ In-place evaluation of residual the vector ``\mathbf{r}`` and its Jacobian ``\ma
 eval_r_J!(r::AbstractVector,
           J::AbstractMatrix,
           nls::AbstractNLS,
-          θ::AbstractVector) = error("To implement")
+          θ::AbstractVector) = @assert(false,"To implement")
 
 # ================================================================
 # Convenience functions...

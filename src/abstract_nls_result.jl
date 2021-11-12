@@ -18,14 +18,14 @@ abstract type AbstractNLSResult end
 
 Return `true` if the solver converged
 """
-converged(::AbstractNLSResult) = error("To implement")
+converged(::AbstractNLSResult) = @assert(false,"To implement")
 
 """
     iteration_count(::AbstractNLSResult)
 
 Return the number of consumed iteration
 """
-iteration_count(::AbstractNLSResult) = error("To implement")
+iteration_count(::AbstractNLSResult) = @assert(false,"To implement")
 
 
 """
@@ -33,13 +33,13 @@ iteration_count(::AbstractNLSResult) = error("To implement")
 
 Returns objective value at the point [`solution`](@ref).
 """
-objective_value(r::AbstractNLSResult) =  error("To implement")
+objective_value(r::AbstractNLSResult) =  @assert(false,"To implement")
 
 """
     solution(::AbstractNLSResult)
 
 Returns the founded solution 
 """
-solution(r::AbstractNLSResult) =  error("To implement")
+solution(r::AbstractNLSResult) =  @assert(false,"To implement")
 
 

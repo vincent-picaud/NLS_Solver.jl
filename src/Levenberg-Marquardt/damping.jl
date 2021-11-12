@@ -24,7 +24,7 @@ get_damping_factor(::AbstractDampingFactor)
 ```
 Return the damping factor (often noted as μ)
 """
-get_damping_factor(::AbstractDampingFactor) = error("To implement")
+get_damping_factor(::AbstractDampingFactor) = @assert(false,"To implement")
 
 @doc raw"""
 ```julia
@@ -32,7 +32,7 @@ increase_damping_factor(::AbstractDampingFactor)
 ```
 Increase the damping factor (often noted as μ)
 """
-increase_damping_factor(::AbstractDampingFactor) = error("To implement")
+increase_damping_factor(::AbstractDampingFactor) = @assert(false,"To implement")
 
 @doc raw"""
 ```julia
@@ -40,7 +40,7 @@ decrease_damping_factor(::AbstractDampingFactor)
 ```
 Decrease the damping factor (often noted as μ)
 """
-decrease_damping_factor(::AbstractDampingFactor) = error("To implement")
+decrease_damping_factor(::AbstractDampingFactor) = @assert(false,"To implement")
 
 @doc raw"""
 ```julia
@@ -48,7 +48,7 @@ reset(::AbstractDampingFactor, damping_factor::Real)
 ```
 Reset the damping factor (often noted as μ)
 """
-reset(::AbstractDampingFactor, damping_factor::Real) = error("To implement")
+reset(::AbstractDampingFactor, damping_factor::Real) = @assert(false,"To implement")
 
 @doc raw"""
 ```julia
@@ -119,7 +119,7 @@ get_damping_factor(::AbstractDynamicDampingFactor)
 ```
 Return the damping factor (often noted as μ)
 """
-get_damping_factor(::AbstractDynamicDampingFactor) = error("To implement")
+get_damping_factor(::AbstractDynamicDampingFactor) = @assert(false,"To implement")
 
 @doc raw"""
 ```julia
@@ -127,7 +127,7 @@ update_damping_factor(::AbstractDynamicDampingFactor,gain_ratio::Real)
 ```
 Update the damping factor (often noted as μ) according to the gain ration (often noted as ρ)
 """
-update_damping_factor(::AbstractDynamicDampingFactor,gain_ratio::Real) = error("To implement")
+update_damping_factor(::AbstractDynamicDampingFactor,gain_ratio::Real) = @assert(false,"To implement")
 
 @doc raw"""
 ```julia
@@ -135,7 +135,7 @@ reset(::AbstractDynamicDampingFactor, damping_factor::Real)
 ```
 Reset the damping factor (often noted as μ)
 """
-reset(::AbstractDynamicDampingFactor,damping_μ::Real) = error("To implement")
+reset(::AbstractDynamicDampingFactor,damping_μ::Real) = @assert(false,"To implement")
 
 @doc raw"""
 ```julia

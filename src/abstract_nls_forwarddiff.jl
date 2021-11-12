@@ -18,6 +18,7 @@ struct NLS_ForwardDiff <: AbstractNLS
     _residue_size::Int
     _parameter_size::Int
 end
+
 parameter_size(nls::NLS_ForwardDiff) = nls._parameter_size
 residue_size(nls::NLS_ForwardDiff) = nls._residue_size
 
@@ -40,11 +41,3 @@ function eval_r_J!(r::AbstractVector,
     r,J
 end
 
-function create_nls_using_forwarddiff(
-    eval_r!_function::Function,
-    T::DataType,
-    residue_size::Int,
-    parameter_size::Int) 
-
-    NLS_ForwardDiff(eval_r!_function,residue_size,parameter_size)
-end 

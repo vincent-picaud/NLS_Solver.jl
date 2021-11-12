@@ -15,14 +15,14 @@ abstract type AbstractQuadSolverResult end
 
 Return `true` if the solver converged
 """
-converged(::AbstractQuadSolverResult) = error("To implement")
+converged(::AbstractQuadSolverResult) = @assert(false,"To implement")
 
 """
     iteration_count(::AbstractQuadSolverResult)
 
 Return the number of consumed iteration
 """
-iteration_count(::AbstractQuadSolverResult) = error("To implement")
+iteration_count(::AbstractQuadSolverResult) = @assert(false,"To implement")
 
 
 """
@@ -30,18 +30,18 @@ iteration_count(::AbstractQuadSolverResult) = error("To implement")
 
 Returns objective value at the point [`solution`](@ref).
 """
-objective_value(r::AbstractQuadSolverResult) = error("To implement")
+objective_value(r::AbstractQuadSolverResult) = @assert(false,"To implement")
 
 """
     multiplier_τ(::AbstractQuadSolverResult)
 
 Returns the multipliers stored in a compact form (see τ definition, TODO)
 """
-multiplier_τ(r::AbstractQuadSolverResult) = error("To implement")
+multiplier_τ(r::AbstractQuadSolverResult) = @assert(false,"To implement")
 
 """
     solution(::AbstractQuadSolverResult)
 
 Returns the founded solution 
 """
-solution(r::AbstractQuadSolverResult) = error("To implement")
+solution(r::AbstractQuadSolverResult) = @assert(false,"To implement")

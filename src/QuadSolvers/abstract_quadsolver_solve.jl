@@ -28,6 +28,6 @@ solve(Q::Symmetric{<:Real},
       q::AbstractVector{<:Real},
       x_init::AbstractVector{<:Real},
       bc::BoundConstraints{<:Real,1},
-      conf::AbstractQuadSolverConf) = error("To implement")
+      conf::AbstractQuadSolverConf) = @assert(false,"To implement")
 
                

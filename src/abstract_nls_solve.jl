@@ -16,6 +16,6 @@ The method returns a [`AbstractNLSResult`](@ref) specialization.
 """
 solve(nls::AbstractNLS,
       θ_init::AbstractVector,
-      conf::AbstractNLSConf) = error("To implement")
+      conf::AbstractNLSConf) = @assert(false,"To implement")
 
                

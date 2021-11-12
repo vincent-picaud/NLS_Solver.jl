@@ -19,6 +19,6 @@ The method returns a [`AbstractNLSResult`](@ref) specialization.
 solve(nls::AbstractNLS,
       θ_init::AbstractVector,
       bc::BoundConstraints{<:Real},
-      conf::AbstractNLSBCConf) = error("To implement")
+      conf::AbstractNLSBCConf) = @assert(false,"To implement")
 
                
