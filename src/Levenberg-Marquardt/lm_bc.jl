@@ -199,8 +199,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
 
     # Compute H=J'J
     #
-    H=Symmetric(Matrix{θ_T}(undef,n_θ,n_θ))
-    eval_nls_∇∇fobj!(H,J)
+    H = eval_nls_∇∇fobj(J)
 
     # Initial μ
     #
@@ -278,7 +277,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
             @. θ = θ_new
             r,J = eval_r_J(nls,θ_new) # r_new was already know, but not J
             ∇fobj = eval_nls_∇fobj(r,J)
-            eval_nls_∇∇fobj!(H,J)
+            H = eval_nls_∇∇fobj(J)
             
             inf_norm_KKT = norm(∇fobj+τ,Inf)
 

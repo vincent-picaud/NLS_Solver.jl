@@ -1,7 +1,7 @@
 export AbstractNLS
 export parameter_size, residue_size
 export eval_r, eval_r_J
-export eval_nls_fobj, eval_nls_∇fobj, eval_nls_∇∇fobj!
+export eval_nls_fobj, eval_nls_∇fobj, eval_nls_∇∇fobj
 
 using LinearAlgebra: dot, mul!
 using LinearAlgebra.BLAS: BlasFloat, syrk!, gemv!
@@ -117,16 +117,13 @@ end
     
 @doc raw"""
 ```julia
-eval_nls_∇∇fobj!(∇∇fobj::AbstractVector,
-                 J::AbstractMatrix) -> ∇∇fobj
+eval_nls_∇∇fobj(J) -> ∇∇fobj
 ```
 
 In-place computation of (approximate) Hessian: ``\nabla^2 f(\mathbf{θ}) = \mathbf{J}^t\mathbf{J}``
 """
-function eval_nls_∇∇fobj!(∇∇fobj::Symmetric{T}, J::AbstractMatrix{T}) where {T<:BlasFloat}
-    syrk!(∇∇fobj.uplo,'T',T(1),J,T(0),∇∇fobj.data)
-
-    ∇∇fobj
+function eval_nls_∇∇fobj(J::AbstractMatrix) 
+    Symmetric(J'*J)
 end
     
 
