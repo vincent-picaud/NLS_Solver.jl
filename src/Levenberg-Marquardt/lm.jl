@@ -108,11 +108,9 @@ function Levenberg_Marquardt(nls::AbstractNLS,
             return result
         end
 
-        # Compute δL variation from the quadratic model
-        # δL = L(0)-L(step)
-        #    = 1/2 dot( step , μ step - grad)
+        # Compute  δL = L(0)-L(step)
         #
-        δL = dot(step,get_μ(damping)*step-∇fobj)/2         # TODO: optimize to avoid mem alloc
+        δL = compute_δL_unconstrained(∇fobj,get_μ(damping),step)
         @assert δL > 0
         
         # Compute new θ & residue
@@ -120,11 +118,10 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         θ_new = θ + step
         r_new = eval_r(nls,θ_new)       
    
-        # Compute δfobj = 1/2( r^2 - r_new^2 )
-        # (using  r^2 - r_new^2 = (r-r_new)*(r+r_new) which is numerically better)
+        # Compute δfobj = fobj(θ) - fobj(θ_new)
         #
-        δfobj = dot(r-r_new,r+r_new)/2
-
+        δfobj = compute_δf(r,r_new)
+            
         # compute ρ = δf/δL
         #
         ρ = δfobj/δL
