@@ -30,7 +30,7 @@ function quadratic_subproblem(H::Symmetric{<:Real},
                               θ_init::AbstractVector{<:Real},
                               bc::BoundConstraints{<:Real,1},
                               conf::AbstractQuadSolverConf,
-                              damping::AbstractDynamicDampingFactor,
+                              damping::LM_Damping,
                               max_attempt::Int)
     @assert max_attempt ≥ 1
 
@@ -50,7 +50,7 @@ function quadratic_subproblem(H::Symmetric{<:Real},
 
     for attempt in 1:max_attempt
         
-        diagonal_update!(H_μI,H,get_damping_factor(damping))
+        diagonal_update!(H_μI,H,get_μ(damping))
 
         result = solve(H_μI,∇f,θ_init,bc_translated,conf)
 
@@ -61,7 +61,7 @@ function quadratic_subproblem(H::Symmetric{<:Real},
 
         # only bindings...
         θ_init = solution(result)
-        damping = update_damping_factor(damping, -1.0) 
+        damping = increase_μ(damping)
     end
 
     if !quad_cv_ok
@@ -133,7 +133,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
     #
     # (maybe add (Abstract)Damping type into conf)
     #
-    damping = DynamicDampingFactor(τ * norm(H,Inf))
+    damping = LM_Damping(τ * norm(H,Inf))
 
     # Some buffers
     #
@@ -182,7 +182,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
         # (for that must update θ_new and r_new)
         #
         δL = compute_δL_constrained(∇fobj,
-                                    get_damping_factor(damping),
+                                    get_μ(damping),
                                     τ,
                                     step)
         
@@ -213,7 +213,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
             
             inf_norm_KKT = norm(∇fobj+τ,Inf)
 
-            #            @debug "iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |KKT|=$(_fmt(inf_norm_KKT)), μ=$(_fmt(get_damping_factor(damping)))" 
+            #            @debug "iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |KKT|=$(_fmt(inf_norm_KKT)), μ=$(_fmt(get_μ(damping)))" 
             
             if inf_norm_KKT ≤ ε_grad_inf_norm
                 result = LevenbergMarquardt_BC_Result(_converged=true,
@@ -227,13 +227,13 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
             end
             
         else
-            # @debug "Reject point: ρ=$(_fmt(ρ)), μ=$(_fmt(get_damping_factor(damping)))"
+            # @debug "Reject point: ρ=$(_fmt(ρ)), μ=$(_fmt(get_μ(damping)))"
         end
         
         
         # In all cases (accepted or not) update damping factor μ
         #
-        damping = update_damping_factor(damping,ρ)
+        damping = update_μ(damping,ρ)
     end
 
     result = LevenbergMarquardt_BC_Result(_converged=false,

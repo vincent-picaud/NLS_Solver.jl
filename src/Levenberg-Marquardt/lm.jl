@@ -67,12 +67,12 @@ function Levenberg_Marquardt(nls::AbstractNLS,
     #
     # (maybe add (Abstract)Damping type into conf)
     #
-    damping = DynamicDampingFactor(τ * norm(H,Inf))
+    damping = LM_Damping(τ * norm(H,Inf))
     
     for iter ∈ 1:max_iter
         # regularize Hessian
         #
-        H_μD = H + get_damping_factor(damping)*I
+        H_μD = H + get_μ(damping)*I
 
         # Newton step = -inv(H).∇f
         #
@@ -112,7 +112,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         # δL = L(0)-L(step)
         #    = 1/2 dot( step , μ step - grad)
         #
-        δL = dot(step,get_damping_factor(damping)*step-∇fobj)/2         # TODO: optimize to avoid mem alloc
+        δL = dot(step,get_μ(damping)*step-∇fobj)/2         # TODO: optimize to avoid mem alloc
         @assert δL > 0
         
         # Compute new θ & residue
@@ -129,7 +129,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         #
         ρ = δfobj/δL
 
-        #        @debug "LM: iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |∇f|=$(_fmt(inf_norm_∇fobj)), μ=$(_fmt(get_damping_factor(damping)))"
+        #        @debug "LM: iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |∇f|=$(_fmt(inf_norm_∇fobj)), μ=$(_fmt(get_μ(damping)))"
 
         # Accept new point?
         #
@@ -158,7 +158,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
 
         # In all cases (accepted or not) update damping factor μ
         #
-        damping = update_damping_factor(damping,ρ)
+        damping = update_μ(damping,ρ)
     end
 
     # end of loop... not convergence
