@@ -67,79 +67,6 @@ function quadratic_subproblem(H::Symmetric{<:Real},
 end
 
 
-@doc raw"""
-
-Compute variation of the quadratic model ``L``.
-
-``L:\mathbb{R}^{n_θ}\rightarrow \mathbb{R}`` is defined as follows:
-
-```math
-\frac{1}{2}r^t(θ+h)r(θ+h) ≈ L(h)
-```
-where
-
-```math
-L(h)=\frac{1}{2}r^t(θ)r(θ) + (J^tr)^th + \frac{1}{2}h^tJ^tJh
-```
-Given a step ``h`` we want to compute the variation 
-
-```math
-δL = L(0)-L(h) = -(J^tr)^th - \frac{1}{2}h^tJ^tJh 
-``
-
-For the **unconstrained** case, where ``h`` is solution of ``(J^tJ+μI).h+J^tr=0`` we can compute ``δL`` by:
-```math
-δL = \frac{1}{2}h^t(μh-J^tr)
-```
-
-However this formula is not valid for the constrained case where: ``(J^tJ+μI).h+J^tr+τ=0``.
-
-TODO 
-```math
-δL = ...
-```
-For the moment we do the complete computation...
-"""
-function compute_δL_naive(J::AbstractMatrix,
-                          r::AbstractVector,
-                          h::AbstractVector)
-    Jtr = J'*r
-    Jtr_h = dot(Jtr,h)
-
-    Jh = J*h
-    JtJh = J'Jh
-    htJtJh = dot(h,JtJh)
-    
-    -(Jtr_h + htJtJh/2)
-end
-# where h is assumed to verify (J^tJ+μI).h = - ∇f
-function compute_δL_unconstrained(∇f::AbstractVector,
-                                  μ::Real,
-                                  h::AbstractVector)
-    1/2*dot(h,μ*h-∇f)
-end
-function compute_δL_constrained(∇f::AbstractVector,
-                                μ::Real,
-                                τ::AbstractVector,
-                                h::AbstractVector)
-    @error "To implement!"
-end
-
-@doc raw"""
-
-Compute true variation of the real model: ``δf = \frac{1}{2}(r^t(θ)r(θ)-r^t(θ+h)r(θ+h))``
-
-Contrary to ``δL`` things are simpler. However a trick is to use an equivalent formulation:
-```math
-δf = \frac{1}{2}(r^t(θ)r(θ)-r^t(θ+h)r(θ+h)) = \frac{1}{2}(r(θ)-r(θ+h))^t(r(θ)+r(θ+h))
-```
-that has a better numerical behavior.
-"""
-function compute_δf(r::AbstractVector,
-                    r_new::AbstractVector)
-    dot(r-r_new,r+r_new)
-end
-
 # Note: Convergence check replace Euler CN |∇f| ≤ ϵ, we use the
 # condition: max | x-P[a,b](x-∇f) | as in check_first_order
 #
@@ -255,9 +182,15 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
 
         # compute ρ
         # (for that must update θ_new and r_new)
-        δL = compute_δL_naive(J,
-                              r,
-                              step)
+        #
+        δL = compute_δL_constrained(∇fobj,
+                                    get_damping_factor(damping),
+                                    τ,
+                                    step)
+        
+        # δL = compute_δL_naive(J,
+        #                       r,
+        #                       step)
        @assert δL>0 "$δL"
         
         @. θ_new = θ + step

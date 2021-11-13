@@ -1,5 +1,7 @@
 include("damping.jl")
 
+include("rho.jl")
+
 include("lm_result.jl")
 include("lm.jl")
 
