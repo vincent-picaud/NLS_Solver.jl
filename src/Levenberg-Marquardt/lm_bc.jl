@@ -4,6 +4,16 @@ export Levenberg_Marquardt_BC_Conf
 
 using LinearAlgebra: norm, I
 
+#
+# in-place diagonal update ``diag(H_μI) = diag(H) + μ
+#
+function diagonal_update!(H_μI::AbstractMatrix,H::AbstractMatrix,μ::Number)
+    view_diag_H_μI = @view H_μI[diagind(H_μI)]
+    view_diag_H = @view H[diagind(H)]
+
+    view_diag_H_μI .= view_diag_H .+ μ
+end
+
 @doc raw"""
 
 Solve
@@ -29,14 +39,6 @@ function quadratic_subproblem(H::Symmetric{<:Real},
     
     # buffer to avoid several allocs
     H_μI = copy(H)
-    update_H_μI = begin
-        view_diag_H_μI = @view H_μI[diagind(H_μI)]
-        view_diag_H = @view H[diagind(H)]
-        () -> begin
-            μ = get_damping_factor(damping)
-            view_diag_H_μI .= view_diag_H .+ μ
-        end
-    end
     
     # We perform several attempts with increasing μ (this is useful
     # when using some optimizers likes Kunisch-Rendl which are not
@@ -45,8 +47,11 @@ function quadratic_subproblem(H::Symmetric{<:Real},
     # as they are used outside the for loop
     local quad_cv_ok = false
     local result
+
     for attempt in 1:max_attempt
-        update_H_μI()                
+        
+        diagonal_update!(H_μI,H,get_damping_factor(damping))
+
         result = solve(H_μI,∇f,θ_init,bc_translated,conf)
 
         quad_cv_ok = converged(result)
