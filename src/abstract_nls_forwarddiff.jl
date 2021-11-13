@@ -26,12 +26,13 @@ function eval_r(nls::NLS_ForwardDiff,θ::AbstractVector)
     nls._eval_r_function(θ)
 end
 
-function eval_r_J(nls::NLS_ForwardDiff, θ::AbstractVector)
+function eval_r_J(nls::NLS_ForwardDiff, θ::AbstractVector{T}) where {T}
+    
+    r_evaluation = (r,θ)->(r.=eval_r(nls,θ))
+    
+    r=Vector{T}(undef,residue_size(nls))
 
-    r_evaluation = θ->eval_r(nls,θ)
-
-    r = eval_r(nls,θ)
-    J = jacobian(r_evaluation, θ)
+    J = jacobian(r_evaluation, r, θ)
 
     r,J
 end
