@@ -35,7 +35,7 @@ function compute_δL_unconstrained(∇f::AbstractVector,
     # The syntax to desctructure is unexpected... 
     # https://discourse.julialang.org/t/argument-destructuring-and-anonymous-functions/24893/2
     #
-    mapreduce(((h_i,∇f_i),)->h_i*(h_i-μ*∇f_i),+,zip(h,∇f))/2
+    mapreduce(((h_i,∇f_i),)->h_i*(μ*h_i-∇f_i),+,zip(h,∇f))/2
 end
 
 
@@ -57,7 +57,7 @@ function compute_δL_constrained(∇f::AbstractVector,
                                 μ::Real,
                                 τ::AbstractVector,
                                 h::AbstractVector)
-    mapreduce(((h_i,τ_i,∇f_i),)->h_i*(h_i+τ_i-μ*∇f_i),+,zip(h,τ,∇f))/2
+    mapreduce(((h_i,τ_i,∇f_i),)->h_i*(μ*h_i+τ_i-∇f_i),+,zip(h,τ,∇f))/2
 end
 
 
@@ -75,5 +75,5 @@ that has a better numerical behavior.
 """
 function compute_δf(r::AbstractVector,
                     r_new::AbstractVector)
-    mapreduce(((r_i,r_new_i),)->(r_i-r_new_i)*(r_i+r_new_i),+,zip(r,r_new))
+    mapreduce(((r_i,r_new_i),)->(r_i-r_new_i)*(r_i+r_new_i),+,zip(r,r_new))/2
 end
