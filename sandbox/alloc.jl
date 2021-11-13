@@ -28,3 +28,12 @@ result_static = solve(obj_static, θ, conf)
 @assert solution(result) ≈ solution(result_static)
 
 println("Sanity check ok")
+
+# Constrained problem
+
+bc = BoundConstraints(2)
+
+conf = Levenberg_Marquardt_BC_Conf()
+
+println("Dynamic : ", @btime solve($obj, $θ, $bc, $conf))
+println("Static  : ", @btime solve($obj_static, $θ, $bc, $conf))
