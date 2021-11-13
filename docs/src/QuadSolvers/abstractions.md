@@ -8,16 +8,16 @@ quadratic problem of the form:
 ```
 
 The first argument of the `solve()` function is the solver
-configuration. This [`AbstractQuadSolverConf`](@ref) structure defines
+configuration. This [`Abstract_BC_QuadSolver_Conf`](@ref) structure defines
 the solver to use and its configuration. The method returns a
-[`AbstractQuadSolverResult`](@ref) that contains the algorithm
+[`Abstract_BC_QuadSolver_Result`](@ref) that contains the algorithm
 results.
 
 ## Solver Configuration
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["QuadSolvers/abstract_quadsolver_conf.jl"]
+Pages = ["QuadSolvers/abstract_bc_quadsolver_conf.jl"]
 Private = false
 ```
 
@@ -26,7 +26,7 @@ Private = false
 ```@autodocs
 Modules = [NLS_Solver]
 Order   = [:function]
-Pages = ["QuadSolvers/abstract_quadsolver_conf.jl"]
+Pages = ["QuadSolvers/abstract_bc_quadsolver_conf.jl"]
 Private = false
 ```
 
@@ -35,7 +35,7 @@ Private = false
 ```@autodocs
 Modules = [NLS_Solver]
 Order   = [:type]
-Pages = ["QuadSolvers/abstract_quadsolver_result.jl"]
+Pages = ["QuadSolvers/abstract_bc_quadsolver_result.jl"]
 Private = false
 ```
 
@@ -44,7 +44,7 @@ Private = false
 ```@autodocs
 Modules = [NLS_Solver]
 Order   = [:function]
-Pages = ["QuadSolvers/abstract_quadsolver_result.jl"]
+Pages = ["QuadSolvers/abstract_bc_quadsolver_result.jl"]
 Private = false
 ```
 
@@ -53,7 +53,7 @@ Private = false
 ```@autodocs
 Modules = [NLS_Solver]
 Order   = [:function]
-Pages = ["QuadSolvers/abstract_quadsolver_solve.jl"]
+Pages = ["QuadSolvers/bc_quadsolver_interface.jl"]
 Private = false
 ```
 
@@ -61,8 +61,8 @@ Private = false
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["QuadSolvers/abstract_quadsolver_conf.jl",
-	"QuadSolvers/abstract_quadsolver_result.jl",
-	"QuadSolvers/abstract_quadsolver_solve.jl"]
+Pages = ["QuadSolvers/abstract_bc_quadsolver_conf.jl",
+	"QuadSolvers/abstract_bc_quadsolver_result.jl",
+	"QuadSolvers/bc_quadsolver_interface.jl"]
 Public = false
 ```

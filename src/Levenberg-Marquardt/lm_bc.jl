@@ -29,7 +29,7 @@ function quadratic_subproblem(H::Symmetric{<:Real},
                               ∇f::AbstractVector{<:Real},
                               θ_init::AbstractVector{<:Real},
                               bc::BoundConstraints{<:Real,1},
-                              conf::AbstractQuadSolverConf,
+                              conf::Abstract_BC_QuadSolver_Conf,
                               damping::LM_Damping,
                               max_attempt::Int)
     @assert max_attempt ≥ 1
@@ -88,7 +88,7 @@ Levenberg_Marquardt_BC(nls::AbstractNLS,
                        # initial regularization μ0=τ.|H|
                        τ::Float64=1.0e-3,
                        # quad specific
-                       quad_conf::AbstractQuadSolverConf=Kunisch_Rendl_Conf(),
+                       quad_conf::Abstract_BC_QuadSolver_Conf=Kunisch_Rendl_Conf(),
                        quad_max_attempt::Int=10)
 ```
 
@@ -106,7 +106,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
                                 # initial regularization μ0=τ.|H|
                                 τ::Float64=1.0e-3,
                                 # quad specific
-                                quad_conf::AbstractQuadSolverConf=Kunisch_Rendl_Conf(),
+                                quad_conf::Abstract_BC_QuadSolver_Conf=Kunisch_Rendl_Conf(),
                                 quad_max_attempt::Int=10)
     # Sanity check
     #
@@ -266,7 +266,7 @@ Levenberg_Marquardt_BC_Conf()
 
 Configuration parameters of the Levenberg-Marquardt with bound constraints solver
 """
-mutable struct Levenberg_Marquardt_BC_Conf <: AbstractNLSBCConf
+mutable struct Levenberg_Marquardt_BC_Conf <: Abstract_BC_Solver_Conf
     # The structure is mutable as we will add methods such as:
     # set_max_iter().
     #
@@ -277,13 +277,13 @@ mutable struct Levenberg_Marquardt_BC_Conf <: AbstractNLSBCConf
     # Specific to LM_BC
     #
     _quad_max_attempt::Int
-    _quad_conf::AbstractQuadSolverConf
+    _quad_conf::Abstract_BC_QuadSolver_Conf
     
     # default values
         function Levenberg_Marquardt_BC_Conf(;
                                              lm_conf::Levenberg_Marquardt_Conf=Levenberg_Marquardt_Conf(),
                                              quad_max_attempt::Int=10,
-                                             quad_conf::AbstractQuadSolverConf=Kunisch_Rendl_Conf())
+                                             quad_conf::Abstract_BC_QuadSolver_Conf=Kunisch_Rendl_Conf())
             
             @assert quad_max_attempt ≥ 1
             

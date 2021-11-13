@@ -187,7 +187,7 @@ Levenberg_Marquardt_Conf()
 
 Configuration parameters of the Levenberg-Marquardt solver
 """
-mutable struct Levenberg_Marquardt_Conf <: AbstractNLSConf
+mutable struct Levenberg_Marquardt_Conf <: Abstract_Solver_Conf
     # The structure is mutable as we will add methods such as:
     # set_max_iter().
     #

@@ -11,7 +11,7 @@ Private = false
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["abstract_nls_solve.jl"]
+Pages = ["solver_interface.jl"]
 Private = false
 ```
 
@@ -19,7 +19,7 @@ Private = false
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["abstract_nls_conf.jl"]
+Pages = ["abstract_solver_conf.jl"]
 Private = false
 ```
 
@@ -31,7 +31,7 @@ public.
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["abstract_nls_result.jl"]
+Pages = ["abstract_solver_result.jl"]
 Public = false
 ```
 
@@ -41,7 +41,7 @@ The public interface
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["abstract_nls_result.jl"]
+Pages = ["abstract_solver_result.jl"]
 Private = false
 ```
 
@@ -51,7 +51,7 @@ Private = false
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["abstract_nls_bc_solve.jl"]
+Pages = ["bc_solver_interface.jl"]
 Private = false
 ```
 
@@ -59,7 +59,7 @@ Private = false
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["abstract_nls_bc_conf.jl"]
+Pages = ["abstract_bc_solver_conf.jl"]
 Private = false
 ```
 
@@ -68,7 +68,7 @@ Private = false
 
 ```@autodocs
 Modules = [NLS_Solver]
-Pages = ["abstract_nls_bc_result.jl"]
+Pages = ["abstract_bc_solver_result.jl"]
 Public = false
 ```
 

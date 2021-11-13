@@ -15,7 +15,7 @@ eval -> compute
 
 ## Factorize ResultTypes
 
-Our AbstractNLSResult, AbstractNLSBCResult, AbstractQuadResult result
+Our Abstract_Solver_Result, Abstract_BC_Solver_Result, AbstractQuadResult result
 structure all have soem common methods like `converged()`,
 `iteration_count()` or `solution()`
 
