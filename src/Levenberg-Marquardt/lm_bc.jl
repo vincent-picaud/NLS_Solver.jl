@@ -113,19 +113,15 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
     @assert ε_step_2_norm ≥ 0
     @assert τ > 0
 
-    # Compute, r,J, ∇fobj=J'r
+    # Initialization
     #
-    n_S, n_θ = residue_size(nls),parameter_size(nls)
-    θ_T = eltype(θ_init)
     θ=copy(θ_init)
+
     # be sure that θ is inbound
     project!(θ,bc)
 
     (r,J) = eval_r_J(nls,θ)
     ∇fobj = eval_nls_∇fobj(r,J)
-
-    # Compute H=J'J
-    #
     H = eval_nls_∇∇fobj(J)
 
     # Initial μ
@@ -136,12 +132,9 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
 
     # Some buffers
     #
-    θ_new = similar(θ)
-    r_new = similar(r)
-
-#    local quad_result
-
     for iter ∈ 1:max_iter
+        # Find h by solving a bound constrained quadratic problem
+        #
         (quad_result, damping) = quadratic_subproblem(H,
                                                       ∇fobj,
                                                       θ,
@@ -171,9 +164,9 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
 
         if norm_2_step ≤ ε_step_2_norm*max(ε_step_2_norm,norm_2_step)
             result = LevenbergMarquardt_BC_Result(_converged=true,
-                                               _iter_count=iter,
-                                               _fobj=eval_nls_fobj(r),
-                                               _solution=θ)
+                                                  _iter_count=iter,
+                                                  _fobj=eval_nls_fobj(r),
+                                                  _solution=θ)
 
             @debug "Small step" result = result
             
@@ -191,10 +184,11 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
         # δL = compute_δL_naive(J,
         #                       r,
         #                       step)
-       @assert δL>0 "$δL"
+        @assert δL>0 "$δL"
         
-        @. θ_new = θ + step
-        project!(θ_new,bc) # be sure 
+        θ_new = θ + step
+        project!(θ_new,bc) # Avoid small numerical errors that can
+                           # violate bound constraints
         r_new = eval_r(nls,θ_new)
         δf = compute_δf(r,r_new)
 
@@ -207,8 +201,8 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
         #
         if ρ>0
             
-            @. θ = θ_new
-            r,J = eval_r_J(nls,θ_new) # r_new was already know, but not J
+            θ = θ_new
+            r, J = eval_r_J(nls,θ) # r_new was already know, but not J
             ∇fobj = eval_nls_∇fobj(r,J)
             H = eval_nls_∇∇fobj(J)
             
@@ -218,9 +212,9 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
             
             if inf_norm_KKT ≤ ε_grad_inf_norm
                 result = LevenbergMarquardt_BC_Result(_converged=true,
-                                                          _iter_count=iter,
-                                                   _fobj=eval_nls_fobj(r),
-                                                   _solution=θ)
+                                                      _iter_count=iter,
+                                                      _fobj=eval_nls_fobj(r),
+                                                      _solution=θ)
                 
                 @debug "KKT critical point" result = result
                 

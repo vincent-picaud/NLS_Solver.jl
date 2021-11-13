@@ -3,7 +3,7 @@
 Compute δL = L(0)-L(h) where L is the quadratic model
 
 ```math
-L(h)=\frac{1}{2}\| r(θ) \|_2^2 + \langle \nabla f, h \rangle + \frac{1}{2}\langle \nabla^2 f h, h \rangle
+L(h)=f(\theta) + \langle \nabla f, h \rangle + \frac{1}{2}\langle \nabla^2 f h, h \rangle
 ```
 
 with ``f(\theta)=\frac{1}{2}\| r(θ) \|_2^2``, ``\nabla f = J^t r`` and ``\nabla^2 f = J^t J``
@@ -66,10 +66,12 @@ end
 Compute true variation of the real model: ``δf = \frac{1}{2}(r^t(θ)r(θ)-r^t(θ+h)r(θ+h))``
 
 Contrary to ``δL`` things are simpler. However a trick is to use an equivalent formulation:
+
 ```math
 δf = \frac{1}{2}(r^t(θ)r(θ)-r^t(θ+h)r(θ+h)) = \frac{1}{2}(r(θ)-r(θ+h))^t(r(θ)+r(θ+h))
 ```
-that has a better numerical behavior.
+
+that has a better numerical behavior. 
 """
 function compute_δf(r::AbstractVector,
                     r_new::AbstractVector)
