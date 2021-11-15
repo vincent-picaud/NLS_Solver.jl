@@ -301,7 +301,7 @@ end
 # ****************************************************************
 
 # Config stucture
-struct Kunisch_Rendl_Conf <: AbstractQuadSolverConf
+struct Kunisch_Rendl_Conf <: Abstract_BC_QuadSolver_Conf
     _max_iter::Int
     _reg_schedule::AbstractRegularizationSchedule 
     
@@ -322,7 +322,7 @@ max_iter(conf::Kunisch_Rendl_Conf) = conf._max_iter
 # ****************************************************************
 
 # Result structure
-struct Kunisch_Rendl_Result <: AbstractQuadSolverResult
+struct Kunisch_Rendl_Result <: Abstract_BC_QuadSolver_Result
     _cv::Bool
     _iter_count::Int
     _fobj::Real

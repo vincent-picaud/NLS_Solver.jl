@@ -1,9 +1,9 @@
 @testset "LM algorithm" begin
 
-    @testset "Rosenbrock" begin
+    @testset "Rosenbrock" for TYPE in (Rosenbrock, Rosenbrock_Static)
         using NLS_Solver: Levenberg_Marquardt
         
-        nls = Rosenbrock()
+        nls = TYPE()
         θ=Float64[1;0]
 
         result=Levenberg_Marquardt(nls, θ)
@@ -13,9 +13,8 @@
         @test iteration_count(result) == 8
     end
     
-    @testset "Rosenbrock with solve()" begin
-        
-        nls = Rosenbrock()
+    @testset "Rosenbrock with solve()" for TYPE in (Rosenbrock, Rosenbrock_Static)
+        nls = TYPE()
         conf = Levenberg_Marquardt_Conf()
         θ=Float64[1;0]
 
@@ -26,9 +25,8 @@
         @test iteration_count(result) == 8
     end
 
-    @testset "Rosenbrock with solve() + distant initial point" begin
-        
-        nls = Rosenbrock()
+    @testset "Rosenbrock with solve() + distant initial point" for TYPE in (Rosenbrock, Rosenbrock_Static) 
+        nls = TYPE()
         conf = Levenberg_Marquardt_Conf()
         θ=Float64[-10;-10.5]
 

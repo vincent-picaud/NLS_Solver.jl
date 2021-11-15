@@ -9,7 +9,7 @@ solve(Q::Symmetric{<:Real},
       q::AbstractVector{<:Real},
       x_init::AbstractVector{<:Real},
       bc::BoundConstraints{<:Real,1},
-      conf::AbstractQuadSolverConf)::AbstractQuadSolverResult
+      conf::Abstract_BC_QuadSolver_Conf)::Abstract_BC_QuadSolver_Result
 ```
 
 
@@ -20,14 +20,14 @@ Generic interface to solve a quadratic optimization problem of the form:
 ```
 
 The algorithm to be used is defined through
-[`AbstractQuadSolverConf`](@ref) specializations. The method returns a
-[`AbstractQuadSolverResult`](@ref) specialization.
+[`Abstract_BC_QuadSolver_Conf`](@ref) specializations. The method returns a
+[`Abstract_BC_QuadSolver_Result`](@ref) specialization.
 
 """
 solve(Q::Symmetric{<:Real},
       q::AbstractVector{<:Real},
       x_init::AbstractVector{<:Real},
       bc::BoundConstraints{<:Real,1},
-      conf::AbstractQuadSolverConf) = error("To implement")
+      conf::Abstract_BC_QuadSolver_Conf) = @assert(false,"To implement")
 
                

@@ -41,10 +41,10 @@ jobs:
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
-      - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
-        with:
-          file: lcov.info
+      # - uses: julia-actions/julia-processcoverage@v1
+      # - uses: codecov/codecov-action@v1
+      #   with:
+      #     file: lcov.info
   docs:
     name: Documentation
     runs-on: ubuntu-latest
@@ -64,7 +64,10 @@ jobs:
             using NLS_Solver
             DocMeta.setdocmeta!(NLS_Solver, :DocTestSetup, :(using NLS_Solver); recursive=true)
             doctest(NLS_Solver)'
-      - run: julia --project=docs docs/make.jl
+      - run: julia --project=docs --code-coverage=user docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+# added from https://juliadocs.github.io/Documenter.jl/stable/man/hosting/            		  
+      - uses: julia-actions/julia-processcoverage@v1
+      - uses: codecov/codecov-action@v1

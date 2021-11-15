@@ -12,7 +12,7 @@
 
         @test converged(result)
         @test solution(result) ≈ Float64[1;1]
-        @test iteration_count(result) == 10
+        @test iteration_count(result) == 14
     end
 
     @testset "Rosenbrock sol ∈ ∂I" begin
@@ -25,7 +25,7 @@
 
         @test converged(result)
         @test solution(result) ≈ Float64[1;1]
-        @test iteration_count(result) == 10
+        @test iteration_count(result) == 14
     end
 
       @testset "Rosenbrock sol ∉ I" begin
@@ -53,7 +53,7 @@
 
         @test converged(result)
         @test solution(result) ≈ Float64[1;1]
-        @test iteration_count(result) == 10
+        @test iteration_count(result) == 14
     end
 
 end

@@ -6,7 +6,7 @@ A structure to store:
 results.
 
 """
-struct LevenbergMarquardt_Result{T<:Real} <: AbstractNLSResult
+struct LevenbergMarquardt_Result{T<:Real} <: Abstract_Solver_Result
     _converged::Bool
     _iter_count::Int
     _fobj::T
