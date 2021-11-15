@@ -45,26 +45,44 @@ end
 parameter_size(pm::Peak_Motif) = 2
 
 
+# function eval_y(pm::Peak_Motif{Gaussian_Peak},x::Real,θ::AbstractVector{T}) where {T}
+#     @assert length(θ) == parameter_size(pm)
+
+#     h_glob = θ[1]
+#     σ_glob = θ[2]
+
+#     θ_loc    = Vector{T}(undef,3)
+#     θ_loc[3] = σ_glob
+
+#     n::Int = size(pm._profile,1)
+
+#     sum = 0
+#     for i in 1:n
+#         μ_loc = pm._profile[i,1]
+#         h_loc = pm._profile[i,2]
+
+#         θ_loc[1] = h_glob*h_loc
+#         θ_loc[2] = μ_loc
+        
+#         sum += eval_y(pm._peak, x, θ_loc)
+#     end
+
+#     sum
+# end
 function eval_y(pm::Peak_Motif{Gaussian_Peak},x::Real,θ::AbstractVector{T}) where {T}
     @assert length(θ) == parameter_size(pm)
 
     h_glob = θ[1]
     σ_glob = θ[2]
 
-    θ_loc    = Vector{T}(undef,3)
-    θ_loc[3] = σ_glob
-
-    n::Int = size(pm._profile,1)
+    n = size(pm._profile,1)
 
     sum = 0
     for i in 1:n
         μ_loc = pm._profile[i,1]
         h_loc = pm._profile[i,2]
 
-        θ_loc[1] = h_glob*h_loc
-        θ_loc[2] = μ_loc
-        
-        sum += eval_y(pm._peak, x, θ_loc)
+        sum += eval_y(pm._peak, x, @SVector T[ h_glob*h_loc,μ_loc,σ_glob])
     end
 
     sum
