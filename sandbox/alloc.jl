@@ -37,3 +37,10 @@ conf = Levenberg_Marquardt_BC_Conf()
 
 println("Dynamic : ", @btime solve($obj, $θ, $bc, $conf))
 println("Static  : ", @btime solve($obj_static, $θ, $bc, $conf))
+
+#
+# Debug runtime error for StaticArrays
+#
+# using Debugger
+# breakpoint(joinpath(@__DIR__,"src/Levenberg-Marquardt/lm_bc.jl"),152)
+# @enter solve(obj_static, θ, bc, conf)

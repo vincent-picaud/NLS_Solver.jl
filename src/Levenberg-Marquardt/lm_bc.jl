@@ -38,7 +38,16 @@ function quadratic_subproblem(H::Symmetric{<:Real},
     bc_translated = bc - θ_init
     
     # buffer to avoid several allocs
-    H_μI = copy(H)
+    #
+    # note: to support StaticsArrays
+    #
+    #       H_μI = copy(H)
+    #
+    #       is not the right implementation, one must use similar
+    #       first (in order to get a MMatrix from a SMatrix).
+    #
+    H_μI = similar(H)
+    H_μI .= H
     
     # We perform several attempts with increasing μ (this is useful
     # when using some optimizers likes Kunisch-Rendl which are not

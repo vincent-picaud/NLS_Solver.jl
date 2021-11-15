@@ -34,10 +34,11 @@ function eval_r_J(nls::Rosenbrock,θ::AbstractVector{T}) where T
     (r,J)
 end
 
-#
-const Rosenbrock_Static = Rosenbrock
 
-# # ================================================================
+
+# ================================================================
+
+const Rosenbrock_Static = Rosenbrock
 
 # # Define the same Rosenbrock function but using Statics Arrays... This
 # # cause some problems: https://github.com/JuliaArrays/StaticArrays.jl/issues/971
@@ -52,14 +53,6 @@ const Rosenbrock_Static = Rosenbrock
 # function eval_r(nls::Rosenbrock_Static,θ::AbstractVector{T}) where T
 #     @assert length(θ)==parameter_size(nls)
 
-#     r = T[1-θ[1],
-#           10*(θ[2]-θ[1]^2)]
-# end
-
-
-# function eval_r(nls::Rosenbrock_Static,θ::AbstractVector{T}) where T
-#     @assert length(θ)==parameter_size(nls)
-
 #     r = @SVector T[1-θ[1],
 #                    10*(θ[2]-θ[1]^2)]
 # end
@@ -67,8 +60,7 @@ const Rosenbrock_Static = Rosenbrock
 # function eval_r_J(nls::Rosenbrock_Static,θ::AbstractVector{T}) where T
 #     @assert length(θ)==parameter_size(nls)
 
-#     r = SVector{2,T}(1-θ[1],
-#                      10*(θ[2]-θ[1]^2))
+#     r = eval_r(nls,θ)
 
 #     # CAVEAT: SMatrix are filled column by column
 #     #
@@ -88,7 +80,7 @@ const Rosenbrock_Static = Rosenbrock
 #     # that follows the "natural" order (row by row)
 #     #
 #     J = @SMatrix T[      -1   +0;     # ∂1r1, ∂2r1
-#                     -20*θ[1]  +10]     # ∂1r2, ∂2r2
-
+#                          -20*θ[1]  +10]     # ∂1r2, ∂2r2
+  
 #     (r, J)
 # end
