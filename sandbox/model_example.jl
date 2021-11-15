@@ -32,7 +32,51 @@ end
 
 # ----------------------------------------------------------------
 
-using ForwardDiff, NLS_Solver, LinearAlgebra
+using StaticArrays
+
+struct Peak_Motif{P<:Abstract_Fit_Model_Peak} <: Abstract_Fit_Model_Peak
+    _peak::P
+    _profile::Matrix{Float64} # position, height
+end
+
+# -- Specialization for Gaussian Peak
+#    θ = (h,σ)
+#
+parameter_size(pm::Peak_Motif) = 2
+
+
+function eval_y(pm::Peak_Motif{Gaussian_Peak},x::Real,θ::AbstractVector{T}) where {T}
+    @assert length(θ) == parameter_size(pm)
+
+    h_glob = θ[1]
+    σ_glob = θ[2]
+
+    θ_loc    = Vector{T}(undef,3)
+    θ_loc[3] = σ_glob
+
+    n::Int = size(pm._profile,1)
+
+    sum = 0
+    for i in 1:n
+        μ_loc = pm._profile[i,1]
+        h_loc = pm._profile[i,2]
+
+        θ_loc[1] = h_glob*h_loc
+        θ_loc[2] = μ_loc
+        
+        sum += eval_y(pm._peak, x, θ_loc)
+    end
+
+    sum
+end 
+ 
+
+# ----------------------------------------------------------------
+
+using ForwardDiff, NLS_Solver, LinearAlgebra, BenchmarkTools
+
+import NLS_Solver
+
 
 # Here we assume that X is a _vector_ of point
 #
@@ -55,7 +99,6 @@ struct NLS_ForwardDiff_From_Fit_Model <: NLS_Solver.AbstractNLS
     end
 end
 
-import NLS_Solver
 
 NLS_Solver.parameter_size(nls::NLS_ForwardDiff_From_Fit_Model) = parameter_size(nls._fit_model)
 NLS_Solver.residue_size(nls::NLS_ForwardDiff_From_Fit_Model)  = length(nls._Y)
@@ -86,9 +129,9 @@ Y = rand(n)
 
 model = Gaussian_Peak()
 
-nls = NLS_ForwardDiff_From_Fit_Model(model,X,Y)
+θ = rand(parameter_size(model))
 
-θ = rand(parameter_size(nls))
+nls = NLS_ForwardDiff_From_Fit_Model(model,X,Y)
 
 
 eval_r(nls,θ)
@@ -99,3 +142,22 @@ result=solve(nls, θ, conf)
 
 norm(eval_r(nls,θ),2)
 norm(eval_r(nls,solution(result)),2)
+
+# ----------------------------------------------------------------
+
+profile=rand(5,2)
+
+model = Peak_Motif(Gaussian_Peak(),profile)
+
+θ = rand(parameter_size(model))
+
+@btime eval_y(model,2.0,θ)
+       
+nls = NLS_ForwardDiff_From_Fit_Model(model,X,Y)
+
+eval_r(nls,θ)
+eval_r_J(nls,θ)
+
+result=solve(nls, θ, conf)
+
+eval_y(mode,2.0,
