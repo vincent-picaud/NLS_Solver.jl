@@ -1,4 +1,4 @@
-export AbstractNLS
+export AbstractNLS # TODO: do not export
 export parameter_size, residue_size
 export eval_r, eval_r_J
 export eval_nls_fobj, eval_nls_∇fobj, eval_nls_∇∇fobj

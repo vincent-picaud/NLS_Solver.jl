@@ -1,0 +1,101 @@
+#
+# A model example
+#
+abstract type Abstract_Fit_Model end
+
+parameter_size(::Abstract_Fit_Model) = @assert(false,"To implement!")
+
+# Here eval Y_i for point X_i. When performing fit we have a collection of such X_i
+#
+eval_y(::Abstract_Fit_Model,X_i::Any,θ::AbstractVector)  = @assert(false,"To implement!")
+
+# ----------------------------------------------------------------
+
+abstract type Abstract_Fit_Model_Peak <: Abstract_Fit_Model end
+
+# ----------------------------------------------------------------
+
+struct Gaussian_Peak <: Abstract_Fit_Model_Peak
+end
+
+parameter_size(::Gaussian_Peak) = 3
+
+function eval_y(::Gaussian_Peak,x::Real,θ::AbstractVector)
+    h=θ[1]
+    μ=θ[2]
+    σ=θ[3]
+
+    t = ((x-μ)/σ)^2
+    
+    h*exp(-t/2)
+end
+
+# ----------------------------------------------------------------
+
+using ForwardDiff, NLS_Solver, LinearAlgebra
+
+# Here we assume that X is a _vector_ of point
+#
+# For 2D generalization we can use the Cartesian product of two vector
+# X_1i & X_2i. Then each point X_i will be X_i=(X_1i,X_2i)
+#
+struct NLS_ForwardDiff_From_Fit_Model <: NLS_Solver.AbstractNLS
+    _fit_model::Abstract_Fit_Model
+    _X::AbstractVector
+    _Y::AbstractVector
+
+    # if X is a n x m 2D array, we assume that each row is an
+    # evaluation site (a point of R^m), hence the computed Y is of length n = size(X,1)
+    #
+    function NLS_ForwardDiff_From_Fit_Model(fit_model::Abstract_Fit_Model,
+                                            X::AbstractVector,Y::AbstractVector) 
+        @assert length(X) == length(Y)
+
+        new(fit_model,X,Y)
+    end
+end
+
+import NLS_Solver
+
+NLS_Solver.parameter_size(nls::NLS_ForwardDiff_From_Fit_Model) = parameter_size(nls._fit_model)
+NLS_Solver.residue_size(nls::NLS_ForwardDiff_From_Fit_Model)  = length(nls._Y)
+
+function NLS_Solver.eval_r(nls::NLS_ForwardDiff_From_Fit_Model,θ::AbstractVector) 
+    map(((X_i,Y_i);)->Y_i-eval_y(nls._fit_model,X_i,θ),zip(nls._X,nls._Y))
+end
+
+
+function NLS_Solver.eval_r_J(nls::NLS_ForwardDiff_From_Fit_Model, θ::AbstractVector{T}) where {T}
+    
+    r_evaluation = (r,θ)->(r .= eval_r(nls,θ))
+    
+    r = Vector{T}(undef,residue_size(nls))
+
+    J = ForwardDiff.jacobian(r_evaluation, r, θ)
+
+    r,J
+end
+
+# ================================================================
+# Demo
+# ================================================================
+
+n = 10
+X = Float64[1:n;]
+Y = rand(n)
+
+model = Gaussian_Peak()
+
+nls = NLS_ForwardDiff_From_Fit_Model(model,X,Y)
+
+θ = rand(parameter_size(nls))
+
+
+eval_r(nls,θ)
+eval_r_J(nls,θ)
+
+conf = Levenberg_Marquardt_Conf()
+result=solve(nls, θ, conf)
+
+norm(eval_r(nls,θ),2)
+norm(eval_r(nls,solution(result)),2)
