@@ -96,24 +96,28 @@ using ForwardDiff, NLS_Solver, LinearAlgebra, BenchmarkTools
 import NLS_Solver
 
 
-# Here we assume that X is a _vector_ of point
+# Using "template" parameters allows to have 1 alloc in eval_r (versus
+# 6 if one uses X,Y::AbstractVector)
 #
-# For 2D generalization we can use the Cartesian product of two vector
-# X_1i & X_2i. Then each point X_i will be X_i=(X_1i,X_2i)
-#
-struct NLS_ForwardDiff_From_Fit_Model <: NLS_Solver.AbstractNLS
+struct NLS_ForwardDiff_From_Fit_Model{X_ELEMENT_TYPE,
+                                      Y_ELEMENT_TYPE,
+                                      X_TYPE <: AbstractVector{X_ELEMENT_TYPE},
+                                      Y_TYPE <: AbstractVector{Y_ELEMENT_TYPE}} <: NLS_Solver.AbstractNLS
     _fit_model::Abstract_Fit_Model
-    _X::AbstractVector
-    _Y::AbstractVector
-
+    _X::X_TYPE
+    _Y::Y_TYPE
+ 
     # if X is a n x m 2D array, we assume that each row is an
     # evaluation site (a point of R^m), hence the computed Y is of length n = size(X,1)
     #
     function NLS_ForwardDiff_From_Fit_Model(fit_model::Abstract_Fit_Model,
-                                            X::AbstractVector,Y::AbstractVector) 
+                                            X::X_TYPE,Y::Y_TYPE) where{X_ELEMENT_TYPE,
+                                                                       Y_ELEMENT_TYPE,
+                                                                       X_TYPE <: AbstractVector{X_ELEMENT_TYPE},
+                                                                       Y_TYPE <: AbstractVector{Y_ELEMENT_TYPE}} 
         @assert length(X) == length(Y)
 
-        new(fit_model,X,Y)
+        new{X_ELEMENT_TYPE,Y_ELEMENT_TYPE,X_TYPE,Y_TYPE}(fit_model,X,Y)
     end
 end
 
@@ -174,8 +178,10 @@ model = Peak_Motif(Gaussian_Peak(),profile)
 nls = NLS_ForwardDiff_From_Fit_Model(model,X,Y)
 
 eval_r(nls,θ)
-eval_r_J(nls,θ)
+@btime eval_r($nls,$θ)
+@btime eval_r_J(nls,θ)
+@btime solve($nls, $θ, $conf)
 
-result=solve(nls, θ, conf)
+# result=solve(nls, θ, conf)
 
-eval_y(mode,2.0,
+
