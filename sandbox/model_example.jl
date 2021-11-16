@@ -1,5 +1,4 @@
-using ForwardDiff, NLS_Solver, LinearAlgebra, BenchmarkTools
-using StaticArrays
+using ForwardDiff, NLS_Solver, LinearAlgebra, BenchmarkTools, StaticArrays
 
 #
 # A model example
@@ -128,22 +127,54 @@ import NLS_Solver
 # Important: using "template" parameters allows to have 1 alloc in
 # eval_r (versus 6 if one uses X,Y::AbstractVector)
 #
-struct NLS_ForwardDiff_From_Fit_Model{X_ELEMENT_TYPE,
+#
+# Finally MODEL2FIT_TYPE <: Abstract_Model2Fit is parametrized 
+# julia> @btime eval_r($nls,$θ)
+#   2.724 μs (44 allocations: 928 bytes)
+# 10-element Vector{Float64}:
+#  0.8056529547193196
+#  0.10344414895180448
+#  0.7746398216971467
+#  0.5705008291976804
+#  0.758504377425209
+#  0.6572756090278895
+#  0.22021418677443244
+#  0.9012363674393303
+#  0.25785439137881183
+#  0.7594027591650859
+#
+# julia> @btime eval_r($nls,$θ)
+#   842.590 ns (1 allocation: 160 bytes)
+# 10-element Vector{Float64}:
+#  -0.6484862692515055
+#   0.10436137221132202
+#   0.3416337767340343
+#  -0.5195066030780292
+#   0.0635334492635572
+#  -0.2671004288239941
+#  -0.13064413518496942
+#  -0.143200160754688
+#   0.517014266738562
+#   0.21068675449678864
+# 
+struct NLS_ForwardDiff_From_Fit_Model{MODEL2FIT_TYPE <: Abstract_Model2Fit,
+                                      X_ELEMENT_TYPE,
                                       Y_ELEMENT_TYPE,
                                       X_TYPE <: AbstractVector{X_ELEMENT_TYPE},
                                       Y_TYPE <: AbstractVector{Y_ELEMENT_TYPE}} <: NLS_Solver.AbstractNLS
-    _fit_model::Abstract_Model2Fit
+    _fit_model::MODEL2FIT_TYPE
     _X::X_TYPE
     _Y::Y_TYPE
  
-    function NLS_ForwardDiff_From_Fit_Model(fit_model::Abstract_Model2Fit,
-                                            X::X_TYPE,Y::Y_TYPE) where{X_ELEMENT_TYPE,
+    function NLS_ForwardDiff_From_Fit_Model(fit_model::MODEL2FIT_TYPE,
+                                            X::X_TYPE,Y::Y_TYPE) where{MODEL2FIT_TYPE <: Abstract_Model2Fit,
+                                                                       X_ELEMENT_TYPE,
                                                                        Y_ELEMENT_TYPE,
                                                                        X_TYPE <: AbstractVector{X_ELEMENT_TYPE},
                                                                        Y_TYPE <: AbstractVector{Y_ELEMENT_TYPE}} 
         @assert length(X) == length(Y)
 
-        new{X_ELEMENT_TYPE,Y_ELEMENT_TYPE,X_TYPE,Y_TYPE}(fit_model,X,Y)
+        new{MODEL2FIT_TYPE,X_ELEMENT_TYPE,Y_ELEMENT_TYPE,X_TYPE,Y_TYPE}(fit_model,X,Y)
     end
 end
 
@@ -167,9 +198,94 @@ function NLS_Solver.eval_r_J(nls::NLS_ForwardDiff_From_Fit_Model, θ::AbstractVe
     r,J
 end
 
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# An attempt of wrapping using Zygote
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#
+# Does not work at all in our case:
+# julia> @btime eval_r_J($nls_zygote,$θ)
+#   1.421 s (2632107 allocations: 81.61 MiB) 
+#
+# versus Forward diff
+#
+# julia> @btime eval_r_J($nls,$θ)
+#   36.179 μs (9 allocations: 26.11 KiB)
+#
+# using Zygote
+
+# struct NLS_Zygote_From_Fit_Model{MODEL2FIT_TYPE <: Abstract_Model2Fit,
+#                                  X_ELEMENT_TYPE,
+#                                  Y_ELEMENT_TYPE,
+#                                  X_TYPE <: AbstractVector{X_ELEMENT_TYPE},
+#                                  Y_TYPE <: AbstractVector{Y_ELEMENT_TYPE}} <: NLS_Solver.AbstractNLS
+#     _fit_model::MODEL2FIT_TYPE
+#     _X::X_TYPE
+#     _Y::Y_TYPE
+ 
+#     function NLS_Zygote_From_Fit_Model(fit_model::MODEL2FIT_TYPE,
+#                                             X::X_TYPE,Y::Y_TYPE) where{MODEL2FIT_TYPE <: Abstract_Model2Fit,
+#                                                                        X_ELEMENT_TYPE,
+#                                                                        Y_ELEMENT_TYPE,
+#                                                                        X_TYPE <: AbstractVector{X_ELEMENT_TYPE},
+#                                                                        Y_TYPE <: AbstractVector{Y_ELEMENT_TYPE}} 
+#         @assert length(X) == length(Y)
+
+#         new{MODEL2FIT_TYPE,X_ELEMENT_TYPE,Y_ELEMENT_TYPE,X_TYPE,Y_TYPE}(fit_model,X,Y)
+#     end
+# end
+
+
+# NLS_Solver.parameter_size(nls::NLS_Zygote_From_Fit_Model) = parameter_size(nls._fit_model)
+# NLS_Solver.residue_size(nls::NLS_Zygote_From_Fit_Model)  = length(nls._Y)
+
+# function NLS_Solver.eval_r(nls::NLS_Zygote_From_Fit_Model,θ::AbstractVector{T}) where T
+#     # Cannot use adjoint as zip() currently not supported 
+#     #    map(((X_i,Y_i);)->Y_i-eval_y(nls._fit_model,X_i,θ),zip(nls._X,nls._Y))
+#     r = map(X_i->eval_y(nls._fit_model,X_i,θ),nls._X)
+#     nls._Y-r
+# end
+
+
+# function NLS_Solver.eval_r_J(nls::NLS_Zygote_From_Fit_Model, θ::AbstractVector{T}) where {T}
+    
+#     r = eval_r(nls,θ)
+
+#     J = jacobian(θ->eval_r(nls,θ), θ)
+
+#     r,J
+# end
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# An attempt of wrapping using Enzyme
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#
+# Cannot make it work...
+#
+# julia> autodiff(t->eval_y(model,2.0,t),θ)
+# ┌ Warning: ("reverse differentiating jl_apply_generic call without split mode", eval_y, 0x00000003)
+# └ @ Enzyme.Compiler ~/.julia/packages/Enzyme/afnXq/src/compiler.jl:260
+# ┌ Warning: ("done reverse differentiating jl_apply_generic call without split mode", eval_y, ())
+# └ @ Enzyme.Compiler ~/.julia/packages/Enzyme/afnXq/src/compiler.jl:325
+# ()
+
+
 # ================================================================
 # Demo
 # ================================================================
+
+X = rand(100)
+Y = rand(100)
+
+model = Gaussian_Peak()+Gaussian_Peak()+Gaussian_Peak()
+
+θ = rand(parameter_size(model))
+
+nls = NLS_ForwardDiff_From_Fit_Model(model,X,Y)
+
+@btime eval_r($nls,$θ)
+@btime eval_r_J($nls,$θ)
+
+# ----------------------------------------------------------------
 
 n = 10
 X = Float64[1:n;]
@@ -180,7 +296,6 @@ model = Gaussian_Peak()
 θ = rand(parameter_size(model))
 
 nls = NLS_ForwardDiff_From_Fit_Model(model,X,Y)
-
 
 eval_r(nls,θ)
 eval_r_J(nls,θ)
