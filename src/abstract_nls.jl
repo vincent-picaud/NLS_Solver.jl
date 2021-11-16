@@ -1,7 +1,7 @@
-export AbstractNLS
+export AbstractNLS # TODO: do not export
 export parameter_size, residue_size
-export eval_r!, eval_r_J!, eval_r, eval_r_J
-export eval_nls_fobj, eval_nls_∇fobj!, eval_nls_∇∇fobj!
+export eval_r, eval_r_J
+export eval_nls_fobj, eval_nls_∇fobj, eval_nls_∇∇fobj
 
 using LinearAlgebra: dot, mul!
 using LinearAlgebra.BLAS: BlasFloat, syrk!, gemv!
@@ -46,8 +46,8 @@ Where the gradient ``\nabla f`` is ``\mathbf{J}^t \mathbf{r}`` and the
 To implement such model, you must define the following functions:
 - [`parameter_size`](@ref) : returns ``n_θ``
 - [`residue_size`](@ref) : returns ``n_S``
-- [`eval_r!`](@ref) : in-place computation of ``\mathbf{r}``
-- [`eval_r_J!`](@ref) : in-place computation of ``(\mathbf{r}, \mathbf{J})``
+- [`eval_r`](@ref) : compute ``\mathbf{r}``
+- [`eval_r_J`](@ref) : compute ``(\mathbf{r}, \mathbf{J})``
 """
 abstract type AbstractNLS end 
 
@@ -60,79 +60,40 @@ abstract type AbstractNLS end
 
 Return the dimension ``n_θ`` of the parameter vector ``θ``.
 """
-parameter_size(nls::AbstractNLS) = error("To implement")
+parameter_size(nls::AbstractNLS) = @assert(false,"To implement")
 
 @doc raw"""
     sample_size(nls::AbstractNLS) 
 
 Return the dimension ``n_S`` of the residue vector ``r``.
 """
-residue_size(nls::AbstractNLS) = error("To implement")
+residue_size(nls::AbstractNLS) = @assert(false,"To implement")
 
 @doc raw""" 
 ```julia
-eval_r!(r::AbstractVector,
-        nls::AbstractNLS,
+eval_r(nls::AbstractNLS,
         θ::AbstractVector) -> r
 ```
 
-In-place evaluation of residual vector ``\mathbf{r}``
+Compte the residual vector ``\mathbf{r}``
 """
-eval_r!(r::AbstractVector,nls::AbstractNLS,θ::AbstractVector) = error("To implement")
+eval_r(nls::AbstractNLS,
+       θ::AbstractVector) = @assert(false,"To implement")
 
 @doc raw""" 
 ```julia
-eval_r_J!(r::AbstractVector, 
-          J::AbstractMatrix,
-          nls::AbstractNLS,θ::AbstractVector) -> (r,J)
+eval_r_J(nls::AbstractNLS,θ::AbstractVector) -> (r,J)
 ```
 
-In-place evaluation of residual the vector ``\mathbf{r}`` and its Jacobian ``\mathbf{J}`` 
+Compute the residual the vector ``\mathbf{r}`` and its Jacobian ``\mathbf{J}`` 
 """
-eval_r_J!(r::AbstractVector,
-          J::AbstractMatrix,
-          nls::AbstractNLS,
-          θ::AbstractVector) = error("To implement")
+eval_r_J(nls::AbstractNLS,
+         θ::AbstractVector) = @assert(false,"To implement")
 
 # ================================================================
 # Convenience functions...
 # ================================================================
 #
-
-@doc raw"""
-```julia
-eval_r(nls::AbstractNLS, θ::AbstractVector) -> r
-```
-
-A convenience function that calls [`eval_r!`](@ref), but takes in charge initial creation of ``\mathbf{r}``.
-
-"""
-function eval_r(nls::AbstractNLS, θ::AbstractVector{T}) where {T}
-    n_S = residue_size(nls)
-    r = Vector{T}(undef,n_S)
-
-    eval_r!(r,nls,θ) # return r
-end
-
-
-@doc raw"""
-```julia
-eval_r_J(nls::AbstractNLS,θ::AbstractVector) -> (r,J)
-```
-
-A convenience function that calls [`eval_r_J!`](@ref), but takes in
-charge initial creation of ``(r,J)``.
-"""
-function eval_r_J(nls::AbstractNLS,θ::AbstractVector{T})  where {T}
-    n_S = residue_size(nls)
-    n_θ = parameter_size(nls)
-    r = Vector{T}(undef,n_S)
-    J = Matrix{T}(undef,n_S,n_θ)
-
-    eval_r_J!(r,J,nls,θ) # return (r,J)
-end
-
-# ----------------------------------------------------------------
 
 @doc raw"""
 ```julia
@@ -145,38 +106,24 @@ eval_nls_fobj(r::AbstractVector) = dot(r,r)/2
 
 @doc raw"""
 ```julia
-eval_nls_∇fobj!(∇fobj::AbstractVector,
-                r::AbstractVector, J::AbstractMatrix) -> ∇fobj
+eval_nls_∇fobj(r,J) -> ∇fobj
 ```
 
-In-place computation of gradient: ``\nabla f(\mathbf{θ}) = \mathbf{J}^t\mathbf{r}``
+Compute the gradient: ``\nabla f(\mathbf{θ}) = \mathbf{J}^t\mathbf{r}``
 """
-function eval_nls_∇fobj!(∇fobj::AbstractVector{T},
-                         r::AbstractVector{T}, J::AbstractMatrix{T}) where {T<:BlasFloat}
-
-    # note: no runtime penalty forJ' (this is a *lazy* operation)
-    #
-    # mul!(∇fobj,J',r,1,0)  <- is ok, but unfortunately not compliant with Julia 1
-    #
-    # -> use Blas instead 
-    #
-    gemv!('T',T(1),J,r,T(0),∇fobj)
-    
-    ∇fobj
+function eval_nls_∇fobj(r::AbstractVector, J::AbstractMatrix)
+    J'*r
 end
     
 @doc raw"""
 ```julia
-eval_nls_∇∇fobj!(∇∇fobj::AbstractVector,
-                 J::AbstractMatrix) -> ∇∇fobj
+eval_nls_∇∇fobj(J) -> ∇∇fobj
 ```
 
-In-place computation of (approximate) Hessian: ``\nabla^2 f(\mathbf{θ}) = \mathbf{J}^t\mathbf{J}``
+Compute the (approximate) Hessian: ``\nabla^2 f(\mathbf{θ}) = \mathbf{J}^t\mathbf{J}``
 """
-function eval_nls_∇∇fobj!(∇∇fobj::Symmetric{T}, J::AbstractMatrix{T}) where {T<:BlasFloat}
-    syrk!(∇∇fobj.uplo,'T',T(1),J,T(0),∇∇fobj.data)
-
-    ∇∇fobj
+function eval_nls_∇∇fobj(J::AbstractMatrix) 
+    Symmetric(J'*J)
 end
     
 

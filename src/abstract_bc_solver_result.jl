@@ -6,13 +6,13 @@
 #
 @doc raw"""
 ```julia
-const AbstractNLSBCResult = AbstractNLSResult
+const Abstract_BC_Solver_Result = Abstract_Solver_Result
 ```
 
 NLS with bound contraints solver result abstraction. 
 
-For the moment only an **alias** of [`AbstractNLSResult`](@ref), with
+For the moment only an **alias** of [`Abstract_Solver_Result`](@ref), with
 the **same interface**.
 """
-const AbstractNLSBCResult = AbstractNLSResult
+const Abstract_BC_Solver_Result = Abstract_Solver_Result
 

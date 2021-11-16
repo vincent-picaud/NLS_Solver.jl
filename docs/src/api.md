@@ -32,6 +32,7 @@ Modules = [NLS_Solver]
 Pages = ["QuadSolvers/boundconstraint_enum.jl",
          "QuadSolvers/misc.jl",
 		 "Levenberg-Marquardt/damping.jl",
+		 "Levenberg-Marquardt/rho.jl",
 		 "Levenberg-Marquardt/lm_result.jl",
 		 ]
 Public = false	

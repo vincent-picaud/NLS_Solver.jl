@@ -2,15 +2,15 @@
 # Define an abstract type to store solver configuration
 # ################################################################
 #
-export AbstractQuadSolverConf
+export Abstract_BC_QuadSolver_Conf
 
 """
-    abstract type AbstractQuadSolverConf end
+    abstract type Abstract_BC_QuadSolver_Conf end
 
 Quadratic solver abstraction
 
 **Note:** for the moment no method.
 """
-abstract type AbstractQuadSolverConf end
+abstract type Abstract_BC_QuadSolver_Conf end
 
 
