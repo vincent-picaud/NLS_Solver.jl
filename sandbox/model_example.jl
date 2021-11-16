@@ -1,26 +1,31 @@
+using ForwardDiff, NLS_Solver, LinearAlgebra, BenchmarkTools
+using StaticArrays
+
 #
 # A model example
 #
-abstract type Abstract_Fit_Model end
+abstract type Abstract_Model2Fit end
 
-parameter_size(::Abstract_Fit_Model) = @assert(false,"To implement!")
+parameter_size(::Abstract_Model2Fit) = @assert(false,"To implement!")
 
 # Here eval Y_i for point X_i. When performing fit we have a collection of such X_i
 #
-eval_y(::Abstract_Fit_Model,X_i::Any,θ::AbstractVector)  = @assert(false,"To implement!")
+eval_y(::Abstract_Model2Fit,X_i::Any,θ::AbstractVector)  = @assert(false,"To implement!")
 
 # ----------------------------------------------------------------
 
-abstract type Abstract_Fit_Model_Peak <: Abstract_Fit_Model end
+abstract type Abstract_Model2Fit_Peak <: Abstract_Model2Fit end
 
 # ----------------------------------------------------------------
 
-struct Gaussian_Peak <: Abstract_Fit_Model_Peak
+struct Gaussian_Peak <: Abstract_Model2Fit_Peak
 end
 
 parameter_size(::Gaussian_Peak) = 3
 
-function eval_y(::Gaussian_Peak,x::Real,θ::AbstractVector)
+function eval_y(m::Gaussian_Peak,x::Real,θ::AbstractVector)
+    @assert length(θ) == parameter_size(m)
+    
     h=θ[1]
     μ=θ[2]
     σ=θ[3]
@@ -32,9 +37,57 @@ end
 
 # ----------------------------------------------------------------
 
-using StaticArrays
+#
+# julia> @btime eval_y($model,2.0,$θ)
+#   281.779 ns (8 allocations: 208 bytes)
+# 0.06722452348922268
+# 
+# struct Model2Fit_Sum <: Abstract_Model2Fit
+#     _left::Abstract_Model2Fit
+#     _right::Abstract_Model2Fit
+# end
+#
+# versus:
+#
+# struct Model2Fit_Sum{LEFT_TYPE<:Abstract_Model2Fit,
+#                      RIGHT_TYPE<:Abstract_Model2Fit} <: Abstract_Model2Fit
+#     _left::LEFT_TYPE
+#     _right::RIGHT_TYPE
+# end
+#
+# julia> @btime eval_y($model,2.0,$θ)
+#   77.596 ns (0 allocations: 0 bytes)
+# 0.018749729970880733
+#
+struct Model2Fit_Sum{LEFT_TYPE<:Abstract_Model2Fit,
+                     RIGHT_TYPE<:Abstract_Model2Fit} <: Abstract_Model2Fit
+    _left::LEFT_TYPE
+    _right::RIGHT_TYPE
+end
 
-struct Peak_Motif{P<:Abstract_Fit_Model_Peak} <: Abstract_Fit_Model_Peak
+import Base: (+)
+
+Base. +(left::Abstract_Model2Fit,right::Abstract_Model2Fit) = Model2Fit_Sum(left,right)
+
+parameter_size(m::Model2Fit_Sum) = parameter_size(m._left) + parameter_size(m._right)
+
+function eval_y(m::Model2Fit_Sum,x::Any,θ::AbstractVector)
+    @assert length(θ) == parameter_size(m)
+    
+    eval_y(m._left,x,@view θ[1:parameter_size(m._left)]) +
+        eval_y(m._right,x,@view θ[(parameter_size(m._left)+1):end])
+end
+
+# test
+model = Gaussian_Peak() + Gaussian_Peak()
+θ=rand(parameter_size(model))
+@btime eval_y($model,2.0,$θ)
+
+# ----------------------------------------------------------------
+
+
+
+struct Peak_Motif{P<:Abstract_Model2Fit_Peak} <: Abstract_Model2Fit_Peak
     _peak::P
     _profile::Matrix{Float64} # position, height
 end
@@ -45,30 +98,6 @@ end
 parameter_size(pm::Peak_Motif) = 2
 
 
-# function eval_y(pm::Peak_Motif{Gaussian_Peak},x::Real,θ::AbstractVector{T}) where {T}
-#     @assert length(θ) == parameter_size(pm)
-
-#     h_glob = θ[1]
-#     σ_glob = θ[2]
-
-#     θ_loc    = Vector{T}(undef,3)
-#     θ_loc[3] = σ_glob
-
-#     n::Int = size(pm._profile,1)
-
-#     sum = 0
-#     for i in 1:n
-#         μ_loc = pm._profile[i,1]
-#         h_loc = pm._profile[i,2]
-
-#         θ_loc[1] = h_glob*h_loc
-#         θ_loc[2] = μ_loc
-        
-#         sum += eval_y(pm._peak, x, θ_loc)
-#     end
-
-#     sum
-# end
 function eval_y(pm::Peak_Motif{Gaussian_Peak},x::Real,θ::AbstractVector{T}) where {T}
     @assert length(θ) == parameter_size(pm)
 
@@ -91,26 +120,23 @@ end
 
 # ----------------------------------------------------------------
 
-using ForwardDiff, NLS_Solver, LinearAlgebra, BenchmarkTools
+
 
 import NLS_Solver
 
 
-# Using "template" parameters allows to have 1 alloc in eval_r (versus
-# 6 if one uses X,Y::AbstractVector)
+# Important: using "template" parameters allows to have 1 alloc in
+# eval_r (versus 6 if one uses X,Y::AbstractVector)
 #
 struct NLS_ForwardDiff_From_Fit_Model{X_ELEMENT_TYPE,
                                       Y_ELEMENT_TYPE,
                                       X_TYPE <: AbstractVector{X_ELEMENT_TYPE},
                                       Y_TYPE <: AbstractVector{Y_ELEMENT_TYPE}} <: NLS_Solver.AbstractNLS
-    _fit_model::Abstract_Fit_Model
+    _fit_model::Abstract_Model2Fit
     _X::X_TYPE
     _Y::Y_TYPE
  
-    # if X is a n x m 2D array, we assume that each row is an
-    # evaluation site (a point of R^m), hence the computed Y is of length n = size(X,1)
-    #
-    function NLS_ForwardDiff_From_Fit_Model(fit_model::Abstract_Fit_Model,
+    function NLS_ForwardDiff_From_Fit_Model(fit_model::Abstract_Model2Fit,
                                             X::X_TYPE,Y::Y_TYPE) where{X_ELEMENT_TYPE,
                                                                        Y_ELEMENT_TYPE,
                                                                        X_TYPE <: AbstractVector{X_ELEMENT_TYPE},
