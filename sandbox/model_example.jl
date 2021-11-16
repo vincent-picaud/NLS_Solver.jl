@@ -157,7 +157,7 @@ import NLS_Solver
 #   0.517014266738562
 #   0.21068675449678864
 # 
-struct NLS_ForwardDiff_From_Fit_Model{MODEL2FIT_TYPE <: Abstract_Model2Fit,
+struct NLS_ForwardDiff_From_Model2Fit{MODEL2FIT_TYPE <: Abstract_Model2Fit,
                                       X_ELEMENT_TYPE,
                                       Y_ELEMENT_TYPE,
                                       X_TYPE <: AbstractVector{X_ELEMENT_TYPE},
@@ -166,7 +166,7 @@ struct NLS_ForwardDiff_From_Fit_Model{MODEL2FIT_TYPE <: Abstract_Model2Fit,
     _X::X_TYPE
     _Y::Y_TYPE
  
-    function NLS_ForwardDiff_From_Fit_Model(fit_model::MODEL2FIT_TYPE,
+    function NLS_ForwardDiff_From_Model2Fit(fit_model::MODEL2FIT_TYPE,
                                             X::X_TYPE,Y::Y_TYPE) where{MODEL2FIT_TYPE <: Abstract_Model2Fit,
                                                                        X_ELEMENT_TYPE,
                                                                        Y_ELEMENT_TYPE,
@@ -179,15 +179,15 @@ struct NLS_ForwardDiff_From_Fit_Model{MODEL2FIT_TYPE <: Abstract_Model2Fit,
 end
 
 
-NLS_Solver.parameter_size(nls::NLS_ForwardDiff_From_Fit_Model) = parameter_size(nls._fit_model)
-NLS_Solver.residue_size(nls::NLS_ForwardDiff_From_Fit_Model)  = length(nls._Y)
+NLS_Solver.parameter_size(nls::NLS_ForwardDiff_From_Model2Fit) = parameter_size(nls._fit_model)
+NLS_Solver.residue_size(nls::NLS_ForwardDiff_From_Model2Fit)  = length(nls._Y)
 
-function NLS_Solver.eval_r(nls::NLS_ForwardDiff_From_Fit_Model,θ::AbstractVector) 
+function NLS_Solver.eval_r(nls::NLS_ForwardDiff_From_Model2Fit,θ::AbstractVector) 
     map(((X_i,Y_i);)->Y_i-eval_y(nls._fit_model,X_i,θ),zip(nls._X,nls._Y))
 end
 
 
-function NLS_Solver.eval_r_J(nls::NLS_ForwardDiff_From_Fit_Model, θ::AbstractVector{T}) where {T}
+function NLS_Solver.eval_r_J(nls::NLS_ForwardDiff_From_Model2Fit, θ::AbstractVector{T}) where {T}
     
     r_evaluation = (r,θ)->(r .= eval_r(nls,θ))
     
@@ -280,7 +280,7 @@ model = Gaussian_Peak()+Gaussian_Peak()+Gaussian_Peak()
 
 θ = rand(parameter_size(model))
 
-nls = NLS_ForwardDiff_From_Fit_Model(model,X,Y)
+nls = NLS_ForwardDiff_From_Model2Fit(model,X,Y)
 
 @btime eval_r($nls,$θ)
 @btime eval_r_J($nls,$θ)
@@ -295,10 +295,13 @@ model = Gaussian_Peak()
 
 θ = rand(parameter_size(model))
 
-nls = NLS_ForwardDiff_From_Fit_Model(model,X,Y)
+nls = NLS_ForwardDiff_From_Model2Fit(model,X,Y)
 
-eval_r(nls,θ)
-eval_r_J(nls,θ)
+(@btime eval_r($nls,$θ)).
+@btime eval_r_J($nls,$θ)
+@ballocated eval_r($nls,$θ)
+@btime eval_r_J($nls,$θ)
+
 
 conf = Levenberg_Marquardt_Conf()
 result=solve(nls, θ, conf)
@@ -316,7 +319,7 @@ model = Peak_Motif(Gaussian_Peak(),profile)
 
 @btime eval_y(model,2.0,θ)
        
-nls = NLS_ForwardDiff_From_Fit_Model(model,X,Y)
+nls = NLS_ForwardDiff_From_Model2Fit(model,X,Y)
 
 eval_r(nls,θ)
 @btime eval_r($nls,$θ)
