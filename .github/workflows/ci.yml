@@ -64,7 +64,7 @@ jobs:
             using NLS_Solver
             DocMeta.setdocmeta!(NLS_Solver, :DocTestSetup, :(using NLS_Solver); recursive=true)
             doctest(NLS_Solver)'
-      - run: julia --project=docs --code-coverage=user docs/make.jl
+      - run: julia --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
