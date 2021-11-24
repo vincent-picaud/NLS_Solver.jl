@@ -54,7 +54,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                                          _fobj=eval_nls_fobj(r),
                                          _solution=θ)
    
-        @debug "Initial point was already a soluion" result = result
+        # @info "Initial point was already a soluion" result = result
         
         return result
     end
@@ -103,7 +103,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                                              _solution=θ,
                                                )
             
-            @debug "Small step" result = result
+            # @info "Small step" result = result
             
             return result
         end
@@ -126,7 +126,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
         #
         ρ = δfobj/δL
 
-        #        @debug "LM: iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |∇f|=$(_fmt(inf_norm_∇fobj)), μ=$(_fmt(get_μ(damping)))"
+        # @info "LM: iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |∇f|=$(_fmt(inf_norm_∇fobj)), μ=$(_fmt(get_μ(damping)))"
 
         # Accept new point?
         #
@@ -147,7 +147,7 @@ function Levenberg_Marquardt(nls::AbstractNLS,
                                                  _solution=θ_new
                                                  ) 
 
-                @debug "Found a critical point" result = result
+                # @info "Found a critical point" result = result
                 
                 return result
             end

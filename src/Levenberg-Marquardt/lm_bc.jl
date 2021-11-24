@@ -182,7 +182,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
                                                   _fobj=eval_nls_fobj(r),
                                                   _solution=θ)
 
-            @debug "Small step" result = result
+            # @info "Small step" result = result
             
             return result
         end
@@ -222,7 +222,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
             
             inf_norm_KKT = norm(∇fobj+τ,Inf)
 
-            #            @debug "iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |KKT|=$(_fmt(inf_norm_KKT)), μ=$(_fmt(get_μ(damping)))" 
+            # @info "iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |KKT|=$(_fmt(inf_norm_KKT)), μ=$(_fmt(get_μ(damping)))" 
             
             if inf_norm_KKT ≤ ε_grad_inf_norm
                 result = LevenbergMarquardt_BC_Result(_converged=true,
@@ -230,13 +230,13 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
                                                       _fobj=eval_nls_fobj(r),
                                                       _solution=θ)
                 
-                @debug "KKT critical point" result = result
+                # @info "KKT critical point" result = result
                 
                 return result
             end
             
         else
-            # @debug "Reject point: ρ=$(_fmt(ρ)), μ=$(_fmt(get_μ(damping)))"
+            # @info "Reject point: ρ=$(_fmt(ρ)), μ=$(_fmt(get_μ(damping)))"
         end
         
         
@@ -250,7 +250,7 @@ function Levenberg_Marquardt_BC(nls::AbstractNLS,
                                           _fobj=eval_nls_fobj(r),
                                           _solution=θ)
 
-    @debug "Too many iterations" result = result
+    @warn "Too many iterations" result = result
 
     result
 end

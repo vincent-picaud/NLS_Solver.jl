@@ -403,7 +403,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
         # update Z and count bad hypothesis
         count_bad_choice = update_Z!(x,τ,Z,bc)
 
-        # @debug "KR: iter=$(_fmt(iter)), wrong_hypothesis=$(_fmt(count_bad_choice))"
+        # @info "KR: iter=$(_fmt(iter)), wrong_hypothesis=$(_fmt(count_bad_choice))"
         
         # CV check
         if (!burning_phase(conf,iter))&&(count_bad_choice==0)
@@ -427,7 +427,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
         _τ=τ # no risk as τ is local
     )
 
-    @debug "Leaving Kunisch-Rendl" result = result
+    # @info "Leaving Kunisch-Rendl" result = result
 
     result
 end
