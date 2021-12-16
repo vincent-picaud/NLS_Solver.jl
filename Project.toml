@@ -12,7 +12,7 @@ ReadOnlyArrays = "988b38a3-91fc-5605-94a2-ee2116b3bd83"
 [compat]
 ForwardDiff = "0.10"
 ReadOnlyArrays = "0.1"
-julia = "1"
+julia = "1.6"
 
 [extras]
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
