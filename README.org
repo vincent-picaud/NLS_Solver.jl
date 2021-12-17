@@ -1,7 +1,27 @@
 #+OPTIONS: H:3 toc:t \n:nil ::t |:t ^:{} -:t f:t *:t tex:t d:t tags:not-in-toc
-#+TITLE: NLS_Solver
-
-# trick from https://github.com/rexim/org-cliplink/
+#+TITLE: NLS_Solver.jl
 
 [[https://vincent-picaud.github.io/NLS_Solver.jl/stable][file:https://img.shields.io/badge/docs-stable-blue.svg]] [[https://vincent-picaud.github.io/NLS_Solver.jl/stable][file:https://img.shields.io/badge/docs-stable-blue.svg]] [[https://github.com/vincent-picaud/NLS_Solver.jl/actions][file:https://github.com/vincent-picaud/NLS_Solver.jl/workflows/CI/badge.svg]]
 [[https://codecov.io/gh/vincent-picaud/NLS_Solver.jl][file:https://codecov.io/gh/vincent-picaud/NLS_Solver.jl/branch/main/graph/badge.svg]]
+
+
+* Table of contents                                            :TOC:noexport:
+- [[#what-is-it][What is it?]]
+
+* What is it?
+
+This is a Julia package used to solve bound constrained non-linear squares:
+
+\begin{align*}
+\min\limits_\theta & \frac{1}{2}\|r(\theta)\|_2^2 \\
+     & \theta_l < \theta \le \theta_u 
+\end{align*}
+
+The implemented algorithm is a variation of the classical
+Levenberg-Marquardt algorithm where the bound constrained problem is
+solved by the Kunisch method.
+
+However, please note that there is also a dedicated function to solve unconstrained NLS:
+\begin{equation*}
+\min\limits_\theta & \frac{1}{2}\|r(\theta)\|_2^2
+\end{equation*}
