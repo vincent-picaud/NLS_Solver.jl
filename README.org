@@ -7,21 +7,56 @@
 
 * Table of contents                                            :TOC:noexport:
 - [[#what-is-it][What is it?]]
+  - [[#references][References]]
 
 * What is it?
 
 This is a Julia package used to solve bound constrained non-linear squares:
 
-\begin{align*}
-\min\limits_\theta & \frac{1}{2}\|r(\theta)\|_2^2 \\
-     & \theta_l < \theta \le \theta_u 
-\end{align*}
+[[file:figures/eq_bc_pb.png][file:figures/eq_bc_pb.png]]
+
+# \begin{align*}
+# \min\limits_\theta & \frac{1}{2}\|r(\theta)\|^2 \\
+#      & \theta_l \le \theta \le \theta_u 
+# \end{align*}
 
 The implemented algorithm is a variation of the classical
 Levenberg-Marquardt algorithm where the bound constrained problem is
 solved by the Kunisch method.
 
-However, please note that there is also a dedicated function to solve unconstrained NLS:
-\begin{equation*}
-\min\limits_\theta & \frac{1}{2}\|r(\theta)\|_2^2
-\end{equation*}
+Please note that there is also a dedicated function to solve unconstrained NLS:
+
+[[file:figures/eq_pb.png][file:figures/eq_pb.png]]
+
+# \begin{equation*}
+# \min\limits_\theta & \frac{1}{2}\|r(\theta)\|^2
+# \end{equation*}
+
+** References
+
+The most useful references concerning implemented methods are given below.
+
+*** Nonlinear least squares
+
+The first reference is a must read about nonlinear least squares algorithms. 
+
+- Madsen, N. (). Methods For Non-Linear Least Squares Problems.
+  http://www2.imm.dtu.dk/pubdb/edoc/imm3215.pdf
+
+The second reference provides some details about damping parameter. It
+also also gives an useful list of test functions (unconstrained case).
+
+- Nielsen, H. B., & others, (1999). Damping parameter in marquardt's
+  method. : IMM.
+  http://www2.imm.dtu.dk/documents/ftp/tr99/tr05_99.pdf
+
+*** Bound constrained quadratic problem
+
+This reference presents a method to solve quadratic problems with
+unilateral bound constraints. The generalization to bilateral bound
+constraints is immediate. 
+
+- Kunisch, K., & Rendl, F. (2003). An infeasible active set method for
+  quadratic problems with simple bounds. SIAM Journal on Optimization,
+  14(1), 35–52. http://dx.doi.org/10.1137/s1052623400376135
+  
