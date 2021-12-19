@@ -1,6 +1,39 @@
 using Revise
+
+# The most straightforward approach ****************
+#
 using NLS_Solver
 
+nls = create_NLS_problem_using_ForwardDiff(2 => 2) do θ
+  sqrt(2)* [ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
+end
+
+
+conf = Levenberg_Marquardt_Conf()
+
+θ_init = zeros(2)
+
+result = solve(nls, θ_init, conf)
+
+@assert converged(result)
+
+θ_solution = solution(result)
+
+
+# Same example without the do...end syntax ****************
+#
+Rosenbrock(θ::AbstractVector{T}) where T = sqrt(2)* T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
+
+nls = create_NLS_problem_using_ForwardDiff(θ->Rosenbrock(θ),2 => 2);
+ 
+result = solve(nls, θ_init, conf)
+
+@assert converged(result)
+
+θ_solution = solution(result)
+
+# Sub-typing AbstractNLS in details ****************
+#
 struct Rosenbrock <: NLS_Solver.AbstractNLS
 end
 
@@ -24,14 +57,32 @@ function NLS_Solver.eval_r_J(nls::Rosenbrock,θ::AbstractVector{T}) where T
     (r,J)
 end
 
-
-nls = create_NLS_problem_using_ForwardDiff(2 => 2) do θ
-  sqrt(2)* [ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
-end
-
-
-conf = Levenberg_Marquardt_Conf()
-
-θ_init = zeros(2)
+nls = Rosenbrock()
 
 result = solve(nls, θ_init, conf)
+
+@assert converged(result)
+
+θ_solution = solution(result)
+
+# Bound constrained problems ****************
+#
+conf = Levenberg_Marquardt_BC_Conf()
+
+θl = Float64[2,2]
+θu = Float64[4,4]
+
+bc = BoundConstraints(θl,θu)
+
+result = solve(nls, θ_init, bc, conf)
+
+@assert converged(result)
+
+θ_solution = solution(result)
+
+
+#
+# Rosenbrock(θ::AbstractVector{T}) where T = sqrt(2)* T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
+#
+# nls = create_NLS_problem_using_ForwardDiff(θ->Rosenbrock(θ),2 => 2);
+ 

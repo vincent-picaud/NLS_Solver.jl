@@ -1,6 +1,5 @@
 #+options: H:3 toc:t \n:nil ::t |:t ^:{} -:t f:t *:t tex:t d:t tags:not-in-toc
 #+title: NLS_Solver.jl
-#+property: header-args:julia :results output :exports code :eval no-export
 
 [[https://vincent-picaud.github.io/NLS_Solver.jl/stable][file:https://img.shields.io/badge/docs-stable-blue.svg]] [[https://vincent-picaud.github.io/NLS_Solver.jl/stable][file:https://img.shields.io/badge/docs-stable-blue.svg]] [[https://github.com/vincent-picaud/NLS_Solver.jl/actions][file:https://github.com/vincent-picaud/NLS_Solver.jl/workflows/CI/badge.svg]]
 [[https://codecov.io/gh/vincent-picaud/NLS_Solver.jl][file:https://codecov.io/gh/vincent-picaud/NLS_Solver.jl/branch/main/graph/badge.svg]]
@@ -10,8 +9,9 @@
 - [[#what-is-it][What is it?]]
   - [[#references][References]]
 - [[#getting-started][Getting started]]
-  - [[#wrap-the-problem][Wrap the problem]]
-  - [[#chose-an-algorithm][Chose an algorithm]]
+  - [[#unconstrained-problems][Unconstrained problems]]
+  - [[#bound-constrained-problems][Bound constrained problems]]
+  - [[#explicit-specialization-of-abstractnls][Explicit specialization of =AbstractNLS=]]
 
 * What is it?
 
@@ -66,38 +66,44 @@ constraints is immediate.
   
 
 * Getting started
+** Unconstrained problems
 
 Once you have imported the package
 
-#+begin_src julia :session *nls_solver_doc* :results output
+#+begin_src julia :eval never
    using NLS_Solver 
 #+end_src
 
 #+RESULTS:
+: [ Info: Precompiling NLS_Solver [4f18ef6b-35d7-46eb-a297-26b97f1ff488]
 
 the steps to solve problem are always the same:
-- wrap the problem  by sub-typing =AbstractNLS=.
-- chose an algorithm
+- wrap the problem by sub-typing =AbstractNLS=.
+- create the configuration struct instance for the chosen algorithm
 - call the =solve(...)= method
-- use the the returned result
+- use the returned result
 
 In this example we will use the classical Rosenbrock function:
 
-\begin{equation*}
-(\theta_1,\theta_2) \mapsto (1-\theta_1)^2 + 100(\theta_2-\theta_1^2)^2
-\end{equation*}
+[[file:figures/eq_rosen_def.png][file:figures/eq_rosen_def.png]]
+
+# \begin{equation*}
+# (\theta_1,\theta_2) \mapsto (1-\theta_1)^2 + 100(\theta_2-\theta_1^2)^2
+# \end{equation*}
 
 which is a nonlinear least squares problem:
 
-\begin{equation*}
-\frac{1}{2}\|r(\theta)\|^2\text{ where }r = \sqrt{2} \left( \begin{array}{c}  1-\theta_1 \\ 10(\theta_2-\theta_1^2) \end{array} \right)
-\end{equation*}
+[[file:figures/eq_rosen_as_nls.png][file:figures/eq_rosen_as_nls.png]]
 
-** Wrap the problem
+# \begin{equation*}
+# \frac{1}{2}\|r(\theta)\|^2\text{ where }r = \sqrt{2} \left( \begin{array}{c}  1-\theta_1 \\ 10(\theta_2-\theta_1^2) \end{array} \right)
+# \end{equation*}
+
+*** Wrap the problem
 
 To wrap the problem we can use a helper function:
 
-#+begin_src julia :session *nls_solver_doc*
+#+begin_src julia :eval never
   nls = create_NLS_problem_using_ForwardDiff(2 => 2) do θ
     sqrt(2)* [ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
   end
@@ -112,26 +118,29 @@ that will compute Jacobian using the [[https://github.com/JuliaDiff/ForwardDiff.
     end
   #+end_src
   This would prevent the use of dual numbers to compute the Jacobian.
+  An alternative, if you do not use the =do...end= syntax, would be:
+  #+begin_src julia :eval never
+    Rosenbrock(θ::AbstractVector{T}) where T = sqrt(2)* T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
 
-** Chose an algorithm
+    nls = create_NLS_problem_using_ForwardDiff(θ->Rosenbrock(θ),2 => 2);
+  #+end_src
+
+*** Choose an algorithm
 
 Algorithm parameters are defined by sub-typing
-=Abstract_Solver_Conf=. This structure is then use to identify the
+=Abstract_Solver_Conf=. This structure is then used to identify the
 selected algorithm.  For the moment there is only one implementation,
 the classical Levenberg-Marquardt method. To create its default
 configuration, proceed as follows:
 
-#+begin_src julia :session *nls_solver_doc* 
+#+begin_src julia  
 conf = Levenberg_Marquardt_Conf()
 #+end_src
-
-#+RESULTS:
-: Levenberg_Marquardt_Conf(1000, 1.0e-8, 1.0e-8, 0.001)
 
 The methods also need a starting value for the unknown parameter
 vector θ:
 
-#+begin_src julia :session *nls_solver_doc* 
+#+begin_src julia  
 θ_init = zeros(2)
 #+end_src
 
@@ -140,39 +149,10 @@ vector θ:
 :  0.0
 :  0.0
 
-
-
-There are 4 methods to define:
-- parameter_size: :: this is the *θ* parameter vector length, here 2
-- residue_size: :: this is the *r* residue vector length, here 2
-- eval_r :: this function computes *r* value
-- eval_r_J :: this function computes *r* value and its Jacobian matrix wrt to *θ*.
-
-#+begin_src julia :eval never :exports code :noweb-ref jl_def_obj
-  struct Rosenbrock <: AbstractNLS
-  end
-
-  parameter_size(::Rosenbrock) = 2
-  residue_size(::Rosenbrock) = 2
-
-  function eval_r(nls::Rosenbrock,θ::AbstractVector{T}) where T
-      @assert length(θ)==parameter_size(nls)
-
-      sqrt(2)* T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
-  end
-
-  function eval_r_J(nls::Rosenbrock,θ::AbstractVector{T}) where T
-      @assert length(θ)==parameter_size(nls)
-
-      r = sqrt(2)* T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
-      J = sqrt(2)* T[ -1 0; -20*θ[1] 10]
-
-      (r,J)
-  end
-#+end_src
+*** The =solve()= method
 
 To solve problems we always call the =solve()= method. For unconstrained
-problem, this method has the following prototype
+problems, this method has the following prototype
 
 #+begin_src julia  :eval never :exports code
   function solve(nls::AbstractNLS,
@@ -182,20 +162,90 @@ problem, this method has the following prototype
 
 - nls: :: is the problem we just wrapped
 - θ_init: :: is the initial value for the unknown parameter vector
-- conf: :: is the algorithm we want to use configuration
+- conf: :: is the configuration of the algorithm we want to use
 
-Let's assume that we want to use the Levenberg-Marquardt method. We
-create a default algorithm configuration as follows:
-#+begin_src julia :eval never :exports code :noweb-ref jlc_conf
-  conf = Levenberg_Marquardt_Conf()
-#+end_src
-and the initial *θ_init*:
-#+begin_src julia :eval never :exports code :noweb-ref jlc_conf
-  θ_init = zeros(2)
+  In our case this is:
+  
+#+begin_src julia  
+result = solve(nls, θ_init, conf)
 #+end_src
 
+*** Using the returned result
 
+The =solve()= function returns a =Abstract_Solver_Result= sub-typed
+structure that contains algorithm result.
 
-One must call
-the =solve()= method. This method has the following prototype:
+In peculiar you can check if the method has converged and get the optimal θ.
+
+#+begin_src julia  
+@assert converged(result)
+
+θ_solution = solution(result)
+#+end_src
+
+** Bound constrained problems
+
+For bound constrained problems you must use another method.
+
+#+begin_src julia :eval never
+  conf = Levenberg_Marquardt_BC_Conf()
+#+end_src
+
+and define bound constraints. This is done thanks to a
+=BoundConstraints= container which is initialized with the lower and
+upper bound vectors:
+#+begin_src julia :eval never
+  θl = Float64[2,2]
+  θu = Float64[4,4]
+
+  bc = BoundConstraints(θl,θu)
+#+end_src
+
+Then the =solve()= function is called:
+#+begin_src julia :eval never
+  result = solve(nls, θ_init, bc, conf)
+#+end_src
+
+As before we get a result structure from which we can extract solution:
+
+#+begin_src julia :eval never
+  @assert converged(result)
+  
+  θ_solution = solution(result)
+#+end_src
+
+** Explicit specialization of =AbstractNLS=
+
+When sub-typing =AbstractNLS= one needs to define 4 methods:
+- parameter_size: :: this is the *θ* parameter vector length, here 2
+- residue_size: :: this is the *r* residue vector length, here 2
+- eval_r :: this function computes *r* value
+- eval_r_J :: this function computes *r* value and its Jacobian matrix wrt to *θ*.
+
+  For the Rosenbrock function this gives:
+  
+#+begin_src julia :eval never
+  struct Rosenbrock <: NLS_Solver.AbstractNLS
+  end
+
+  import NLS_Solver: parameter_size, residue_size, eval_r, eval_r_J
+
+  NLS_Solver.parameter_size(::Rosenbrock) = 2
+  NLS_Solver.residue_size(::Rosenbrock) = 2
+
+  function NLS_Solver.eval_r(nls::Rosenbrock,θ::AbstractVector{T}) where T
+      @assert length(θ)==parameter_size(nls)
+
+      sqrt(2)* T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
+  end
+
+  function NLS_Solver.eval_r_J(nls::Rosenbrock,θ::AbstractVector{T}) where T
+      @assert length(θ)==parameter_size(nls)
+
+      r = sqrt(2)* T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
+      J = sqrt(2)* T[ -1 0; -20*θ[1] 10]
+
+      (r,J)
+  end
+#+end_src
 
