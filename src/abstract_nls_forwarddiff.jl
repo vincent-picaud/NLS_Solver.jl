@@ -1,4 +1,4 @@
-export NLS_ForwardDiff
+export NLS_ForwardDiff, create_NLS_problem_using_ForwardDiff
 
 using ForwardDiff: jacobian
 
@@ -18,6 +18,27 @@ struct NLS_ForwardDiff <: AbstractNLS
     _residue_size::Int
     _parameter_size::Int
 end
+
+@doc raw"""
+```julia
+create_NLS_problem_using_ForwardDiff(r::Function;domain_image_dim::Pair{Int,Int})
+```
+Create a NLS problem instance by sub-typing [`AbstractNLS`](@ref) type.
+
+`r` is a function that maps a parameter vector θ to its residue. The
+Jacobian matrix is computed using the `ForwardDiff` package.
+
+# Usage example
+
+```julia
+nls = create_NLS_problem_using_ForwardDiff(2 => 2) do θ
+
+end
+```
+"""
+function create_NLS_problem_using_ForwardDiff(r::Function,domain_image_dim::Pair{Int,Int})
+    NLS_ForwardDiff(r,last(domain_image_dim),first(domain_image_dim))
+end                         
 
 parameter_size(nls::NLS_ForwardDiff) = nls._parameter_size
 residue_size(nls::NLS_ForwardDiff) = nls._residue_size
