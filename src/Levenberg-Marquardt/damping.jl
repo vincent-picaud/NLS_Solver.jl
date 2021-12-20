@@ -7,7 +7,7 @@ struct LM_Damping
     _ν::Float64
     
     function LM_Damping(μ,ν)
-        @assert μ≥0
+        @assert μ≥0 "μ≥0  μ=$μ"
         @assert ν>0
         new(μ,ν)
     end
