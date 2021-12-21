@@ -1,7 +1,7 @@
 #+options: H:3 toc:t \n:nil ::t |:t ^:{} -:t f:t *:t tex:t d:t tags:not-in-toc
 #+title: NLS_Solver.jl
 
-[[https://vincent-picaud.github.io/NLS_Solver.jl/stable][file:https://img.shields.io/badge/docs-stable-blue.svg]] [[https://vincent-picaud.github.io/NLS_Solver.jl/stable][file:https://img.shields.io/badge/docs-stable-blue.svg]] [[https://github.com/vincent-picaud/NLS_Solver.jl/actions][file:https://github.com/vincent-picaud/NLS_Solver.jl/workflows/CI/badge.svg]]
+[[https://vincent-picaud.github.io/NLS_Solver.jl/stable][file:https://img.shields.io/badge/docs-stable-blue.svg]] [[https://vincent-picaud.github.io/NLS_Solver.jl/dev][file:https://img.shields.io/badge/docs-dev-blue.svg]] [[https://github.com/vincent-picaud/NLS_Solver.jl/actions][file:https://github.com/vincent-picaud/NLS_Solver.jl/workflows/CI/badge.svg]]
 [[https://codecov.io/gh/vincent-picaud/NLS_Solver.jl][file:https://codecov.io/gh/vincent-picaud/NLS_Solver.jl/branch/main/graph/badge.svg]]
 
 
