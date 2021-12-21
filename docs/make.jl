@@ -27,8 +27,8 @@ makedocs(;
                 "Levenberg-Marquardt/lm.md",
                 "Levenberg-Marquardt/lm_bc.md",
             ],
-            "api.md",
         ],
+        "api.md",
         "todo.md",
     ],
 )
