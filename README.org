@@ -15,7 +15,7 @@
 
 * What is it?
 
-This is a Julia package used to solve bound constrained non-linear squares:
+This is a Julia package used to solve bound constrained non-linear squares problems of the form:
 
 [[file:figures/eq_bc_pb.png][file:figures/eq_bc_pb.png]]
 
@@ -38,7 +38,8 @@ Please note that there is also a dedicated function to solve unconstrained NLS:
 
 ** References
 
-The most useful references concerning implemented method are given below.
+The most useful references concerning this implementation are given
+below.
 
 *** Nonlinear least squares
 
@@ -48,7 +49,7 @@ The first reference is a must read about nonlinear least squares algorithms.
   http://www2.imm.dtu.dk/pubdb/edoc/imm3215.pdf
 
 The second reference provides some details about damping parameter. It
-also also gives an useful list of test functions (unconstrained case).
+also gives an useful list of test functions (unconstrained case).
 
 - Nielsen, H. B., & others, (1999). Damping parameter in marquardt's
   method. : IMM.
@@ -79,7 +80,7 @@ Once you have imported the package
 
 the steps to solve problem are always the same:
 - wrap the problem by sub-typing =AbstractNLS=.
-- create the configuration struct instance for the chosen algorithm
+- create a configuration instance for the chosen algorithm
 - call the =solve(...)= method
 - use the returned result
 
@@ -118,7 +119,8 @@ that will compute Jacobian using the [[https://github.com/JuliaDiff/ForwardDiff.
     end
   #+end_src
   This would prevent the use of dual numbers to compute the Jacobian.
-  An alternative, if you do not use the =do...end= syntax, would be:
+  An alternative, if you do not want to use the =do...end= syntax, would
+  be:
   #+begin_src julia :eval never
     Rosenbrock(θ::AbstractVector{T}) where T = sqrt(2)* T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
 
@@ -129,15 +131,15 @@ that will compute Jacobian using the [[https://github.com/JuliaDiff/ForwardDiff.
 
 Algorithm parameters are defined by sub-typing
 =Abstract_Solver_Conf=. This structure is then used to identify the
-selected algorithm.  For the moment there is only one implementation,
-the classical Levenberg-Marquardt method. To create its default
-configuration, proceed as follows:
+selected algorithm when calling the =solve()= method. For the moment
+there is only one implementation, the classical Levenberg-Marquardt
+method. To create its default configuration, proceed as follows:
 
 #+begin_src julia  
 conf = Levenberg_Marquardt_Conf()
 #+end_src
 
-The methods also need a starting value for the unknown parameter
+The methods also need sa starting value for the unknown parameter
 vector θ:
 
 #+begin_src julia  
@@ -164,7 +166,7 @@ problems, this method has the following prototype
 - θ_init: :: is the initial value for the unknown parameter vector
 - conf: :: is the configuration of the algorithm we want to use
 
-  In our case this is:
+In our case this is:
   
 #+begin_src julia  
 result = solve(nls, θ_init, conf)
@@ -201,7 +203,7 @@ upper bound vectors:
   bc = BoundConstraints(θl,θu)
 #+end_src
 
-Then the =solve()= function is called:
+Then call the =solve()= method:
 #+begin_src julia :eval never
   result = solve(nls, θ_init, bc, conf)
 #+end_src
@@ -216,11 +218,14 @@ As before we get a result structure from which we can extract solution:
 
 ** Explicit specialization of =AbstractNLS=
 
-When sub-typing =AbstractNLS= one needs to define 4 methods:
-- parameter_size: :: this is the *θ* parameter vector length, here 2
-- residue_size: :: this is the *r* residue vector length, here 2
-- eval_r :: this function computes *r* value
-- eval_r_J :: this function computes *r* value and its Jacobian matrix wrt to *θ*.
+In the first part we used a helper that automatically wrap the
+objective function. If you want to do this "by hand" you have to
+define 4 methods:
+- parameter_size: :: returns the *θ* parameter vector length, here 2
+- residue_size: :: returns the *r* residue vector length, here 2
+- eval_r ::  computes the residue *r* value
+- eval_r_J :: computes the residue *r* value and its Jacobian matrix wrt
+  to *θ*.
 
   For the Rosenbrock function this gives:
   
