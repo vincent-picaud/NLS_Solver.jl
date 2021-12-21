@@ -1,29 +1,12 @@
 # TODO List
 
-## DONE deploy key
-
-Added (laptop: id_solver_jl_doc_deploykey.pub)
-
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGgAnccrpKqTRP4ykDQfkW90wB1yKe+A2Fr04KzCgmnT picaud.vincent@gmail.com
-
-## Rename 
-
-- eval_nls_∇fobj
-- eval_nls_∇∇fobj
-
-eval -> compute
-
 ## Factorize ResultTypes
 
 Our Abstract_Solver_Result, Abstract_BC_Solver_Result, AbstractQuadResult result
-structure all have soem common methods like `converged()`,
+structure all have some common methods like `converged()`,
 `iteration_count()` or `solution()`
 
 -> one must define and use a **Base** type with these **common**
 functions.
 
-### Generalize to some other types?
-
--> have a look a configuration type if a possible factorization is
-possbile.
 
