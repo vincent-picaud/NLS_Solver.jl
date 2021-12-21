@@ -303,20 +303,16 @@ end
 # Config stucture
 struct Kunisch_Rendl_Conf <: Abstract_BC_QuadSolver_Conf
     _max_iter::Int
-    _reg_schedule::AbstractRegularizationSchedule 
     
     function Kunisch_Rendl_Conf(;
-                                max_iter::Int=50,
-                                reg_schedule::AbstractRegularizationSchedule=NoRegularizationSchedule())
+                                max_iter::Int=50)
+
         @assert max_iter>0
-        # Any chance to check convergence?
-        @assert burning_phase(reg_schedule,max_iter)==false
         
-        new(max_iter,reg_schedule)
+        new(max_iter)
     end
 end
-burning_phase(conf::Kunisch_Rendl_Conf,iter::Int) = burning_phase(conf._reg_schedule,iter)
-regularization_factor(conf::Kunisch_Rendl_Conf,iter::Int) =regularization_factor(conf._reg_schedule,iter)
+
 max_iter(conf::Kunisch_Rendl_Conf) = conf._max_iter
 
 # ****************************************************************
@@ -377,13 +373,6 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
         Q_tilde .= Q
         q_tilde .= q
 
-        if burning_phase(conf,iter)
-            reg_factor = regularization_factor(conf,iter)
-            
-            diagonal_indices = diagind(Q_tilde)
-            Q_tilde[diagonal_indices] .*= reg_factor
-        end
-
         # modify Q,q according to constraints
         restrict_to_inactive!(Q_tilde,q_tilde,Z,bc)
 
@@ -406,7 +395,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
         # @info "KR: iter=$(_fmt(iter)), wrong_hypothesis=$(_fmt(count_bad_choice))"
         
         # CV check
-        if (!burning_phase(conf,iter))&&(count_bad_choice==0)
+        if count_bad_choice==0
             has_CV=true
             break
         end

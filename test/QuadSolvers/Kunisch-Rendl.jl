@@ -65,21 +65,6 @@ end
     @test iteration_count(result)==7
     @test objective_value(result) ≈ dot(x_sol,Q*x_sol)/2+dot(q,x_sol)
     @test 1+check_first_order(Q,q,x_sol,bc) ≈ 1+0
-
-
-    # test with a reg schedule
-    conf_2 =  Kunisch_Rendl_Conf(reg_schedule=ExpRegularizationSchedule(factor=4,burning_last_iter=2))
-    result_2 = solve(Q,q,x_init,bc,conf_2)
-
-    x_sol_2 = solution(result_2)
-    @test converged(result_2)
-    @test iteration_count(result_2)==4 # note fewer iterations
-    @test objective_value(result_2) ≈ dot(x_sol_2,Q*x_sol_2)/2+dot(q,x_sol_2)
-    @test 1+check_first_order(Q,q,x_sol_2,bc) ≈ 1+0
-
-    # check that result = result_2
-    @test x_sol ≈ x_sol_2
-    @test objective_value(result) ≈ objective_value(result_2)
 end
 
 @testset "problem 2" begin

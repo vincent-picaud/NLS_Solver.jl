@@ -16,7 +16,6 @@ include("TestProblems/TestProblems.jl")
     # ================================================================
     
     include("bound_constraints.jl")
-    include("regularization_schedule.jl")
 
     @testset "Quadsolvers Directory" begin
         include("QuadSolvers/misc.jl")
