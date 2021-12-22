@@ -28,7 +28,11 @@ Kunisch-Rendl method.
 
 Please read this package [README.org](https://github.com/vincent-picaud/NLS_Solver.jl).
 
-This example illustrates how to solve a nonlinear least squares
+This example illustrates how to solve a nonlinear least squares. The objective function is the Rosenbrock function:
+```math
+(1-θ_1)^2 + 100 (θ_2 - θ_1^2)^2
+```
+
 
 ```@example session
 nls = create_NLS_problem_using_ForwardDiff(2 => 2) do θ
@@ -69,7 +73,7 @@ result = solve(nls, θ_init, bc, conf)
 # General considerations
 
 This package is easy to use. It follows a basic template where we have
-a =solve()= function of the form:
+a `solve()` function of the form:
 
 ```julia
 solve(problem, algorithm_conf)::algorithm_result
@@ -84,52 +88,25 @@ solve(problem, algorithm_conf)::algorithm_result
 
 ## Classical nonlinear least squares
 
-The solved problem is:
+The problem to solve is:
 
 ```math
 \min\limits_{\theta} \frac{1}{2}\|r(\theta)\|^2
 ```
 
-For the moment there is only one algorithm, [`LevenbergMarquardt_Conf`](@ref) :
-```julia
-conf = LevenbergMarquardt_Conf()
-```
-
-The `solve()` method is:
-
-```julia
-solve(nls::AbstractNLS,
-      θ_init::AbstractVector{<:Real},
-      conf::Abstract_Solver_Conf)::LevenbergMarquardt_Result
-```
-
-Where [`AbstractNLS`](@ref) is used to define the problem. Details
-concerning result can be found here:
-[`LevenbergMarquardt_Result`](@ref).
+The `solve()` function to use is [`solve(nls::AbstractNLS,
+θ_init::AbstractVector, conf::Abstract_Solver_Conf)`](@ref).
 
 ## Bound constrained nonlinear least squares
 
-The solved problem is:
+The problem to solve is:
 
 ```math
 \min\limits_{\theta_l\le\theta\le\theta_u} \frac{1}{2}\|r(\theta)\|^2
 ```
 
-For the moment there is only one algorithm, [`LevenbergMarquardt_BC_Conf`](@ref) :
-```julia
-conf = LevenbergMarquardt_BC_Conf()
-```
+The `solve()` function to use is [`solve(nls::AbstractNLS,
+θ_init::AbstractVector, bc::BoundConstraints, conf::Abstract_Solver_Conf)`](@ref).
 
-The `solve()` method is:
 
-```julia
-solve(nls::AbstractNLS,
-      θ_init::AbstractVector{<:Real},
-      bc::BoundConstraints,
-      conf::Abstract_Solver_BC_Conf)::LevenbergMarquardt_BC_Result
-```
-
-Where [`AbstractNLS`](@ref) is used to define the problem. Details
-concerning result can be found here:
-[`LevenbergMarquardt_BC_Result`](@ref).
 
