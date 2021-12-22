@@ -87,7 +87,7 @@ end
 
 @doc raw"""
 ```julia
-Levenberg_Marquardt_BC(nls::AbstractNLS,
+LevenbergMarquardt_BC(nls::AbstractNLS,
                        θ_init::AbstractVector,
                        bc::BoundConstraints;
                        # parameters
@@ -105,7 +105,7 @@ Implementation of a "personal" Levenberg-Marquardt method that handles
 bound constraints.
 
 """
-function Levenberg_Marquardt_BC(nls::AbstractNLS,
+function LevenbergMarquardt_BC(nls::AbstractNLS,
                                 θ_init::AbstractVector,
                                 bc::BoundConstraints;
                                 # parameters
@@ -312,7 +312,7 @@ function solve(nls::AbstractNLS,
                bc::BoundConstraints,
                conf::LevenbergMarquardt_BC_Conf)
 
-    Levenberg_Marquardt_BC(nls,θ_init,bc,
+    LevenbergMarquardt_BC(nls,θ_init,bc,
 
                            max_iter=conf._lm_conf._max_iter,
                            ε_grad_inf_norm=conf._lm_conf._ε_grad_inf_norm,

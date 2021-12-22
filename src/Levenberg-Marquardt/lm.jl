@@ -6,7 +6,7 @@ using LinearAlgebra: norm, I
 
 @doc raw"""
 ```julia
-Levenberg_Marquardt(nls::AbstractNLS,
+LevenbergMarquardt(nls::AbstractNLS,
                     θ_init::AbstractVector;
                     # parameters
                     max_iter::Int=50,
@@ -19,7 +19,7 @@ Levenberg_Marquardt(nls::AbstractNLS,
 Implementation of a Levenberg-Marquardt method.
 
 """
-function Levenberg_Marquardt(nls::AbstractNLS,
+function LevenbergMarquardt(nls::AbstractNLS,
                              θ_init::AbstractVector;
                              # parameters
                              max_iter::Int=50,
@@ -207,7 +207,7 @@ mutable struct LevenbergMarquardt_Conf <: Abstract_Solver_Conf
                      τ::Float64=1.0e-3)
          
         # note: parameters values are controlled directly by the
-        # Levenberg_Marquardt() function
+        # LevenbergMarquardt() function
         
         new(max_iter,
             ε_grad_inf_norm,
@@ -227,7 +227,7 @@ function solve(nls::AbstractNLS,
                θ_init::AbstractVector,
                conf::LevenbergMarquardt_Conf)
 
-    Levenberg_Marquardt(nls,θ_init,
+    LevenbergMarquardt(nls,θ_init,
                         
                         max_iter=conf._max_iter,
                         ε_grad_inf_norm=conf._ε_grad_inf_norm,

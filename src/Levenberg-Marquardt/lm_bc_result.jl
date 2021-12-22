@@ -1,6 +1,6 @@
 @doc raw"""
 
-A structure to store [`Levenberg_Marquardt_BC`](@ref) results. 
+A structure to store [`LevenbergMarquardt_BC`](@ref) results. 
 
 This structure subtypes [`LevenbergMarquardt_BC_Result`](@ref)
 

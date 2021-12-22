@@ -1,12 +1,12 @@
 @testset "LM algorithm" begin
 
     @testset "Rosenbrock" for TYPE in (Rosenbrock, Rosenbrock_Static)
-        using NLS_Solver: Levenberg_Marquardt
+        using NLS_Solver: LevenbergMarquardt
         
         nls = TYPE()
         θ=Float64[1;0]
 
-        result=Levenberg_Marquardt(nls, θ)
+        result=LevenbergMarquardt(nls, θ)
 
         @test converged(result)
         @test solution(result) ≈ Float64[1;1]
