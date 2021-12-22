@@ -6,14 +6,14 @@ The global API index is as follows:
 Modules = [NLS_Solver]
 ```
 
-### Public
+## Public
 
 ```@autodocs
 Modules = [NLS_Solver]
 Private = false	
 ```
 
-### Private
+## Private
 
 ```@autodocs
 Modules = [NLS_Solver]

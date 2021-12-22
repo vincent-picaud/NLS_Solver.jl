@@ -14,19 +14,19 @@ makedocs(;
                                 assets=String[],
                                 ),
     pages=[
-        "Home" => "index.md",
-        "Documentation" => [
-            "bound_constraints.md",
-            "Quadratic Solver" => [
-                "QuadSolvers/abstractions.md",
-                "QuadSolvers/Kunisch-Rendl.md",
-            ],
-            "abstract_nls.md",
-            "Levenberg-Marquardt" => [
-                "Levenberg-Marquardt/lm.md",
-                "Levenberg-Marquardt/lm_bc.md",
-            ],
-        ],
+        "index.md",
+        # "Documentation" => [
+        #     "bound_constraints.md",
+        #     "Quadratic Solver" => [
+        #         "QuadSolvers/abstractions.md",
+        #         "QuadSolvers/Kunisch-Rendl.md",
+        #     ],
+        #     "abstract_nls.md",
+        #     "Levenberg-Marquardt" => [
+        #         "Levenberg-Marquardt/lm.md",
+        #         "Levenberg-Marquardt/lm_bc.md",
+        #     ],
+        # ],
         "api.md",
         "todo.md",
     ],
