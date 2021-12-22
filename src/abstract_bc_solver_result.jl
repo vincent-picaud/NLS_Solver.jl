@@ -5,14 +5,11 @@
 # For the moment only use an alias as we do not have specific methods
 #
 @doc raw"""
-```julia
-const Abstract_BC_Solver_Result = Abstract_Solver_Result
-```
 
-NLS with bound contraints solver result abstraction. 
+The structure returned by [`solve`](@ref) when using the
+[`LevenbergMarquardt_BC_Conf`](@ref) method.
 
-For the moment only an **alias** of [`Abstract_Solver_Result`](@ref), with
-the **same interface**.
+See [`Abstract_Solver_Result`](@ref) 
 """
 const Abstract_BC_Solver_Result = Abstract_Solver_Result
 

@@ -1,6 +1,6 @@
 # Problems with bound constraints
 #
-export Levenberg_Marquardt_BC_Conf
+export LevenbergMarquardt_BC_Conf
 
 using LinearAlgebra: norm, I
 
@@ -258,30 +258,30 @@ end
 
 # ================================================================
 # Use the "Solver Conf + Solve method" framework:
-# 1. define "Levenberg_Marquardt_Conf"
+# 1. define "LevenbergMarquardt_Conf"
 # 2. overwrite the "solve()" function
 # ================================================================
 
 
 # ----------------------------------------------------------------
-# 1. define "Levenberg_Marquardt_BC_Conf"
+# 1. define "LevenbergMarquardt_BC_Conf"
 # ----------------------------------------------------------------
 #
 
 @doc raw"""
 ```julia
-Levenberg_Marquardt_BC_Conf()
+LevenbergMarquardt_BC_Conf()
 ```
 
 Configuration parameters of the Levenberg-Marquardt with bound constraints solver
 """
-mutable struct Levenberg_Marquardt_BC_Conf <: Abstract_BC_Solver_Conf
+mutable struct LevenbergMarquardt_BC_Conf <: Abstract_BC_Solver_Conf
     # The structure is mutable as we will add methods such as:
     # set_max_iter().
     #
     
     # Reuse LM conf
-    _lm_conf::Levenberg_Marquardt_Conf
+    _lm_conf::LevenbergMarquardt_Conf
     
     # Specific to LM_BC
     #
@@ -289,8 +289,8 @@ mutable struct Levenberg_Marquardt_BC_Conf <: Abstract_BC_Solver_Conf
     _quad_conf::Abstract_BC_QuadSolver_Conf
     
     # default values
-        function Levenberg_Marquardt_BC_Conf(;
-                                             lm_conf::Levenberg_Marquardt_Conf=Levenberg_Marquardt_Conf(),
+        function LevenbergMarquardt_BC_Conf(;
+                                             lm_conf::LevenbergMarquardt_Conf=LevenbergMarquardt_Conf(),
                                              quad_max_attempt::Int=10,
                                              quad_conf::Abstract_BC_QuadSolver_Conf=Kunisch_Rendl_Conf())
             
@@ -310,7 +310,7 @@ end
 function solve(nls::AbstractNLS,
                θ_init::AbstractVector,
                bc::BoundConstraints,
-               conf::Levenberg_Marquardt_BC_Conf)
+               conf::LevenbergMarquardt_BC_Conf)
 
     Levenberg_Marquardt_BC(nls,θ_init,bc,
 

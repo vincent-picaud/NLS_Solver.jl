@@ -1,10 +1,9 @@
 @doc raw"""
 
-A structure to store:
-- [`Levenberg_Marquardt`](@ref)
-- [`Levenberg_Marquardt_BC`](@ref)
-results.
+The structure returned by [`solve`](@ref) when using the
+[`LevenbergMarquardt_Conf`](@ref) method.
 
+See [`Abstract_Solver_Result`](@ref) 
 """
 struct LevenbergMarquardt_Result{T<:Real} <: Abstract_Solver_Result
     _converged::Bool

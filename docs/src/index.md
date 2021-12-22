@@ -36,7 +36,7 @@ nls = create_NLS_problem_using_ForwardDiff(2 => 2) do θ
 end
 
 
-conf = Levenberg_Marquardt_Conf()
+conf = LevenbergMarquardt_Conf()
 
 θ_init = zeros(2)
 
@@ -51,7 +51,7 @@ This example shows how to solve the same problem but with bound
 constraints.
 
 ```@example session
-conf = Levenberg_Marquardt_BC_Conf()
+conf = LevenbergMarquardt_BC_Conf()
 
 θl = Float64[2,2]
 θu = Float64[4,4]
@@ -90,9 +90,9 @@ The solved problem is:
 \min\limits_{\theta} \frac{1}{2}\|r(\theta)\|^2
 ```
 
-For the moment there is only one algorithm, [`Levenberg_Marquardt_Conf`](@ref) :
+For the moment there is only one algorithm, [`LevenbergMarquardt_Conf`](@ref) :
 ```julia
-conf = Levenberg_Marquardt_Conf()
+conf = LevenbergMarquardt_Conf()
 ```
 
 The `solve()` method is:
@@ -115,9 +115,9 @@ The solved problem is:
 \min\limits_{\theta_l\le\theta\le\theta_u} \frac{1}{2}\|r(\theta)\|^2
 ```
 
-For the moment there is only one algorithm, [`Levenberg_Marquardt_BC_Conf`](@ref) :
+For the moment there is only one algorithm, [`LevenbergMarquardt_BC_Conf`](@ref) :
 ```julia
-conf = Levenberg_Marquardt_BC_Conf()
+conf = LevenbergMarquardt_BC_Conf()
 ```
 
 The `solve()` method is:

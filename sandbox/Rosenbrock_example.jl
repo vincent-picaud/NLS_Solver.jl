@@ -9,7 +9,7 @@ nls = create_NLS_problem_using_ForwardDiff(2 => 2) do θ
 end
 
 
-conf = Levenberg_Marquardt_Conf()
+conf = LevenbergMarquardt_Conf()
 
 θ_init = zeros(2)
 
@@ -67,7 +67,7 @@ result = solve(nls, θ_init, conf)
 
 # Bound constrained problems ****************
 #
-conf = Levenberg_Marquardt_BC_Conf()
+conf = LevenbergMarquardt_BC_Conf()
 
 θl = Float64[2,2]
 θu = Float64[4,4]

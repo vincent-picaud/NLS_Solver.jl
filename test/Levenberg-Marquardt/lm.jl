@@ -15,7 +15,7 @@
     
     @testset "Rosenbrock with solve()" for TYPE in (Rosenbrock, Rosenbrock_Static)
         nls = TYPE()
-        conf = Levenberg_Marquardt_Conf()
+        conf = LevenbergMarquardt_Conf()
         θ=Float64[1;0]
 
         result=solve( nls, θ, conf)
@@ -27,7 +27,7 @@
 
     @testset "Rosenbrock with solve() + distant initial point" for TYPE in (Rosenbrock, Rosenbrock_Static) 
         nls = TYPE()
-        conf = Levenberg_Marquardt_Conf()
+        conf = LevenbergMarquardt_Conf()
         θ=Float64[-10;-10.5]
 
         result=solve( nls, θ, conf)
@@ -39,7 +39,7 @@
 
     @testset "PowellSingular" begin 
         nls = PowellSingular()
-        conf = Levenberg_Marquardt_Conf(ε_grad_inf_norm=1e-15,
+        conf = LevenbergMarquardt_Conf(ε_grad_inf_norm=1e-15,
                                         ε_step_2_norm=1e-15)
         θ=Float64[3;-1;0;1]
         result=solve( nls, θ, conf)

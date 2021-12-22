@@ -13,7 +13,7 @@ include("../test/TestProblems/TestProblems.jl")
 obj = Rosenbrock()
 obj_static = Rosenbrock_Static()
 
-conf = Levenberg_Marquardt_Conf()
+conf = LevenbergMarquardt_Conf()
 
 println("Dynamic : ", @btime solve($obj, $θ, $conf))
 println("Static  : ", @btime solve($obj_static, $θ, $conf))
@@ -33,7 +33,7 @@ println("Sanity check ok")
 
 bc = BoundConstraints(2)
 
-conf = Levenberg_Marquardt_BC_Conf()
+conf = LevenbergMarquardt_BC_Conf()
 
 println("Dynamic : ", @btime solve($obj, $θ, $bc, $conf))
 println("Static  : ", @btime solve($obj_static, $θ, $bc, $conf))

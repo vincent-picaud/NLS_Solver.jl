@@ -136,7 +136,7 @@ there is only one implementation, the classical Levenberg-Marquardt
 method. To create its default configuration, proceed as follows:
 
 #+begin_src julia  
-conf = Levenberg_Marquardt_Conf()
+conf = LevenbergMarquardt_Conf()
 #+end_src
 
 The methods also need sa starting value for the unknown parameter
@@ -190,7 +190,7 @@ In peculiar you can check if the method has converged and get the optimal θ.
 For bound constrained problems you must use another method.
 
 #+begin_src julia :eval never
-  conf = Levenberg_Marquardt_BC_Conf()
+  conf = LevenbergMarquardt_BC_Conf()
 #+end_src
 
 and define bound constraints. This is done thanks to a

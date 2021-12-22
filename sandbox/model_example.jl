@@ -303,7 +303,7 @@ nls = NLS_ForwardDiff_From_Model2Fit(model,X,Y)
 @btime eval_r_J($nls,$θ)
 
 
-conf = Levenberg_Marquardt_Conf()
+conf = LevenbergMarquardt_Conf()
 result=solve(nls, θ, conf)
 
 norm(eval_r(nls,θ),2)

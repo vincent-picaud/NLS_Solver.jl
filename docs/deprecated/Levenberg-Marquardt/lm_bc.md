@@ -3,7 +3,7 @@
 Solve an bound constrained non-linear least squares problem as defined by
 [`AbstractNLS`](@ref) using the Levenberg-Marquardt method. 
 
-To select this method define a [`Levenberg_Marquardt_BC_Conf`](@ref)
+To select this method define a [`LevenbergMarquardt_BC_Conf`](@ref)
 and call the [`solve`](@ref) method.
 
 

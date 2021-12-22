@@ -1,6 +1,6 @@
 # Unconstrained problem
 # 
-export Levenberg_Marquardt_Conf
+export LevenbergMarquardt_Conf
 
 using LinearAlgebra: norm, I
 
@@ -169,22 +169,22 @@ end
 
 # ================================================================
 # Use the "Solver Conf + Solve method" framework:
-# 1. define "Levenberg_Marquardt_Conf"
+# 1. define "LevenbergMarquardt_Conf"
 # 2. overwrite the "solve()" function
 # ================================================================
 
 # ----------------------------------------------------------------
-# 1. define "Levenberg_Marquardt_Conf"
+# 1. define "LevenbergMarquardt_Conf"
 # ----------------------------------------------------------------
 #
 @doc raw"""
 ```julia
-Levenberg_Marquardt_Conf()
+LevenbergMarquardt_Conf()
 ```
 
 Configuration parameters of the Levenberg-Marquardt solver
 """
-mutable struct Levenberg_Marquardt_Conf <: Abstract_Solver_Conf
+mutable struct LevenbergMarquardt_Conf <: Abstract_Solver_Conf
     # The structure is mutable as we will add methods such as:
     # set_max_iter().
     #
@@ -199,7 +199,7 @@ mutable struct Levenberg_Marquardt_Conf <: Abstract_Solver_Conf
     _τ::Float64
 
     # default values
-    function Levenberg_Marquardt_Conf(;
+    function LevenbergMarquardt_Conf(;
                      max_iter::Int=1000,
                      ε_grad_inf_norm::Float64=1e-8,
                      ε_step_2_norm::Float64=1e-8,
@@ -225,7 +225,7 @@ end
 #
 function solve(nls::AbstractNLS,
                θ_init::AbstractVector,
-               conf::Levenberg_Marquardt_Conf)
+               conf::LevenbergMarquardt_Conf)
 
     Levenberg_Marquardt(nls,θ_init,
                         

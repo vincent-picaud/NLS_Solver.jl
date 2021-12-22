@@ -48,7 +48,7 @@
         θ=Float64[-10;-10]
         bc=create_bc(-1,2,n=parameter_size(nls))
 
-        conf = Levenberg_Marquardt_BC_Conf()
+        conf = LevenbergMarquardt_BC_Conf()
         result=solve(nls, θ, bc, conf)
 
         @test converged(result)
