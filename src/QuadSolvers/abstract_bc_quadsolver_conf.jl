@@ -2,8 +2,6 @@
 # Define an abstract type to store solver configuration
 # ################################################################
 #
-export Abstract_BC_QuadSolver_Conf
-
 """
     abstract type Abstract_BC_QuadSolver_Conf end
 

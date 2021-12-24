@@ -1,5 +1,3 @@
-export Kunisch_Rendl_Conf
-
 using LinearAlgebra: Symmetric, dot, diagind
 
 @doc raw"""

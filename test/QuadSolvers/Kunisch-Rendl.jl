@@ -47,7 +47,7 @@ end
 
 
 @testset "problem 1 uplow = $UL" for UL ∈ (:U,:L)
-    using NLS_Solver: check_first_order
+    using NLS_Solver: check_first_order, Kunisch_Rendl_Conf
     
     n=5
     A=[Rational{BigInt}(1,i+j-1) for i in 1:n, j in 1:n]
@@ -68,7 +68,7 @@ end
 end
 
 @testset "problem 2" begin
-     using NLS_Solver: check_first_order
+     using NLS_Solver: check_first_order, Kunisch_Rendl_Conf
     
     Q=Symmetric(Float64[[30 20 15]
                         [20 15 12]
