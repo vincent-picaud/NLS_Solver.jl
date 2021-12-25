@@ -4,6 +4,13 @@ using ForwardDiff: jacobian
 
 @doc raw"""
 
+```julia
+struct NLS_ForwardDiff <: AbstractNLS
+    ...
+end
+
+```
+
 A specialization that uses the `ForwardDiff` package to compute the Jacobian.
 
 By comparison with [`AbstractNLS`](@ref) you only have to define these
@@ -12,6 +19,7 @@ functions:
 - [`residue_size`](@ref) : returns ``n_S``
 - [`eval_r`](@ref) : computation of ``\mathbf{r}``
 
+See: [`create_NLS_problem_using_ForwardDiff`](@ref) 
 """
 struct NLS_ForwardDiff <: AbstractNLS
     _eval_r_function::Function
@@ -23,16 +31,27 @@ end
 ```julia
 create_NLS_problem_using_ForwardDiff(r::Function;domain_image_dim::Pair{Int,Int})
 ```
-Create a NLS problem instance by sub-typing [`AbstractNLS`](@ref) type.
 
-`r` is a function that maps a parameter vector θ to its residue. The
-Jacobian matrix is computed using the `ForwardDiff` package.
+Creates an [`AbstractNLS`](@ref) specialized instance where the
+[`eval_r_J`](@ref) function is automatically defined using automatic
+differentiation.
+
+- `r` is a function that maps a parameter vector θ to its residue. The
+  Jacobian matrix is computed using the `ForwardDiff` package.
+- `domain_image_dim` is a pair of the form `θ length => r length` that
+  defines domain and codomain dimensions.
 
 # Usage example
 
+An example defining the Rosenbrock function
+
+```math
+\frac{1}{2}\|r(\theta)\|^2\text{ where }r = \sqrt{2} \left( \begin{array}{c}  1-\theta_1 \\ 10(\theta_2-\theta_1^2) \end{array} \right)
+```
+
 ```julia
 nls = create_NLS_problem_using_ForwardDiff(2 => 2) do θ
-
+     sqrt(2) sqrt(2)* [ 1-θ[1], 10*(θ[2]-θ[1]^2) ]* [ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
 end
 ```
 """

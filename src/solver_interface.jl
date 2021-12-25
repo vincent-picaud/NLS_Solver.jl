@@ -7,7 +7,7 @@ solve(nls::AbstractNLS,
       conf::Abstract_Solver_Conf) -> Abstract_Solver_Result
 ```
 
-Generic interface to solve a [`AbstractNLS`](@ref) problem.
+Generic interface to solve an [`AbstractNLS`](@ref) problem.
 
 The used algorithm is defined through [`Abstract_Solver_Conf`](@ref)
 specializations.
