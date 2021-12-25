@@ -28,7 +28,8 @@ The implemented algorithm is a variation of the classical
 Levenberg-Marquardt algorithm where the bound constrained problem is
 solved by the Kunisch method.
 
-Please note that there is also a dedicated function to solve unconstrained NLS:
+Please note that there is also a dedicated function to solve
+unconstrained problems:
 
 [[file:figures/eq_pb.png][file:figures/eq_pb.png]]
 
@@ -38,8 +39,7 @@ Please note that there is also a dedicated function to solve unconstrained NLS:
 
 ** References
 
-The most useful references concerning this implementation are given
-below.
+Some useful references concerning implementation are given below:
 
 *** Nonlinear least squares
 
