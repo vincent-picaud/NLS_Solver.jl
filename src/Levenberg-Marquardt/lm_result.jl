@@ -1,9 +1,11 @@
 @doc raw"""
+```julia
+struct LevenbergMarquardt_Result{T<:Real} <: Abstract_Solver_Result
+   ...
+end
+```
 
-The structure returned by [`solve`](@ref) when using the
-[`LevenbergMarquardt_Conf`](@ref) method.
-
-See [`Abstract_Solver_Result`](@ref) 
+This structure subtypes [`Abstract_Solver_Result`](@ref)
 """
 struct LevenbergMarquardt_Result{T<:Real} <: Abstract_Solver_Result
     _converged::Bool

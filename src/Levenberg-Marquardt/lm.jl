@@ -4,29 +4,17 @@ export LevenbergMarquardt_Conf
 
 using LinearAlgebra: norm, I
 
-@doc raw"""
-```julia
-LevenbergMarquardt(nls::AbstractNLS,
-                    θ_init::AbstractVector;
-                    # parameters
-                    max_iter::Int=50,
-                    ε_grad_inf_norm::Float64=1e-8,
-                    ε_step_2_norm::Float64=1e-8,
-                    # initial regularization
-                    τ::Float64=1.0e-3)
-```
-
-Implementation of a Levenberg-Marquardt method.
-
-"""
+#
+# Levenberg-Marquardt implementation
+#
 function LevenbergMarquardt(nls::AbstractNLS,
-                             θ_init::AbstractVector;
-                             # parameters
-                             max_iter::Int=50,
-                             ε_grad_inf_norm::Float64=1e-8,
-                             ε_step_2_norm::Float64=1e-8,
-                             # initial regularization
-                             τ::Float64=1.0e-3)
+                            θ_init::AbstractVector;
+                            # parameters
+                            max_iter::Int=50,
+                            ε_grad_inf_norm::Float64=1e-8,
+                            ε_step_2_norm::Float64=1e-8,
+                            # initial regularization
+                            τ::Float64=1.0e-3)
     # Sanity check
     #
     @assert parameter_size(nls) == length(θ_init)
@@ -144,8 +132,7 @@ function LevenbergMarquardt(nls::AbstractNLS,
                 result = LevenbergMarquardt_Result(_converged=true,
                                                  _iter_count=iter,
                                                  _fobj=eval_nls_fobj(r),
-                                                 _solution=θ_new
-                                                 ) 
+                                                 _solution=θ_new) 
 
                 # @info "Found a critical point" result = result
                 
@@ -179,10 +166,23 @@ end
 #
 @doc raw"""
 ```julia
-LevenbergMarquardt_Conf()
+mutable struct LevenbergMarquardt_Conf <: Abstract_Solver_Conf
+    ...
+end
 ```
 
-Configuration parameters of the Levenberg-Marquardt solver
+Use this constructor
+```julia
+LevenbergMarquardt_Conf()
+```
+to initialize the Levenberg-Marquardt solver default configuration
+parameters.
+
+To solve a problem with this method, you must then call 
+[`solve(nls::AbstractNLS, θ_init::AbstractVector, conf::Abstract_Solver_Conf)`](@ref) 
+
+See: [`AbstractNLS`](@ref).
+
 """
 mutable struct LevenbergMarquardt_Conf <: Abstract_Solver_Conf
     # The structure is mutable as we will add methods such as:

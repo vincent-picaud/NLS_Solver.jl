@@ -68,7 +68,7 @@ end
 end
 
 @testset "problem 2" begin
-     using NLS_Solver: check_first_order, Kunisch_Rendl_Conf
+     using NLS_Solver: check_first_order, Kunisch_Rendl_Conf, multiplier_τ
     
     Q=Symmetric(Float64[[30 20 15]
                         [20 15 12]

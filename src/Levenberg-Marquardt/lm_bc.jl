@@ -84,27 +84,6 @@ end
 # Note: Convergence check replace Euler CN |∇f| ≤ ϵ, we use the
 # condition: max | x-P[a,b](x-∇f) | as in check_first_order
 #
-
-@doc raw"""
-```julia
-LevenbergMarquardt_BC(nls::AbstractNLS,
-                       θ_init::AbstractVector,
-                       bc::BoundConstraints;
-                       # parameters
-                       max_iter::Int=50,
-                       ε_grad_inf_norm::Float64=1e-8,
-                       ε_step_2_norm::Float64=1e-8,
-                       # initial regularization μ0=τ.|H|
-                       τ::Float64=1.0e-3,
-                       # quad specific
-                       quad_conf::Abstract_BC_QuadSolver_Conf=Kunisch_Rendl_Conf(),
-                       quad_max_attempt::Int=10)
-```
-
-Implementation of a "personal" Levenberg-Marquardt method that handles
-bound constraints.
-
-"""
 function LevenbergMarquardt_BC(nls::AbstractNLS,
                                 θ_init::AbstractVector,
                                 bc::BoundConstraints;
@@ -270,10 +249,22 @@ end
 
 @doc raw"""
 ```julia
-LevenbergMarquardt_BC_Conf()
+mutable struct LevenbergMarquardt_BC_Conf <: Abstract_Solver_Conf
+    ...
+end
 ```
 
-Configuration parameters of the Levenberg-Marquardt with bound constraints solver
+Use this constructor
+```julia
+LevenbergMarquardt_BC_Conf()
+```
+to initialize the bound constrained Levenberg-Marquardt solver default configuration
+parameters.
+
+To solve a problem with this method, you must then call 
+[`solve(nls::AbstractNLS, θ_init::AbstractVector, bc::BoundConstraints, conf::Abstract_BC_Solver_Conf)`](@ref) 
+
+See: [`AbstractNLS`](@ref).
 """
 mutable struct LevenbergMarquardt_BC_Conf <: Abstract_BC_Solver_Conf
     # The structure is mutable as we will add methods such as:

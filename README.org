@@ -34,7 +34,7 @@ unconstrained problems:
 [[file:figures/eq_pb.png][file:figures/eq_pb.png]]
 
 # \begin{equation*}
-# \min\limits_\theta & \frac{1}{2}\|r(\theta)\|^2
+# \min\limits_\theta  \frac{1}{2}\|r(\theta)\|^2
 # \end{equation*}
 
 ** References

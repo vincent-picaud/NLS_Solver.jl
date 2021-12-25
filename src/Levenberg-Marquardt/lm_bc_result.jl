@@ -1,8 +1,12 @@
 @doc raw"""
 
-A structure to store [`LevenbergMarquardt_BC`](@ref) results. 
+```julia
+struct LevenbergMarquardt_BC_Result{T<:Real} <:  Abstract_BC_Solver_Result
+    ...
+end 
+```
 
-This structure subtypes [`LevenbergMarquardt_BC_Result`](@ref)
+This structure subtypes [`Abstract_BC_Solver_Result`](@ref)
 
 """
 const LevenbergMarquardt_BC_Result = LevenbergMarquardt_Result{T} where {T<:Real}
