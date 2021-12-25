@@ -11,8 +11,8 @@ function LevenbergMarquardt(nls::AbstractNLS,
                             θ_init::AbstractVector;
                             # parameters
                             max_iter::Int=50,
-                            ε_grad_inf_norm::Float64=1e-8,
-                            ε_step_2_norm::Float64=1e-8,
+                            ε_grad_Inf_norm::Float64=1e-8,
+                            ε_step_Inf_norm::Float64=1e-8,
                             # initial regularization
                             τ::Float64=1.0e-3)
     # Sanity check
@@ -20,8 +20,8 @@ function LevenbergMarquardt(nls::AbstractNLS,
     @assert parameter_size(nls) == length(θ_init)
 
     @assert max_iter > 0
-    @assert ε_grad_inf_norm ≥ 0
-    @assert ε_step_2_norm ≥ 0
+    @assert ε_grad_Inf_norm ≥ 0
+    @assert ε_step_Inf_norm ≥ 0
     @assert τ > 0
 
 
@@ -35,7 +35,7 @@ function LevenbergMarquardt(nls::AbstractNLS,
     # Check CV: |∇fobj| ≤ ϵ ?
     #
     inf_norm_∇fobj = norm(∇fobj,Inf)
-    if  inf_norm_∇fobj ≤ ε_grad_inf_norm
+    if  inf_norm_∇fobj ≤ ε_grad_Inf_norm
 
         result = LevenbergMarquardt_Result(_converged=true,
                                          _iter_count=0,
@@ -81,9 +81,9 @@ function LevenbergMarquardt(nls::AbstractNLS,
 
         # Check if step not too small -> CV
         #
-        norm_2_step = norm(step,2)
+        norm_Inf_step = norm(step,Inf)
 
-        if norm_2_step ≤ ε_step_2_norm*max(ε_step_2_norm,norm_2_step)
+        if norm_Inf_step ≤ ε_step_Inf_norm
 
             result = LevenbergMarquardt_Result(_converged=true,
                                              _iter_count=iter,
@@ -114,7 +114,7 @@ function LevenbergMarquardt(nls::AbstractNLS,
         #
         ρ = δfobj/δL
 
-        # @info "LM: iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |∇f|=$(_fmt(inf_norm_∇fobj)), μ=$(_fmt(get_μ(damping)))"
+        # @info "LM: iter=$(_fmt(iter)), |step|=$(_fmt(norm_Inf_step)), |∇f|=$(_fmt(inf_norm_∇fobj)), μ=$(_fmt(get_μ(damping)))"
 
         # Accept new point?
         #
@@ -127,7 +127,7 @@ function LevenbergMarquardt(nls::AbstractNLS,
             H = eval_nls_∇∇fobj(J)
             
             inf_norm_∇fobj = norm(∇fobj,Inf)
-            if  inf_norm_∇fobj ≤ ε_grad_inf_norm
+            if  inf_norm_∇fobj ≤ ε_grad_Inf_norm
 
                 result = LevenbergMarquardt_Result(_converged=true,
                                                  _iter_count=iter,
@@ -192,8 +192,8 @@ mutable struct LevenbergMarquardt_Conf <: Abstract_Solver_Conf
     # Related to CV test
     #
     _max_iter::Int
-    _ε_grad_inf_norm::Float64
-    _ε_step_2_norm::Float64
+    _ε_grad_Inf_norm::Float64
+    _ε_step_Inf_norm::Float64
     
     # initial regularization μ = τ max_ij(|H_ij|)
     _τ::Float64
@@ -201,8 +201,8 @@ mutable struct LevenbergMarquardt_Conf <: Abstract_Solver_Conf
     # default values
     function LevenbergMarquardt_Conf(;
                      max_iter::Int=1000,
-                     ε_grad_inf_norm::Float64=1e-8,
-                     ε_step_2_norm::Float64=1e-8,
+                     ε_grad_Inf_norm::Float64=1e-8,
+                     ε_step_Inf_norm::Float64=1e-8,
                      
                      τ::Float64=1.0e-3)
          
@@ -210,8 +210,8 @@ mutable struct LevenbergMarquardt_Conf <: Abstract_Solver_Conf
         # LevenbergMarquardt() function
         
         new(max_iter,
-            ε_grad_inf_norm,
-            ε_step_2_norm,
+            ε_grad_Inf_norm,
+            ε_step_Inf_norm,
             
             τ)
     end
@@ -230,8 +230,8 @@ function solve(nls::AbstractNLS,
     LevenbergMarquardt(nls,θ_init,
                         
                         max_iter=conf._max_iter,
-                        ε_grad_inf_norm=conf._ε_grad_inf_norm,
-                        ε_step_2_norm= conf._ε_step_2_norm,
+                        ε_grad_Inf_norm=conf._ε_grad_Inf_norm,
+                        ε_step_Inf_norm= conf._ε_step_Inf_norm,
                         
                         τ=conf._τ)
 end

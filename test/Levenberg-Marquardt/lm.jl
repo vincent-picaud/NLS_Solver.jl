@@ -39,8 +39,8 @@
 
     @testset "PowellSingular" begin 
         nls = PowellSingular()
-        conf = LevenbergMarquardt_Conf(ε_grad_inf_norm=1e-15,
-                                        ε_step_2_norm=1e-15)
+        conf = LevenbergMarquardt_Conf(ε_grad_Inf_norm=1e-15,
+                                       ε_step_Inf_norm=1e-15)
         θ=Float64[3;-1;0;1]
         result=solve( nls, θ, conf)
 

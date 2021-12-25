@@ -89,8 +89,8 @@ function LevenbergMarquardt_BC(nls::AbstractNLS,
                                 bc::BoundConstraints;
                                 # parameters
                                 max_iter::Int=50,
-                                ε_grad_inf_norm::Float64=1e-8,
-                                ε_step_2_norm::Float64=1e-8,
+                                ε_grad_Inf_norm::Float64=1e-8,
+                                ε_step_Inf_norm::Float64=1e-8,
                                 # initial regularization μ0=τ.|H|
                                 τ::Float64=1.0e-3,
                                 # quad specific
@@ -102,8 +102,8 @@ function LevenbergMarquardt_BC(nls::AbstractNLS,
     @assert parameter_size(nls) == length(θ_init)
     
     @assert max_iter > 0
-    @assert ε_grad_inf_norm ≥ 0
-    @assert ε_step_2_norm ≥ 0
+    @assert ε_grad_Inf_norm ≥ 0
+    @assert ε_step_Inf_norm ≥ 0
     @assert τ > 0
 
     # Initialization
@@ -153,9 +153,9 @@ function LevenbergMarquardt_BC(nls::AbstractNLS,
         step = solution(quad_result)
         τ = multiplier_τ(quad_result)
             
-        norm_2_step = norm(step,2)
+        norm_Inf_step = norm(step,Inf)
 
-        if norm_2_step ≤ ε_step_2_norm*max(ε_step_2_norm,norm_2_step)
+        if norm_Inf_step ≤ ε_step_Inf_norm
             result = LevenbergMarquardt_BC_Result(_converged=true,
                                                   _iter_count=iter,
                                                   _fobj=eval_nls_fobj(r),
@@ -201,9 +201,9 @@ function LevenbergMarquardt_BC(nls::AbstractNLS,
             
             inf_norm_KKT = norm(∇fobj+τ,Inf)
 
-            # @info "iter=$(_fmt(iter)), |step|=$(_fmt(norm_2_step)), |KKT|=$(_fmt(inf_norm_KKT)), μ=$(_fmt(get_μ(damping)))" 
+            # @info "iter=$(_fmt(iter)), |step|=$(_fmt(norm_Inf_step)), |KKT|=$(_fmt(inf_norm_KKT)), μ=$(_fmt(get_μ(damping)))" 
             
-            if inf_norm_KKT ≤ ε_grad_inf_norm
+            if inf_norm_KKT ≤ ε_grad_Inf_norm
                 result = LevenbergMarquardt_BC_Result(_converged=true,
                                                       _iter_count=iter,
                                                       _fobj=eval_nls_fobj(r),
@@ -306,8 +306,8 @@ function solve(nls::AbstractNLS,
     LevenbergMarquardt_BC(nls,θ_init,bc,
 
                            max_iter=conf._lm_conf._max_iter,
-                           ε_grad_inf_norm=conf._lm_conf._ε_grad_inf_norm,
-                           ε_step_2_norm= conf._lm_conf._ε_step_2_norm,
+                           ε_grad_Inf_norm=conf._lm_conf._ε_grad_Inf_norm,
+                           ε_step_Inf_norm= conf._lm_conf._ε_step_Inf_norm,
                            
                            τ=conf._lm_conf._τ,
 
