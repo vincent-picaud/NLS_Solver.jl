@@ -11,11 +11,21 @@ Presence of `NaN` component and the ``l\\le u`` condition is checked
 at construction time. Note however that some components can be
 infinite.
 
-```jldoctest
-julia> bc = BoundConstraints(5)
-BoundConstraints{Float64, 1, Vector{Float64}, Vector{Float64}}([0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0, 1.0])
+The following constructors are available:
 
+- Construct ``[0.0,1.0]^n`` 
+```julia
+BoundConstraints(n)
 ```
+- Construct ``[T(0),T(1)]^n`` where components are of type `T`
+```julia
+BoundConstraints(T,n)
+```
+- Construct ``[l,u]`` where `l` and `u` are lower and upper bound vectors
+```julia
+BoundConstraints(T,n)
+```
+
 """
 struct BoundConstraints{ELT<:Real,N,LBT<:AbstractArray{ELT,N},UBT<:AbstractArray{ELT,N}}
     _lb::LBT
@@ -41,6 +51,8 @@ import Base: eltype, size, length, axes, in
     eltype(bc::BoundConstraints)
 
 Return bound element type
+
+See: [` BoundConstraints`](@ref) 
 """
 Base.eltype(bc::BoundConstraints{ELT}) where ELT = ELT
 
@@ -49,6 +61,8 @@ Base.eltype(bc::BoundConstraints{ELT}) where ELT = ELT
     axes(bc::BoundConstraints)
 
 Return bound axes
+
+See: [` BoundConstraints`](@ref) 
 """
 Base.axes(bc::BoundConstraints) = axes(bc._lb) 
 
@@ -56,6 +70,8 @@ Base.axes(bc::BoundConstraints) = axes(bc._lb)
     length(bc::BoundConstraints)
 
 Return bound length
+
+See: [` BoundConstraints`](@ref) 
 """
 Base.length(bc::BoundConstraints) = length(bc._lb)
 
@@ -63,6 +79,8 @@ Base.length(bc::BoundConstraints) = length(bc._lb)
     size(bc::BoundConstraints)
 
 Return bound size
+
+See: [` BoundConstraints`](@ref) 
 """
 Base.size(bc::BoundConstraints) = size(bc._lb)
 
@@ -70,6 +88,8 @@ Base.size(bc::BoundConstraints) = size(bc._lb)
     in(bc::BoundConstraints)
 
 Check if ``x\\in [l,u]``
+
+See: [` BoundConstraints`](@ref) 
 """
 function in(x::AbstractArray{<:Real,N},bc::BoundConstraints{<:Real,N}) where {N}
     size(x)==size(bc) && all(zip(bc._lb,x,bc._ub)) do (lbi,xi,ubi) begin lbi ≤ xi ≤ ubi end end
@@ -79,6 +99,8 @@ end
     lower_bound(bc::BoundConstraints)
 
 Return lower bound `l`
+
+See: [` BoundConstraints`](@ref) 
 """
 lower_bound(bc::BoundConstraints) = ReadOnlyArray(bc._lb)
 
@@ -86,6 +108,8 @@ lower_bound(bc::BoundConstraints) = ReadOnlyArray(bc._lb)
     upper_bound(bc::BoundConstraints)
 
 Return upper bound `u`
+
+See: [` BoundConstraints`](@ref) 
 """
 upper_bound(bc::BoundConstraints) = ReadOnlyArray(bc._ub)
 
@@ -94,6 +118,7 @@ upper_bound(bc::BoundConstraints) = ReadOnlyArray(bc._ub)
 
 Project `x` such that ``x \\in [l,u]`` is fullfiled.
 
+See: [` BoundConstraints`](@ref) 
 """
 function project!(x::AbstractArray{<:Real,N},bc::BoundConstraints{<:Real,N}) where {N}
     @assert size(x) == size(bc)
@@ -117,6 +142,8 @@ import Base: +, -
 ```math
 [a-τ,b-τ] = [a,b]-τ
 ```
+
+See: [` BoundConstraints`](@ref) 
 """
 Base.:-(bc::BoundConstraints,τ::AbstractArray) = BoundConstraints(lower_bound(bc).-τ,upper_bound(bc).-τ)
     
@@ -127,6 +154,8 @@ Base.:-(bc::BoundConstraints,τ::AbstractArray) = BoundConstraints(lower_bound(b
 ```math
 [a+τ,b+τ] = [a,b]+τ
 ```
+
+See: [` BoundConstraints`](@ref) 
 """
 Base.:+(bc::BoundConstraints,τ::AbstractArray) = BoundConstraints(lower_bound(bc).+τ,upper_bound(bc).+τ)
     

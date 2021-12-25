@@ -344,9 +344,12 @@ solution(r::Kunisch_Rendl_Result) = ReadOnlyArray(r._x)
 
 # ****************************************************************
 
-"""
-Put all together 
-"""
+# Kunisch-Rendl algorithm to solve a bound constrained quadratic problem
+#
+#
+# CAVEAT: positive definiteness of Q is no enough to guarantee
+# convergence
+#
 function Kunisch_Rendl(Q::Symmetric{<:Real},
                        q::AbstractVector{<:Real},
                        x_init::AbstractVector{<:Real},
@@ -419,7 +422,7 @@ function Kunisch_Rendl(Q::Symmetric{<:Real},
     result
 end
 
-# Specialize the solve method <- this method is exported
+# Specialize the generic solve method
 #
 solve(Q::Symmetric{<:Real},
       q::AbstractVector{<:Real},
