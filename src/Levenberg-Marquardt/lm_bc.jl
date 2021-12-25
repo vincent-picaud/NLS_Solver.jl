@@ -1,6 +1,7 @@
 # Problems with bound constraints
 #
 export LevenbergMarquardt_BC_Conf
+export set_max_iteration!, set_ε_grad_Inf_norm!, set_ε_step_Inf_norm! 
 
 using LinearAlgebra: norm, I
 
@@ -264,7 +265,11 @@ parameters.
 To solve a problem with this method, you must then call 
 [`solve(nls::AbstractNLS, θ_init::AbstractVector, bc::BoundConstraints, conf::Abstract_BC_Solver_Conf)`](@ref) 
 
-See: [`AbstractNLS`](@ref).
+See: 
+- [`set_max_iteration!(conf::LevenbergMarquardt_BC_Conf,max_iter::Int)`](@ref) 
+- [`set_ε_grad_Inf_norm!(conf::LevenbergMarquardt_BC_Conf,ε_grad_Inf_norm::Float64)`](@ref) 
+- [`set_ε_step_Inf_norm!(conf::LevenbergMarquardt_BC_Conf,ε_step_Inf_norm::Float64)`](@ref) 
+
 """
 mutable struct LevenbergMarquardt_BC_Conf <: Abstract_BC_Solver_Conf
     # The structure is mutable as we will add methods such as:
@@ -280,19 +285,61 @@ mutable struct LevenbergMarquardt_BC_Conf <: Abstract_BC_Solver_Conf
     _quad_conf::Abstract_BC_QuadSolver_Conf
     
     # default values
-        function LevenbergMarquardt_BC_Conf(;
-                                             lm_conf::LevenbergMarquardt_Conf=LevenbergMarquardt_Conf(),
-                                             quad_max_attempt::Int=10,
-                                             quad_conf::Abstract_BC_QuadSolver_Conf=Kunisch_Rendl_Conf())
-            
-            @assert quad_max_attempt ≥ 1
-            
-            new(lm_conf,
-                quad_max_attempt,
-                quad_conf)
-        end
+    function LevenbergMarquardt_BC_Conf(;
+                                        lm_conf::LevenbergMarquardt_Conf=LevenbergMarquardt_Conf(),
+                                        quad_max_attempt::Int=10,
+                                        quad_conf::Abstract_BC_QuadSolver_Conf=Kunisch_Rendl_Conf())
+        
+        @assert quad_max_attempt ≥ 1
+        
+        new(lm_conf,
+            quad_max_attempt,
+            quad_conf)
+    end
 end
 
+
+@doc raw"""
+```julia
+set_max_iteration!(conf::LevenbergMarquardt_BC_Conf,
+                   max_iter::Int)
+```
+
+Modify the maximum number of iterations
+
+See: [`LevenbergMarquardt_BC_Conf`](@ref) 
+"""
+function set_max_iteration!(conf::LevenbergMarquardt_BC_Conf,max_iter::Int)
+    set_max_iteration!(conf._lm_conf,max_iter)
+end
+
+@doc raw"""
+```julia
+set_ε_grad_Inf_norm!(conf::LevenbergMarquardt_BC_Conf,
+                     ε_grad_Inf_norm::Float64)
+```
+
+Modify the stopping criterion ``|\nabla f|_\infty\le\epsilon``
+
+See: [`LevenbergMarquardt_BC_Conf`](@ref) 
+"""
+function set_ε_grad_Inf_norm!(conf::LevenbergMarquardt_BC_Conf,ε_grad_Inf_norm::Float64)
+    set_ε_grad_Inf_norm!(conf._lm_conf,ε_grad_Inf_norm)
+end
+
+@doc raw"""
+```julia
+set_ε_step_Inf_norm!(conf::LevenbergMarquardt_BC_Conf,
+                     ε_step_Inf_norm::Float64)
+```
+
+Modify the stopping criterion ``|\delta x|_\infty\le\epsilon``
+
+See: [`LevenbergMarquardt_BC_Conf`](@ref) 
+"""
+function set_ε_step_Inf_norm!(conf::LevenbergMarquardt_BC_Conf,ε_step_Inf_norm::Float64)
+    set_ε_step_Inf_norm!(conf._lm_conf,ε_step_Inf_norm)
+end
 
 # ----------------------------------------------------------------
 # 2. overwrite the "solve()" function

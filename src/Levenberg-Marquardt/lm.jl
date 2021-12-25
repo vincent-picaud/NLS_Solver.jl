@@ -1,6 +1,7 @@
 # Unconstrained problem
 # 
 export LevenbergMarquardt_Conf
+export set_max_iteration!, set_ε_grad_Inf_norm!, set_ε_step_Inf_norm! 
 
 using LinearAlgebra: norm, I
 
@@ -181,7 +182,10 @@ parameters.
 To solve a problem with this method, you must then call 
 [`solve(nls::AbstractNLS, θ_init::AbstractVector, conf::Abstract_Solver_Conf)`](@ref) 
 
-See: [`AbstractNLS`](@ref).
+See: 
+- [`set_max_iteration!(conf::LevenbergMarquardt_Conf,max_iter::Int)`](@ref) 
+- [`set_ε_grad_Inf_norm!(conf::LevenbergMarquardt_Conf,ε_grad_Inf_norm::Float64)`](@ref) 
+- [`set_ε_step_Inf_norm!(conf::LevenbergMarquardt_Conf,ε_step_Inf_norm::Float64)`](@ref) 
 
 """
 mutable struct LevenbergMarquardt_Conf <: Abstract_Solver_Conf
@@ -216,8 +220,55 @@ mutable struct LevenbergMarquardt_Conf <: Abstract_Solver_Conf
             τ)
     end
 end
-# TODO: add stuff like mmax_iter(), set_max_iter()...
-#
+
+@doc raw"""
+```julia
+set_max_iteration!(conf::LevenbergMarquardt_Conf,
+                   max_iter::Int)
+```
+
+Modify the maximum number of iterations
+
+See: [`LevenbergMarquardt_Conf`](@ref) 
+"""
+function set_max_iteration!(conf::LevenbergMarquardt_Conf,max_iter::Int)
+    @assert max_iter>0
+    conf._max_iter=max_iter
+    conf
+end
+
+@doc raw"""
+```julia
+set_ε_grad_Inf_norm!(conf::LevenbergMarquardt_Conf,
+                     ε_grad_Inf_norm::Float64)
+```
+
+Modify the stopping criterion ``|\nabla f|_\infty\le\epsilon``
+
+See: [`LevenbergMarquardt_Conf`](@ref) 
+"""
+function set_ε_grad_Inf_norm!(conf::LevenbergMarquardt_Conf,ε_grad_Inf_norm::Float64)
+    @assert ε_grad_Inf_norm>0
+    conf._ε_grad_Inf_norm = ε_grad_Inf_norm
+    conf
+end
+
+@doc raw"""
+```julia
+set_ε_step_Inf_norm!(conf::LevenbergMarquardt_Conf,
+                     ε_step_Inf_norm::Float64)
+```
+
+Modify the stopping criterion ``|\delta x|_\infty\le\epsilon``
+
+See: [`LevenbergMarquardt_Conf`](@ref) 
+"""
+function set_ε_step_Inf_norm!(conf::LevenbergMarquardt_Conf,ε_step_Inf_norm::Float64)
+    @assert ε_step_Inf_norm>0
+    conf._ε_step_Inf_norm = ε_step_Inf_norm
+    conf
+end
+
 
 # ----------------------------------------------------------------
 # 2. overwrite the "solve()" function
