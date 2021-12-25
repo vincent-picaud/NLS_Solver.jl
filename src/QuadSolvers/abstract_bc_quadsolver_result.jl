@@ -1,6 +1,3 @@
-export Abstract_BC_QuadSolver_Result
-export converged, iteration_count,objective_value,multiplier_τ,solution
-
 """
     abstract type Abstract_BC_QuadSolver_Result end
 
