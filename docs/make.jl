@@ -33,5 +33,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/vincent-picaud/NLS_Solver.jl",
+           repo="github.com/vincent-picaud/NLS_Solver.jl.git",
+           devbranch="main"
 )
