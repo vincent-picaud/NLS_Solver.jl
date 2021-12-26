@@ -23,7 +23,7 @@ BoundConstraints(T,n)
 ```
 - Construct ``[l,u]`` where `l` and `u` are lower and upper bound vectors
 ```julia
-BoundConstraints(T,n)
+BoundConstraints(l,u)
 ```
 
 """
