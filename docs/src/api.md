@@ -1,19 +1,23 @@
 # API index 
 
+## API index 
+
 The global API index is as follows:
 
 ```@index
 Modules = [NLS_Solver]
 ```
 
-## Public
+## Documentation
+
+### Public 
 
 ```@autodocs
 Modules = [NLS_Solver]
 Private = false	
 ```
 
-## Private
+### Private
 
 ```@autodocs
 Modules = [NLS_Solver]
