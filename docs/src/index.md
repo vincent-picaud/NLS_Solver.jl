@@ -39,6 +39,7 @@ Detailed examples are provided belows:
 ```@contents
 Pages = [
     "unconstrained_nls.md",
+    "bound_constrained_nls.md",
     "nonlinear_regressions.md",
 ]
 Depth = 3
@@ -77,73 +78,4 @@ These implementations are mainly based on these references:
 This package is used by the
 [NLS_Fit.jl](https://github.com/vincent-picaud/NLS_Fit.jl) package
 which is dedicated to peak fitting in spectrometry.
-
-
-
-
-To use this
-method call [`LevenbergMarquardt_Conf`](@ref). The other implemented
-method is a modification of the Levenberg-Marquardt where the inner
-quadratic problem is solved by the Kunisch-Rendl method to handle
-bound constraints. To use this method call [`LevenbergMarquardt_BC_Conf`](@ref). 
-Please read this package
-[README.org](https://github.com/vincent-picaud/NLS_Solver.jl) for
-extra details.
-
-The two following examples illustrate how to solve a classical
-nonlinear least squares problem and a bound constrained one.
-
-In both cases, the objective function is the Rosenbrock function:
-```math
-(1-θ_1)^2 + 100 (θ_2 - θ_1^2)^2
-```
-The classical problem is solved as follows:
-
-```@example session
-# define the objective methods
-nls = create_NLS_problem_using_ForwardDiff(2 => 2) do θ
-  sqrt(2)* [ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
-end
-
-# choose the method
-conf = LevenbergMarquardt_Conf()
-
-# initial value for θ
-θ_init = zeros(2)
-
-# solve it
-result = solve(nls, θ_init, conf)
-
-# use the returned result
-@assert converged(result)
-θ_solution = solution(result)
-```
-
-Now to solve the same problem, but with bound constraints, proceed as
-follows:
-
-```@example session
-# choose the method
-conf = LevenbergMarquardt_BC_Conf()
-
-# define bound constraints
-θl = Float64[2,2]
-θu = Float64[4,4]
-
-bc = BoundConstraints(θl,θu)
-
-# solve it
-result = solve(nls, θ_init, bc, conf)
-
-# use the returned result
-@assert converged(result)
-θ_solution = solution(result)
-```
-
-For furthers details see:
-
-- [`solve(nls::AbstractNLS, θ_init::AbstractVector, conf::Abstract_Solver_Conf)`](@ref).
-- [`solve(nls::AbstractNLS, θ_init::AbstractVector,bc::BoundConstraints, conf::Abstract_Solver_Conf)`](@ref).
-
-
 

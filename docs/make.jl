@@ -17,6 +17,7 @@ makedocs(;
         "index.md",
         "Getting Started" => [
             "unconstrained_nls.md",
+            "bound_constrained_nls.md",
             "nonlinear_regressions.md",
         ],
         
