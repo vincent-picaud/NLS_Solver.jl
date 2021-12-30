@@ -82,9 +82,3 @@ These implementations are mainly based on these references:
   This reference presents an efficient method to solve bound
   constrained quadratic problems.
 
-## More usage examples
-
-This package is used by the
-[NLS_Fit.jl](https://github.com/vincent-picaud/NLS_Fit.jl) package
-which is dedicated to peak fitting in spectrometry.
-

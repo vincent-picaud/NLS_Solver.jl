@@ -91,9 +91,7 @@ result = solve(nls,θ_init,bc,conf)
 
 # Initial model ----------------
 #
-Y_init = map(X) do X_i
-    model(X_i,θ_init) 
-end
+Y_init = map(X_i -> model(X_i,θ_init), X)
 plot!(X,Y_init,linewidth=3,label="initial model")
 
 
@@ -101,9 +99,7 @@ plot!(X,Y_init,linewidth=3,label="initial model")
 #
 θ_solution = solution(result)
 
-Y_solution = map(X) do X_i
-    model(X_i,θ_solution) 
-end
+Y_solution = map(X_i -> model(X_i,θ_solution), X)
 plot!(X,Y_solution,linewidth=3,label="fitted model")
 
 

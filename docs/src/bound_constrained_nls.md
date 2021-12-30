@@ -6,7 +6,7 @@ CurrentModule = NLS_Solver
 using NLS_Solver
 ```
 
-# Bound constrained nonlinear least squares
+# [Bound constrained nonlinear least squares](@id bc_nls_pb)
 
 In this part we see how to solve problems of the form:
 ```math
