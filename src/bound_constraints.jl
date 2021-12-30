@@ -11,6 +11,8 @@ Presence of `NaN` component and the ``l\\le u`` condition is checked
 at construction time. Note however that some components can be
 infinite.
 
+# Constructors
+
 The following constructors are available:
 
 - Construct ``[0.0,1.0]^n`` 
@@ -26,6 +28,18 @@ BoundConstraints(T,n)
 BoundConstraints(l,u)
 ```
 
+# Related functions
+
+- [`Base.eltype(bc::BoundConstraints{ELT}) where ELT`](@ref) 
+- [`Base.axes(bc::BoundConstraints)`](@ref) 
+- [`Base.length(bc::BoundConstraints)`](@ref) 
+- [`Base.size(bc::BoundConstraints)`](@ref) 
+- [`in(x::AbstractArray{<:Real,N},bc::BoundConstraints{<:Real,N}) where N`](@ref) 
+- [`lower_bound(bc::BoundConstraints)`](@ref) 
+- [`upper_bound(bc::BoundConstraints)`](@ref) 
+- [`project!(x::AbstractArray{<:Real,N},bc::BoundConstraints{<:Real,N}) where N`](@ref) 
+- [`Base.:-(bc::BoundConstraints,τ::AbstractArray)`](@ref) 
+- [`Base.:+(bc::BoundConstraints,τ::AbstractArray)`](@ref) 
 """
 struct BoundConstraints{ELT<:Real,N,LBT<:AbstractArray{ELT,N},UBT<:AbstractArray{ELT,N}}
     _lb::LBT
@@ -91,7 +105,7 @@ Check if ``x\\in [l,u]``
 
 See: [` BoundConstraints`](@ref) 
 """
-function in(x::AbstractArray{<:Real,N},bc::BoundConstraints{<:Real,N}) where {N}
+function in(x::AbstractArray{<:Real,N},bc::BoundConstraints{<:Real,N}) where N
     size(x)==size(bc) && all(zip(bc._lb,x,bc._ub)) do (lbi,xi,ubi) begin lbi ≤ xi ≤ ubi end end
 end 
 
@@ -120,7 +134,7 @@ Project `x` such that ``x \\in [l,u]`` is fullfiled.
 
 See: [` BoundConstraints`](@ref) 
 """
-function project!(x::AbstractArray{<:Real,N},bc::BoundConstraints{<:Real,N}) where {N}
+function project!(x::AbstractArray{<:Real,N},bc::BoundConstraints{<:Real,N}) where N
     @assert size(x) == size(bc)
     for (idx,(lb_idx,ub_idx)) in enumerate(zip(bc._lb,bc._ub))
         @inbounds x[idx]=max(lb_idx,min(x[idx],ub_idx))
@@ -136,8 +150,10 @@ end
 
 import Base: +, -
 @doc raw""" 
-
-    Translate bound constraints
+```julia
+Base.:-(bc::BoundConstraints,τ::AbstractArray)
+```
+Translate bound constraints
 
 ```math
 [a-τ,b-τ] = [a,b]-τ
@@ -148,8 +164,10 @@ See: [` BoundConstraints`](@ref)
 Base.:-(bc::BoundConstraints,τ::AbstractArray) = BoundConstraints(lower_bound(bc).-τ,upper_bound(bc).-τ)
     
 @doc raw""" 
-
-    Translate bound constraints
+```julia
+Base.:+(bc::BoundConstraints,τ::AbstractArray)
+```
+Translate bound constraints
 
 ```math
 [a+τ,b+τ] = [a,b]+τ
