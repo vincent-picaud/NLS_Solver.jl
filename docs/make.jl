@@ -15,6 +15,11 @@ makedocs(;
                                 ),
     pages=[
         "index.md",
+        "Getting Started" => [
+            "unconstrained_nls.md",
+            "nonlinear_regressions.md",
+        ],
+        
         # "Documentation" => [
         #     "bound_constraints.md",
         #     "Quadratic Solver" => [

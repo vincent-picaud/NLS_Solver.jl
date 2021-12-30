@@ -22,9 +22,9 @@ result = solve(nls, θ_init, conf)
 
 # Same example without the do...end syntax ****************
 #
-Rosenbrock(θ::AbstractVector{T}) where T = sqrt(2)* T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
+f_Rosenbrock(θ::AbstractVector{T}) where T = sqrt(2)* T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
 
-nls = create_NLS_problem_using_ForwardDiff(θ->Rosenbrock(θ),2 => 2);
+nls = create_NLS_problem_using_ForwardDiff(f_Rosenbrock,2 => 2);
  
 result = solve(nls, θ_init, conf)
 
@@ -81,8 +81,4 @@ result = solve(nls, θ_init, bc, conf)
 θ_solution = solution(result)
 
 
-#
-# Rosenbrock(θ::AbstractVector{T}) where T = sqrt(2)* T[ 1-θ[1], 10*(θ[2]-θ[1]^2) ]
-#
-# nls = create_NLS_problem_using_ForwardDiff(θ->Rosenbrock(θ),2 => 2);
  
