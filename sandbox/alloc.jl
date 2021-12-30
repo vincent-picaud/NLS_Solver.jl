@@ -1,3 +1,17 @@
+# ################################################################
+#
+# CAVEAT: THIS EXAMPLE DOES NOT WORK YET
+#
+# REASON: the use of StaticArrays causes some problems:
+#         https://github.com/JuliaArrays/StaticArrays.jl/issues/971
+#        
+# NOTE:   Rosenbrock_static is simply an alias of Rosenbrock and not a
+#         static version of Rosenbrock as it should be.
+#
+# -> TO FIX
+#
+# ################################################################
+
 # An example to count alloc static vs dynamic arrays
 #
 using Pkg, BenchmarkTools
