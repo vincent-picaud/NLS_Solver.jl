@@ -91,8 +91,8 @@ result = solve(nls,θ_init,bc,conf)
 
 # Initial model ----------------
 #
-Y_init = map(X_i -> model(X_i,θ_init), X)
-plot!(X,Y_init,linewidth=3,label="initial model")
+# Y_init = map(X_i -> model(X_i,θ_init), X)
+# plot!(X,Y_init,linewidth=3,label="initial model")
 
 
 # Fitted model ----------------

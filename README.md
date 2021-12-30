@@ -5,3 +5,5 @@
 bound constrained nonlinear least squares problems. Please read the
 [documentation](https://vincent-picaud.github.io/NLS_Solver.jl/stable).
 
+![](https://github.com/vincent-picaud/NLS_Solver.jl/blob/main/docs/figures/fit.png)
+        
