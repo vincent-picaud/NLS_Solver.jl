@@ -1,3 +1,5 @@
+export LevenbergMarquardt_BC_Result 
+
 @doc raw"""
 
 ```julia

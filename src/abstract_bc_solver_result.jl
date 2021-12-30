@@ -1,6 +1,6 @@
-# ================================================================
-# Result abstraction for bound constrained problems
-# ================================================================
+export Abstract_BC_Solver_Result
+
+# Result abstraction for bound constrained problems ================
 #
 # For the moment only use an alias as we do not have specific methods
 #

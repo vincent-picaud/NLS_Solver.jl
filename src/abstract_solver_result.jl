@@ -1,8 +1,7 @@
+export Abstract_Solver_Result
 export converged, iteration_count, objective_value, solution
 
-# ================================================================
-# Result abstraction for unconstrained problem
-# ================================================================
+# Result abstraction for unconstrained problem ================
 #
 @doc raw"""
 ```julia

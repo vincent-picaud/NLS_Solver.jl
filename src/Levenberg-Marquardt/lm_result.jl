@@ -1,3 +1,5 @@
+export LevenbergMarquardt_Result
+
 @doc raw"""
 ```julia
 struct LevenbergMarquardt_Result{T<:Real} <: Abstract_Solver_Result
