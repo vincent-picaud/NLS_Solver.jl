@@ -20,7 +20,7 @@ Compared to the unconstrained case, there are essentially two differences:
 - the `solve()` function has an extra parameter, `bc` that store bound constraints.
 - The solver category is different and `Abstract_Solver_Conf`, it replaced by `Abstract_BC_Solver_Conf`, where `BC` stands for bound constrained.
 
-Furthers details can be found there: [`solve(nls::AbstractNLS, θ_init::AbstractVector, bc::BoundConstraints, conf::Abstract_BC_Solver_Conf)`](@ref)
+Further details can be found there: [`solve(nls::AbstractNLS, θ_init::AbstractVector, bc::BoundConstraints, conf::Abstract_BC_Solver_Conf)`](@ref)
 
 You can reproduce the results below using `sandbox/example_Rosenbrock.jl`
 

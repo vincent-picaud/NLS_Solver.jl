@@ -159,7 +159,7 @@ Y_solution = map(X_i -> model(X_i,θ_solution), X)
 plot!(X,Y_solution,linewidth=3,label="fitted model")
 ```
 
-We can get furthers information from the `result` structure:
+We can get further information from the `result` structure:
 
 ```@example session
 iteration_count(result)
