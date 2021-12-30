@@ -45,6 +45,15 @@ Pages = [
 Depth = 3
 ```
 
+## Detailed documentation
+
+```@contents
+Pages = [
+    "api.md",
+]
+Depth = 3
+```
+
 ## Algorithms and references 
 
 For the moment two methods are implemented. The classical

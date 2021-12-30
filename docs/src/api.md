@@ -1,6 +1,6 @@
-# API index 
+# API 
 
-## API index 
+## Index 
 
 The global API index is as follows:
 
