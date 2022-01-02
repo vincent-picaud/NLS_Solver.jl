@@ -13,19 +13,25 @@ In this part we see how to solve problems of the form:
 \min\limits_{\theta} \frac{1}{2}\|r(\theta)\|^2
 ```
 
-For that we have to call the [`solve(nls::AbstractNLS, θ_init::AbstractVector, conf::Abstract_Solver_Conf)`](@ref).
+For that we have to call the
 
-One must define:
-- an [`AbstractNLS`](@ref) instance, this is the object of the
-  [Problem definition](@ref rosenbrock_nls) section
-- an [`Abstract_Solver_Conf`](@ref) instance, this is the object of the
-  [Choose a solver](@ref lm_solver_cong) section
+[`solve(nls::AbstractNLS, θ_init::AbstractVector, conf::Abstract_Solver_Conf)`](@ref) 
 
-You can reproduce the results below using `sandbox/example_Rosenbrock.jl`
+function.
+
+Where:
+- [Problem definition](@ref rosenbrock_nls) section shows how to
+  create an [`AbstractNLS`](@ref) instance,
+- [Choose a solver](@ref lm_solver_cong) section shows how to create
+   an [`Abstract_Solver_Conf`](@ref) instance.
+
+You can reproduce the results below using the
+`sandbox/example_Rosenbrock.jl` file.
+
 
 ## [Problem definition](@id rosenbrock_nls)
 
-For this example we will use the classical Rosenbrock function:
+This example uses the classical Rosenbrock function:
 
 ```math
 (\theta_1,\theta_2) \mapsto (1-\theta_1)^2 + 100(\theta_2-\theta_1^2)^2
@@ -37,7 +43,11 @@ which can be viewed as a nonlinear least squares problem, with:
 \frac{1}{2}\|r(\theta)\|^2\text{ where }r = \sqrt{2} \left( \begin{array}{c}  1-\theta_1 \\ 10(\theta_2-\theta_1^2) \end{array} \right)
 ```
 
-The first task is to wrap the problem. The easiest way is to let the [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl) package computes the Jacobian. In that case you only have to provide the objective function. For that call the [`create_NLS_problem_using_ForwardDiff`](@ref) :
+The first task is to wrap this problem. The easiest way is to provide
+the residue function ``r`` and let the
+[ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl) package
+computes its Jacobian. This is the role of the
+[`create_NLS_problem_using_ForwardDiff`](@ref) wrapper:
 
 ```@example session 
 nls = create_NLS_problem_using_ForwardDiff(2 => 2) do θ
@@ -69,22 +79,23 @@ The returned `nls` is an instance of [`AbstractNLS`](@ref).
 
 !!! note 
     If you do not want to use `create_NLS_problem_using_ForwardDiff` you can directly sub-type
-    `AbstractNLS` by defining all the required method. This is
+    `AbstractNLS` by defining all the required methods. This is
     described in [direct sub-typing of AbstractNLS](@ref nls_subtyping)
 
 ## [Choose a solver](@id lm_solver_cong)
 
-Algorithm parameters are defined by sub-typing
-[`Abstract_Solver_Conf`](@ref). This structure is then used to
-identify the selected algorithm. For the moment there is only one
+The algorithm and its parameters are defined by sub-typing
+[`Abstract_Solver_Conf`](@ref). For the moment there is only one
 implementation, the classical Levenberg-Marquardt method:
 
 ```@example session
 conf = LevenbergMarquardt_Conf()
+nothing # hide
 ```
+You can have a look at [`LevenbergMarquardt_Conf`](@ref) for further details.
 
-We also need a starting point for the ``\theta`` parameter vector. We
-can create a zero filled vector:
+We also need a starting point for the ``\theta`` parameter vector,
+here we create a zero filled vector:
 
 ```@example session
 θ_init = zeros(parameter_size(nls))
@@ -92,8 +103,8 @@ can create a zero filled vector:
 
 ## The `solve()` function
 
-To solve the problem you simply have to call the `solve()` function.
-For unconstrained problems, this function has the following prototype
+To solve the problem one must call the `solve()` function. For
+unconstrained problems, this function has the following prototype
 
 ```julia
 function solve(nls::AbstractNLS,
@@ -105,6 +116,7 @@ In our case this gives
 
 ```@example session
 result = solve(nls, θ_init, conf)
+nothing # hide
 ```
 
 ## Using solver result
@@ -112,13 +124,13 @@ result = solve(nls, θ_init, conf)
 The `solve()` function returns a [`Abstract_Solver_Result`](@ref) sub-typed
 structure that contains algorithm result.
 
-In peculiar you can check if the method has converged
+In peculiar you can check if the method has converged: 
 
 ```@example session
 @assert converged(result)
 ```
 
-and get the optimal θ
+and get the founded solution: 
 
 ```@example session
 θ_solution = solution(result)
@@ -126,15 +138,15 @@ and get the optimal θ
 
 ## [Annex: direct sub-typing of `AbstractNLS`](@id nls_subtyping)
 
-To wrap the objective function, you can sub-type `AbstractNLS`. In
-that case, you have to define everything, including the function that
-computes the Jacobian.
+To define a nonlinear least squares problem, you can sub-type
+`AbstractNLS`. In that case, you have to define everything, including
+the function that computes the residue Jacobian.
 
 More precisely, you have to define 4 methods:
-- `parameter_size` : returns the ``θ`` parameter vector length
-- `residue_size` : returns the ``r`` residue vector length
-- `eval_r` : computes the residue ``r`` value
-- `eval_r_J` : computes the residue ``r`` value and its Jacobian
+- `parameter_size`: returns the ``θ`` parameter vector length
+- `residue_size`: returns the ``r`` residue vector length
+- `eval_r`: computes the residue ``r`` value
+- `eval_r_J`: computes the residue ``r`` value and its Jacobian
   matrix wrt to ``\theta``.
 
 For the Rosenbrock function this gives:
@@ -166,7 +178,7 @@ end
 nothing # hide
 ```
 
-All the remaining parts are identical:
+All the remaining parts are identical to the previously seen steps:
 
 ```@example session
 nls = Rosenbrock()
@@ -174,9 +186,10 @@ nls = Rosenbrock()
 conf = LevenbergMarquardt_Conf()
 θ_init = zeros(parameter_size(nls))
 result = solve(nls, θ_init, conf)
+nothing # hide
 ```
 
-We can check that we find the same solution:
+The solution is hopefully identical to the one we found before:
 ```@example session
 θ_solution = solution(result)
 ```

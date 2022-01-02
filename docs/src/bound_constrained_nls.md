@@ -18,15 +18,20 @@ In this part we see how to solve problems of the form:
 
 Compared to the unconstrained case, there are essentially two differences: 
 - the `solve()` function has an extra parameter, `bc` that store bound constraints.
-- The solver category is different and `Abstract_Solver_Conf`, it replaced by `Abstract_BC_Solver_Conf`, where `BC` stands for bound constrained.
+- The solver category is different and `Abstract_Solver_Conf` is
+  replaced by `Abstract_BC_Solver_Conf`, (where `BC` stands for bound
+  constrained).
 
-Further details can be found there: [`solve(nls::AbstractNLS, θ_init::AbstractVector, bc::BoundConstraints, conf::Abstract_BC_Solver_Conf)`](@ref)
+Further details can be found there:
 
-You can reproduce the results below using `sandbox/example_Rosenbrock.jl`
+[`solve(nls::AbstractNLS, θ_init::AbstractVector, bc::BoundConstraints, conf::Abstract_BC_Solver_Conf)`](@ref)
+
+As before, you can reproduce the results using the
+`sandbox/example_Rosenbrock.jl` file.
 
 ## Problem definition
 
-Identical to the [unconstrained case](@ref rosenbrock_nls). We have:
+Identical to the [unconstrained case](@ref rosenbrock_nls):
 
 ```@example session 
 nls = create_NLS_problem_using_ForwardDiff(2 => 2) do θ
@@ -37,28 +42,28 @@ nothing # hide
 
 ## Choose a solver
 
-Algorithm parameters are defined by sub-typing
-[`Abstract_BC_Solver_Conf`](@ref). This structure is then used to
-identify the selected algorithm. For the moment there is only one
-implementation, the a bound constrained version of the classical
+Algorithm and its parameters are defined by sub-typing
+[`Abstract_BC_Solver_Conf`](@ref). For the moment there is only one
+implementation, a bound constrained version of the classical
 Levenberg-Marquardt method:
 
 ```@example session
 conf = LevenbergMarquardt_BC_Conf()
+nothing # hide
 ```
 
-We also need a starting point for the ``\theta``. Here we start at
-point ``(3,3)``:
+We also need a starting point for the unknown parameter vector
+``\theta``. Here we start at point ``(3,3)``:
 
 ```@example session
 θ_init = Float64[3,3]
+nothing # hide
 ```
 
 ## The `solve()` function
 
-To solve the problem you simply have to call the `solve()` function.
-For bound constrained problems, this function has the following
-prototype
+To solve the problem one must call the `solve()` function.  For bound
+constrained problems, this function has the following prototype:
 
 ```julia
 function solve(nls::AbstractNLS,
@@ -67,7 +72,9 @@ function solve(nls::AbstractNLS,
                conf::Abstract_Solver_Conf)::Abstract_Solver_Result
 ```
 
-In our case, if we want ``2 \le \theta_i \le 4`` this gives
+There is an extra `bc` argument which is used to define bound
+constraints. By example if constraints are ``2 \le \theta_i \le 4`` we
+can proceed as follows:
 
 ```@example session
 θl = Float64[2,2]
@@ -76,6 +83,7 @@ In our case, if we want ``2 \le \theta_i \le 4`` this gives
 bc = BoundConstraints(θl,θu)
 
 result = solve(nls, θ_init, bc, conf)
+nothing # hide
 ```
 
 ## Using solver result
@@ -83,14 +91,20 @@ result = solve(nls, θ_init, bc, conf)
 The `solve()` function returns a [`Abstract_BC_Solver_Result`](@ref) sub-typed
 structure that contains algorithm result.
 
-In peculiar you can check if the method has converged
+You can check if the method has converged
 
 ```@example session
 @assert converged(result)
 ```
 
-and get the optimal θ
+get the optimal ``\theta``
 
 ```@example session
 θ_solution = solution(result)
+```
+
+and its associated objective function value 
+
+```@example session
+objective_value(result)
 ```

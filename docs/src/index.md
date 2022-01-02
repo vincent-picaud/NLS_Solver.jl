@@ -8,16 +8,18 @@ using NLS_Solver
 
 # Introduction
 
-**NLS_Solver.jl** is a pure Julia package to solve unconstrained and
-bound constrained nonlinear least squares problems.
+**NLS_Solver.jl** is a pure Julia package that solves:
 
 - classical nonlinear least squares:
 ```math
 \min\limits_{\theta} \frac{1}{2}\|r(\theta)\|^2
 ```
-- bound constrained nonlinear least squares
+- bound constrained nonlinear least squares:
 ```math
-\min\limits_{\theta_l\le\theta\le\theta_u} \frac{1}{2}\|r(\theta)\|^2
+\begin{align*}
+\min\limits_{\theta} & \frac{1}{2}\|r(\theta)\|^2 \\
+                     & \theta_l\le\theta\le\theta_u
+\end{align*}
 ```
 
 ## Usage
@@ -26,15 +28,15 @@ This package is easy to use. Problems are solved by calling a generic
 `solve()` function of the form:
 
 ```julia
-solve(problem, algorithm_conf)::algorithm_result
+solve(problem, algorithm_conf) -> algorithm_result
 ```
 
-- **problem** is problem dependant data
-- **algorithm_conf** defines the chosen algorithm
-- **algorithm_result** is a structure that contains the
-  result.
+- **problem** are problem dependant data,
+- **algorithm_conf** defines the chosen algorithm,
+- **algorithm_result** is the returned structure that stores the
+  solver result.
 
-Detailed examples are provided belows:
+Detailed examples are provided below:
 
 ```@contents
 Pages = [
@@ -62,7 +64,7 @@ Levenberg-Marquardt method for bound constrained problems.
 
 These implementations are mainly based on these references:
 
-- Madsen, N. (). Methods For Non-Linear Least Squares Problems.
+- Madsen, N. (2004). Methods For Non-Linear Least Squares Problems.
   [imm3215.pdf](http://www2.imm.dtu.dk/pubdb/edoc/imm3215.pdf) 
   
   This reference is a must read about nonlinear least squares
@@ -80,5 +82,6 @@ These implementations are mainly based on these references:
   14(1), 35–52. [epubs.siam.org](http://dx.doi.org/10.1137/s1052623400376135)
 
   This reference presents an efficient method to solve bound
-  constrained quadratic problems.
+  constrained quadratic problems. This is the method we use in our
+  modified Levenberg-Marquardt method.
 

@@ -13,10 +13,10 @@ gr()
 # Nonlinear regressions
 
 This **NLS_Solver.jl** package is a generic nonlinear least squares
-solver. However a very common use of this kind of solver is nonlinear
-regression. In this tutorial we show how this package can be used in
-this context. You can reproduce the computation thanks to
-`sandbox/nonlinear_regression.jl`.
+solver. However a common use case of this kind of solver is for
+performing nonlinear regressions. In this tutorial we show how this
+package can be used in this context. You can reproduce the computation
+thanks to `sandbox/nonlinear_regression.jl`.
 
 ## Synthetic data
 
@@ -89,7 +89,7 @@ plot!(X,Y_true,linewidth=3,linestyle=:dot,label="true signal")
 
 ## Solve the problem
 
-Now we solve the problem in as we have done for [Bound constrained
+Now we solve the problem as we have done for [Bound constrained
 nonlinear least squares](@ref bc_nls_pb).
 
 The problem dimensions are:
@@ -113,23 +113,23 @@ The initial guess is the  vector ``\mathbf{1}``.
 
 ```@example session
 θ_init = ones(n_θ)
-nothing # hide 
+nothing # hide
 ```
 
 !!! note
     You can call the `solve()` function with an unfeasible initial vector θ. 
-	(where ==unfeasible== means that the bound constraints are not fulfilled). 
+	(where =unfeasible= means that the bound constraints are violated). 
 
-Then we choose the solver (only one choice for the moment):
+Then we choose the solver: 
 ```@example session
 conf = LevenbergMarquardt_BC_Conf()
-nothing # hide 
+nothing # hide
 ```
 
 We define the nonlinear least squares problem from the `residue()` function:
 ```@example session
 nls = create_NLS_problem_using_ForwardDiff(θ->residue(X,Y_noisy,θ),n_θ => n_sample)
-nothing # hide 
+nothing # hide
 ```
 The residue Jacobian is computed using automatic differentiation.
 
@@ -172,7 +172,7 @@ objective_value(result)
 !!! note 
     In the future I will add gradient, Hessian and multipliers at
     the solution.  However, please note that in the constrained case
-    you cannot use ``(J^t.J)^{-1}`` directly to estimate your
+    you cannot use ``(J^tJ)^{-1}`` directly to estimate your
     parameter uncertainties.
 
 ## More fit examples
@@ -180,4 +180,4 @@ objective_value(result)
 This **NLS_Solver.jl** package is used by the
 [NLS_Fit.jl](https://github.com/vincent-picaud/NLS_Fit.jl) package
 which is dedicated to peak fitting in spectrometry. You will find
-there other examples of model fitting.
+there other examples of model fittings.
